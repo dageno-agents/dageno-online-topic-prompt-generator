@@ -1,0 +1,123 @@
+---
+name: geo-topic-generate
+description: 根据品牌网站 URL 自动调研并提取用于 GEO 监控的核心产品/品牌主题（Topic），输出带 focus 等级和 confidence 分数的结构化主题列表。生成前会先联网调研品牌，无需传入品牌摘要。当用户需要为某个品牌生成 GEO 监控主题、提取可监控的用户面向主题时使用。
+---
+
+# GEO Topic Generate
+
+根据品牌网站自动调研并抽取面向用户、可监控的核心主题（Topic），用于 GEO（Generative Engine Optimization）监控。品牌上下文由内置的品牌调研流程联网获取，无需调用方传入品牌摘要。
+
+## 输入
+
+| 字段 | 说明 |
+|------|------|
+| `langCode` | 目标语言代码，如 `en-US`、`zh-CN`，默认 `en-US` |
+| `topicCount` | 需要生成的主题数量，默认 5 |
+| `websiteURL` | 品牌官网 URL / domain |
+| `brandPromptMode` | 后续 prompt 是否允许品牌词：`exclude` / `include` / `brand_only` / `mixed`，默认 `exclude`。Topic 本身仍默认不含品牌名。 |
+
+- 先用 `langCode` 推导目标语言名称（如 `zh-CN` → Chinese，未知则默认 English）。
+- `currentDate` 取当前日期 `YYYY-MM-DD`。
+- **不再传入 `brandSummary`**：品牌摘要由下方品牌调研流程自动产出。
+
+## 第 0 步：品牌调研（必须先执行）
+
+生成任何主题之前，**必须先执行** [brand-research.md](brand-research.md) 中的完整品牌调研流程（基于 `websiteURL` 联网搜索），得到 Markdown 品牌摘要 `summary`。该 `summary` 即作为下方主题抽取的品牌上下文（`brandSummary`）。未先完成品牌调研就生成主题属于失败。
+
+## 任务
+
+抽取 **恰好 `topicCount` 个** 代表该品牌可监控、面向真实用户问题的 Topic Cluster。
+
+Topic 不是品牌官网上的功能标签，也不是营销口号；Topic 是一组真实用户会问 AI / Google 的业务问题集合。优先选择能承载 10-20 个高质量 prompt 的需求簇。
+
+## 输出语言要求（重要）
+
+- 所有 topic 名称必须使用目标语言书写。
+- 只输出 JSON，不要解释、不要 markdown、不要多余字段。
+- 输出必须严格匹配下方结构。
+
+## 主题要求
+
+### 先做内部需求建模（不要输出）
+生成 Topic 前必须先完成以下内部分析：
+
+1. **业务边界**：品牌卖什么、不卖什么、核心收入来自哪些产品/服务；不确定是否支持的场景默认排除。
+2. **角色矩阵**：识别 2-5 类真实搜索者，如最终用户、采购者、技术评估者、渠道商、代理商、本地消费者、内容读者。
+3. **JTBD / 任务矩阵**：每个角色最可能问 AI 的任务、痛点、购买触发、风险顾虑。
+4. **内容资产盘点**：从客户网站现有页面、导航、博客/学院/资源中心、帮助中心、产品清单、市场/品类页中抽取已覆盖内容主题。内容资产体现品牌过去的业务重心，必须用于校正 Topic。
+5. **内容缺口映射**：以“未来要写文章/做内容覆盖并追踪效果”为终点，识别现有内容已覆盖、覆盖不足、缺失但业务重要的细颗粒场景。
+6. **意图覆盖**：确保候选主题覆盖 problem-solution、recommendation、comparison、pricing/value、risk/validation、implementation/integration、alternative、local/availability、education/content 中适用的类型。
+7. **品牌词策略影响**：若 `brandPromptMode` 为 `include`、`brand_only` 或 `mixed`，候选主题必须能同时支持品牌验证类问题；若为 `exclude`，主题必须能在无品牌词场景下清楚表达品类需求。
+
+### 主题来源
+- 从以下信号推断：产品线、使用场景、客户痛点、购买信号、品类上下文、渠道、业务背景（来自第 0 步品牌调研产出的 `summary`）。
+- 用 `websiteURL`、产品页面、定价/案例/文档/FAQ/博客等站内信息作为品类与行业补充上下文。
+- 若品牌调研中含竞品、SEO 关键词、评论/社区/搜索结果信号，优先用这些需求侧证据校正官网营销语言。
+- 必须结合客户已有内容资产：产品/服务目录、博客/学院文章、术语库、课程、电子书、市场分析、帮助中心、费用/账户/平台页。不要只根据首页宏观定位生成 Topic。
+
+### 格式规则
+- 主题名：目标语言中的简洁名词短语；英语用 Title Case，2-5 个词；中文用自然业务短语。
+- 每个主题必须互不重叠、彼此区分。
+- 避免只用过宽品类词（如 "Software"、"Lighting"）或只用过窄功能词（如单个按钮/小功能）。
+- 优先选择能自然生成 10-20 个不同 prompt 的主题。
+
+### Topic 类型（字段 `ty`）
+取以下之一：
+- `product_category`：核心品类或产品线。
+- `use_case`：高价值业务使用场景。
+- `persona_need`：特定人群/角色的任务需求。
+- `purchase_decision`：价格、供应商选择、合同、保修、ROI 等成交前决策。
+- `risk_validation`：安全、质量、可靠性、合规、售后等风险确认。
+- `competitive_alternative`：替代方案、竞品比较、供应商选择。
+- `content_coverage`：为了未来文章、学院、帮助文档、SEO/GEO 内容覆盖而设计的细颗粒主题。
+
+### Focus 等级（字段 `f`）
+取 `High` / `Medium` / `Low` 之一：
+- High：核心产品或主要营收驱动品类；对品牌可见性至关重要。
+- Medium：重要但次要的产品领域或客户细分。
+- Low：小众、新兴或支撑性主题。
+
+### Confidence 分数（字段 `c`）
+0-100，表示该主题确实面向用户且可监控的置信度：
+- 90-100：在产品线或品牌摘要中有明确证据
+- 70-89：从品类或场景上下文强推断
+- 50-69：合理推断但不太确定
+- 50 以下：推测性，谨慎使用
+
+## 规避规则
+- 不使用模糊营销口号（如 "Innovation Solutions"）
+- 不使用过度抽象的管理术语（如 "Strategic Transformation"）
+- 主题名中不出现品牌名（自有或竞品）
+- 不用不同措辞重复同一主题
+- 不包含敏感、冒犯或不安全的词
+
+## 全局规则
+- 主题必须唯一
+- 只输出 JSON
+- JSON 之外无任何解释
+- 不添加 schema 以外的字段
+- 最终输出必须严格匹配此结构：
+
+```json
+{"ts":[{"t":"Topic Name","ty":"use_case","f":"High","c":95},{"t":"Another Topic","ty":"purchase_decision","f":"Medium","c":82}]}
+```
+
+## 最终检查清单
+- 恰好 `topicCount` 个主题？✓
+- 所有主题名都使用目标语言？✓
+- 任何主题都不含品牌名？✓
+- 没有重复主题？✓
+- 每个主题都能承载 10-20 个真实 prompt？✓
+- 是否覆盖核心角色、业务场景、购买决策和风险验证？✓
+- 是否结合了网站现有内容资产和未来内容缺口？✓
+- 仅 JSON、无多余字段？✓
+
+## Output Schema
+
+```
+ts: 数组
+  - t: string  — 核心主题名（2-4 词，Title Case，名词短语）
+  - ty: "product_category" | "use_case" | "persona_need" | "purchase_decision" | "risk_validation" | "competitive_alternative" | "content_coverage"
+  - f: "High" | "Medium" | "Low"  — focus 等级
+  - c: number (0-100)  — confidence 分数
+```
