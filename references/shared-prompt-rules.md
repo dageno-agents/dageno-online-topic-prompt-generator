@@ -18,12 +18,15 @@
 - prompt 的主语必须是用户、产品品类、或服务提供方（仅当行业依赖可信机构/提供方时适用，如 "law firm"、"moving company"）。
   - ❌ "do multilingual search companies offer annual discounts?"
   - ✅ "can I save money on multilingual search with annual billing?"
-- prompt 必须完全自包含且品类明确：
+- prompt 必须完全自包含且品类明确。Dageno 会把每条 prompt 作为**无上下文的独立日监控问题**发送给 ChatGPT / Perplexity / Gemini / Claude，因此每一条 prompt 都必须自己携带行业、品类或使用场景锚点，不能依赖 Topic 名、上一条 prompt、客户背景或人工说明补全语义：
   - 无指代词（"this"、"it"、"the tool"、"the platform"、"the service"）
   - 无模糊占位（"this industry"、"this category"）
-  - 无上下文的读者也能知道讨论的是什么产品品类
+  - 无上下文的读者也能知道讨论的是什么行业和产品/服务品类
+  - 对跨行业通用词（"supplier"、"vendor"、"procurement"、"platform"、"software"、"service"、"agency"、"manufacturer"、"cost"、"pricing"）必须加上行业或场景修饰词
   - ❌ "does the tool work offline?" / ❌ "what do Japanese blogs say about this industry?"
+  - ❌ "one-stop procurement cost vs multiple suppliers?" / ❌ "supplier with fast delivery?"
   - ✅ "can multilingual search work without internet connection?" / ✅ "what do Japanese blogs say about AI search tools?"
+  - ✅ "hotel one-stop procurement cost vs multiple suppliers?" / ✅ "hotel supplies supplier with fast delivery?"
 - 不用正式副词（"simultaneously"、"efficiently"、"seamlessly"）—— 改写为自然表达（"at the same time"、"quickly"、"easily"）。
 - 不写词典/教科书式问题 —— 始终锚定用户情境或目标。
   - 测试：这个 prompt 更像出现在 FAQ 页面而非搜索框？若是，围绕用户真实情境重写。

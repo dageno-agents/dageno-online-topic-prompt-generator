@@ -130,6 +130,8 @@ Which [product category] is best for [scenario]?
 [solution type] alternatives for [pain point]
 ```
 
+Each prompt must be understandable on its own. Dageno monitors prompts independently, without Topic names or prior chat context, so cross-industry terms like `supplier`, `vendor`, `procurement`, `platform`, `service`, `manufacturer`, `cost`, and `pricing` must include the industry/category/use-case anchor inside the prompt itself.
+
 The rule of thumb:
 
 **At least 80% of prompts should be capable of producing a recommendation, comparison, review, pricing, implementation, risk, vendor, or alternative answer.**
@@ -240,4 +242,3 @@ Keep private:
 ## License
 
 MIT
-

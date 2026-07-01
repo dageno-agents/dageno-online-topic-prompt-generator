@@ -51,17 +51,21 @@ Weak:
 
 Prompts should sound like real user queries.
 
+Each prompt must also work as a standalone monitoring query. Dageno sends prompts one by one without the Topic name, prior chat, brand context, or human explanation. If a prompt uses cross-industry words like `supplier`, `vendor`, `procurement`, `platform`, `service`, `manufacturer`, `cost`, or `pricing`, add the industry/category/use-case anchor inside the prompt itself.
+
 Good:
 
 - `Best AI search visibility platforms for SaaS teams`
 - `Which barber shops offer same-day beard trim appointments?`
 - `Portable power station pricing and warranty comparison`
+- `Hotel one-stop procurement cost vs multiple suppliers?`
 
 Weak:
 
 - `What is AI visibility?`
 - `This platform feature overview`
 - `Product workflow benefits`
+- `One-stop procurement cost vs multiple suppliers?`
 
 Pure educational prompts are allowed, but they should not dominate the monitoring set.
 
@@ -77,4 +81,3 @@ Fallback is acceptable only when:
 Fallback output must include a visible warning.
 
 Do not present fallback as a final, client-ready result without human review.
-

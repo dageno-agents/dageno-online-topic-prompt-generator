@@ -196,6 +196,7 @@ Dageno monitors whether AI answers mention brands, competitors, products, vendor
 Rules:
 
 - At least 80% of prompts should naturally trigger product/provider/brand recommendations, comparisons, alternatives, reviews, pricing, risk validation, implementation, vendor selection, or purchase decisions.
+- Every prompt must stand alone as a no-context monitoring query. Dageno sends each prompt independently, so generic words such as `supplier`, `vendor`, `procurement`, `platform`, `service`, `manufacturer`, `cost`, or `pricing` must include the relevant industry/category/use-case anchor inside the prompt itself.
 - Pure `education_content` prompts are allowed, but default to at most 1 per Topic unless the category is media/community/content-led.
 - Add 4-5 extra BOFU decision prompts per Topic beyond the base prompt count.
 - Extra decision prompts should use best/top/provider/vendor/comparison/review/pricing style language.
@@ -252,6 +253,8 @@ Before final delivery:
 - Are Topics free of brand names by default?
 - Are prompts grouped by Topic?
 - Are prompts mostly high-intent and monitoring-useful?
+- Does every prompt remain clear if sent alone with no Topic, brand, or prior chat context?
+- Do cross-industry terms like supplier/vendor/procurement/platform/service/manufacturer/cost/pricing include an industry/category anchor?
 - Do prompts avoid unsupported features and out-of-scope claims?
 - Are brand terms excluded when `includeBrandTerms=false`?
 - Are competitor names excluded from generic prompts?
