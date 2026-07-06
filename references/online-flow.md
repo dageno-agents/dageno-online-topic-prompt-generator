@@ -20,11 +20,16 @@ Input body:
   "topicCount": 7,
   "promptCount": 10,
   "crawlDepth": 6,
+  "brandPromptMode": "exclude",
   "includeBrandTerms": false,
+  "targetCountries": ["United States"],
+  "businessLines": [],
   "openrouterApiKey": "",
   "llmModel": "anthropic/claude-sonnet-4.6"
 }
 ```
+
+`includeBrandTerms` is a legacy boolean. If `brandPromptMode` is absent and `includeBrandTerms=true`, treat it as `brandPromptMode=include`.
 
 Output:
 
@@ -49,6 +54,14 @@ Output:
   },
   "pages": [],
   "externalSignals": [],
+  "categoryDemandSignals": [],
+  "competitorMap": [],
+  "evidenceSources": [],
+  "qaReport": {
+    "passed": true,
+    "errors": [],
+    "warnings": []
+  },
   "content": "Markdown Topic/Prompt output"
 }
 ```
@@ -82,10 +95,16 @@ Before Topic generation, call a model with website crawl evidence and external s
   "targetUsers": ["specific buyers/users"],
   "jobsToBeDone": ["real user jobs and use cases"],
   "decisionCriteria": ["criteria buyers compare before choosing"],
+  "targetCountries": ["countries or markets supported or inferred from evidence"],
+  "businessLines": ["specific product/service lines"],
+  "differentiators": ["specific advantages, tradeoffs, or positioning angles supported by evidence"],
+  "outOfScope": ["features, markets, claims, or segments not supported by evidence"],
   "competitors": ["competitors, alternatives, substitute providers, platforms, directories, or comparison sources"],
   "searchQueries": ["5-8 search queries that would find more competitors/reviews/category context"],
+  "categoryDemandQueries": ["5-12 non-branded category demand queries for best/review/pricing/alternative/integration/community"],
   "topicSeeds": ["4-10 high-value GEO topic clusters based on real buyer questions"],
   "suggestedTopicCount": 3,
+  "evidenceSources": [],
   "evidence": ["short evidence notes from crawl/search"],
   "warnings": ["uncertainties or missing evidence"]
 }
@@ -97,9 +116,54 @@ Important model instructions:
 - If crawl evidence is weak, use domain name and external search results, but lower confidence.
 - Do not force the site into SaaS, VPS, web scraping, AI PPT, or any pre-existing category unless evidence proves it.
 - Topic seeds must reflect real user/business scenarios, not generic product labels.
+- Differentiators must be concrete enough to guide competitor and prompt design.
 - For local services, topic seeds should reflect location, booking, price, reviews, service menu, and trust.
 - For ecommerce, topic seeds should reflect product selection, comparison, use cases, price, reviews, safety, and alternatives.
 - For B2B tools, topic seeds should reflect vendor selection, workflow fit, integrations, pricing, risks, competitors, and implementation.
+
+## Category Demand Search
+
+Run category demand search after initial brand intelligence has identified category, personas, jobs-to-be-done, countries, and business lines.
+
+Use `references/category-demand-search.md` for query families and normalized result schema. The online service may plug in any web search provider; do not assume Codex/browser tools.
+
+Store normalized results in `categoryDemandSignals` and convert useful crawl/search/model observations into `evidenceSources`.
+
+## Competitor Model Prompt
+
+System:
+
+```text
+You are executing the Dageno Competitor Generation Skill exactly. Output only strict JSON.
+```
+
+User payload:
+
+```text
+currentDate: YYYY-MM-DD
+websiteURL: [domain]
+targetCountries: [countries]
+businessLines: [business lines]
+brandPromptMode: exclude|include|mixed|brand_only
+
+Brand Intelligence:
+[brand intelligence JSON]
+
+Category Demand Signals:
+[normalized search results]
+
+Evidence Sources:
+[evidenceSources]
+
+Return the competitorMap schema from references/competitor-generation.md.
+```
+
+Rules:
+
+- Generate competitors by country and business line, not only a global list.
+- Include direct, partial, substitute, marketplace/directory, and source competitors when relevant.
+- Explain overlap and differentiation angle for each competitor.
+- Do not invent competitors without evidence. Use lower confidence and warnings when evidence is weak.
 
 ## Topic Model Prompt
 
@@ -116,11 +180,20 @@ currentDate: YYYY-MM-DD
 langCode: en-US
 topicCount: [count]
 websiteURL: [domain]
-brandPromptMode: exclude|mixed
+brandPromptMode: exclude|include|mixed|brand_only
 
 The brand research step has been completed from crawling and search evidence. Use this summary as the brandSummary:
 
 [brand research summary]
+
+Category Demand Signals:
+[categoryDemandSignals]
+
+Competitor Map:
+[competitorMap]
+
+Evidence Sources:
+[evidenceSources]
 
 Return the exact JSON schema required by the Skill.
 ```
@@ -142,11 +215,20 @@ websiteURL: [domain]
 BasePromptsPerTopic: [base count]
 DecisionExpansionPromptsPerTopic: 4-5
 TotalPromptsPerTopic: [base + expansion]
-brandPromptMode: exclude|mixed
+brandPromptMode: exclude|include|mixed|brand_only
 brandPromptRatio: 0.3
 
 Brand Context / Summary:
 [brand research summary]
+
+Category Demand Signals:
+[categoryDemandSignals]
+
+Competitor Map:
+[competitorMap]
+
+Evidence Sources:
+[evidenceSources]
 
 Topics to generate. Use every topic exactly once and do not add extra topics:
 [{"t":"Topic","ty":"use_case","f":"High","c":95}]
@@ -163,6 +245,18 @@ Rules:
 - Do not output cross-industry ambiguous prompts such as "one-stop procurement cost vs multiple suppliers?" or "supplier with fast delivery?" Rewrite them with the category anchor, e.g. "hotel one-stop procurement cost vs multiple suppliers?".
 - At most 1 `education_content` prompt per Topic unless category is content-led.
 - If `brandPromptMode=exclude`, exclude owned brand, aliases, and competitor names from every prompt and keyword.
+- If `brandPromptMode=include`, include owned-brand validation prompts but do not include competitor names unless explicitly requested.
+- If `brandPromptMode=mixed`, competitive prompts must map to real competitors from `competitorMap`.
+
+## Prompt QA
+
+After prompt JSON is generated, run deterministic QA before rendering Markdown/CSV:
+
+```bash
+python3 scripts/prompt_qa.py output.json --brand "[Brand]" --mode "[brandPromptMode]"
+```
+
+Pass aliases and competitors as additional flags when available. Store the report in `qaReport`. If `qaReport.passed=false`, either repair and rerun generation or return the failures visibly.
 
 ## Fallback Policy
 

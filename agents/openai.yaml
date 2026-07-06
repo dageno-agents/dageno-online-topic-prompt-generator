@@ -1,3 +1,3 @@
 display_name: Dageno Online Topic Prompt Generator
-short_description: Exported live GEO Sales Workbench skill for turning any customer domain into Dageno-ready Topic clusters and high-intent Prompt libraries.
-default_prompt: Generate Dageno-ready Topic and Prompt monitoring assets from this customer domain. Crawl and search first, infer the real business with model-led brand intelligence, then output grouped Topics, high-intent prompts, metadata, and optional CSV.
+short_description: Generate evidence-backed GEO Topic, Prompt, and competitor maps from a customer domain.
+default_prompt: Generate Dageno-ready Topic, Prompt, and competitor monitoring assets from this customer domain. Crawl and search first, infer the real business, run category demand search, map competitors by country and business line, then output grouped Topics, high-intent prompts, evidence metadata, QA results, and optional CSV.

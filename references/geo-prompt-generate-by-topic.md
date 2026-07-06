@@ -26,6 +26,12 @@ description: 针对某个指定的品牌主题（Topic）生成搜索优化的 G
 
 生成任何 prompt 之前，**必须先执行** [brand-research.md](brand-research.md) 中的完整品牌调研流程（基于 `websiteURL` 联网搜索），得到 Markdown 品牌摘要 `summary`。该 `summary` 即作为下方品牌解析（步骤 A–E）和 prompt 生成的品牌上下文（Brand Context）。未先完成品牌调研就生成 prompt 属于失败。
 
+同时读取：
+
+- [category-demand-search.md](category-demand-search.md)：使用真实品类需求、搜索措辞、best/review/pricing/alternative/integration/community 信号。
+- [competitor-generation.md](competitor-generation.md)：使用国家、业务线、用户场景、差异化角度生成竞争与替代关系。
+- [evidence-schema.md](evidence-schema.md)：为 prompt 保留可复核证据。
+
 整体提示词结构：先做品牌调研（第 0 步）→ 内部品牌解析（步骤 A–E）→ 生成 prompt。
 
 ## 品牌解析（内部推理 — 不要输出）
@@ -51,6 +57,8 @@ description: 针对某个指定的品牌主题（Topic）生成搜索优化的 G
   - **TYPE D — Local / O2O Service**（实体位置、地理覆盖、预约或到店、本地信任信号）→ Early 15% / Mid 35% / Late 50%。注：晚期 prompt 须体现可用性、位置覆盖、预订、等待时间、本地信任，而非 SaaS 定价或功能对比。
   - **TYPE F — Content / Media / Community**（无传统购买漏斗，靠发现/推荐获客，留存与互动为主要转化目标，无付费计划作为主 CTA）→ Early 50% / Mid 30% / Late 20%。注：阶段重定义为 Early=discovery、Mid=engagement fit、Late=commitment。
   - 信号混合或模糊时，默认 TYPE B。将所选分布应用到全部 prompt 生成。
+- **H. 竞品和差异化策略（必须执行）**：从 `competitorMap` 中选择与当前 Topic、国家、业务线最相关的直接竞品、部分竞品、替代方案或 source competitor。将目标品牌的核心差异化转化为 prompt 角度，但遵守品牌词模式；`generic` 不包含品牌或竞品名，`mixed` 才能输出 competitor-name prompt。
+- **I. 证据映射（必须执行）**：每个 prompt 应能连接到品类需求、站内内容、竞品证据或明确推断。机器 JSON 中建议输出 `ev`。
 
 ## 输出语言要求（重要）
 所有内容（prompt、关键词）必须使用目标语言。JSON 输出中 `"l"` 字段设为 `langCode`。
@@ -77,7 +85,7 @@ JSON 输出中的 `"t"` 字段必须与用户提供的 `Topic` **逐字完全一
 - MOFU：对比、排障（"Best X for Y"、"X vs Y"）
 - BOFU：定价、API、集成（"X pricing"、"X API"）
 
-完整的 **Prompt Rules** 与 **Keyword Split Rules**（每个 prompt 必须全部通过）见 [shared-rules.md](shared-rules.md)，生成前务必先读。
+完整的 **Prompt Rules** 与 **Keyword Split Rules**（每个 prompt 必须全部通过）见 [shared-prompt-rules.md](shared-prompt-rules.md)，生成前务必先读。
 
 ## 5. 漏斗与意图保留
 - 保留每个 prompt 的漏斗字段 `"f"`，将每个 prompt 分类为 TOFU / MOFU / BOFU。
@@ -92,7 +100,7 @@ JSON 输出中的 `"t"` 字段必须与用户提供的 `Topic` **逐字完全一
 ## 7. 输出格式
 
 ```json
-{"ts":[{"t":"<EXACT_USER_TOPIC>","f":"High","c":95,"ps":[{"p":"prompt text here","l":"<langCode>","pt":"generic","it":"comparison","f":"MOFU","is":[{"i":"Commercial","s":85}],"kw":["keyword 1","keyword 2"]}]}]}
+{"ts":[{"t":"<EXACT_USER_TOPIC>","f":"High","c":95,"ps":[{"p":"prompt text here","l":"<langCode>","pt":"generic","it":"comparison","f":"MOFU","is":[{"i":"Commercial","s":85}],"kw":["keyword 1","keyword 2"],"ev":{"sourceIds":["src_014"],"geoMonitoringValue":"high","seoKeywordConfidence":"medium","warnings":[]}}]}]}
 ```
 
 ## Output Schema
@@ -112,4 +120,5 @@ ts: 数组
       - i: "Informational" | "Navigational" | "Commercial" | "Transactional"
       - s: int (0-100)  — 意图强度分数
     - kw: string[]  — 恰好 2 个关键词
+    - ev: object (optional) — evidence metadata from evidence-schema.md
 ```

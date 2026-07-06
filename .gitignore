@@ -2,10 +2,11 @@
 .env
 .env.*
 node_modules/
+__pycache__/
+*.pyc
 dist/
 build/
 outputs/
 *.log
 *.zip
 *.tar.gz
-

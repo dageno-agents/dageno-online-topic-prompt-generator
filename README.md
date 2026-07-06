@@ -22,6 +22,8 @@ The goal is to create prompts that are likely to make AI systems mention:
 - alternatives
 - implementation choices
 
+It can also generate a competitor map by country, business line, overlap type, and differentiation angle, then use that map to shape competitive Topics and Prompts.
+
 ## Why This Exists
 
 GEO monitoring only works when the prompts reflect how real users ask AI systems for help.
@@ -46,9 +48,11 @@ flowchart LR
   D --> E["External signals<br/>competitors, reviews, alternatives, community"]
   C --> F["Model-led brand intelligence"]
   E --> F
-  F --> G["Topic clusters<br/>business scenarios + buyer intent"]
-  G --> H["Prompt library<br/>high-intent monitoring prompts"]
-  H --> I["Dageno-ready output<br/>Markdown / CSV"]
+  F --> G["Category demand search<br/>best, review, pricing, alternative, integration"]
+  G --> H["Competitor map<br/>country + business line + differentiation"]
+  H --> I["Topic clusters<br/>business scenarios + buyer intent"]
+  I --> J["Prompt library<br/>high-intent monitoring prompts"]
+  J --> K["Dageno-ready output<br/>Markdown / CSV + QA"]
 ```
 
 The pipeline has six gates:
@@ -56,9 +60,11 @@ The pipeline has six gates:
 1. **Crawl** the real website.
 2. **Search** for category, competitor, review, and buying-decision context.
 3. **Infer** the actual business with a model, instead of forcing a fixed industry label.
-4. **Plan Topics** by buyer roles, jobs-to-be-done, content assets, and decision criteria.
-5. **Generate Prompts** that can trigger product/provider/brand mentions in AI answers.
-6. **Export** grouped Topic/Prompt tables for Dageno monitoring.
+4. **Find category demand** from non-branded best/review/pricing/alternative/integration/community searches.
+5. **Map competitors** by market, country, business line, overlap, and differentiation angle.
+6. **Plan Topics** by buyer roles, jobs-to-be-done, content assets, competitors, and decision criteria.
+7. **Generate Prompts** that can trigger product/provider/brand mentions in AI answers.
+8. **Run QA and export** grouped Topic/Prompt tables for Dageno monitoring.
 
 ## What It Produces
 
@@ -74,6 +80,7 @@ Example fields:
 | `ty` | Topic Cluster type |
 | `f` | Priority: High / Medium / Low |
 | `c` | Confidence score |
+| `ev` | Optional evidence metadata |
 
 Supported Topic types:
 
@@ -105,6 +112,13 @@ brandPromptMode = exclude
 ```
 
 That means prompts should not contain the customer's brand name, aliases, or competitor names unless the user explicitly asks for branded or mixed monitoring.
+
+Supported brand prompt modes:
+
+- `exclude`: generic non-brand monitoring.
+- `include`: generic plus owned-brand validation prompts.
+- `mixed`: generic, branded, and limited competitive prompts.
+- `brand_only`: owned-brand reputation/entity monitoring only.
 
 ## Why Prompt Intent Matters
 
@@ -191,13 +205,20 @@ dageno-online-topic-prompt-generator/
   SKILL.md
   agents/
     openai.yaml
+  scripts/
+    crawl_and_clean.py
+    prompt_qa.py
   references/
     online-flow.md
+    category-demand-search.md
+    competitor-generation.md
+    evidence-schema.md
     geo-topic-generate.md
     geo-prompt-generate-by-topic.md
     brand-research.md
     content-compress.md
     shared-prompt-rules.md
+    prompt-qa.md
     csv-output.md
   docs/
     agent-guide.md
@@ -216,8 +237,12 @@ If you are an AI coding agent:
 
 - Load `SKILL.md` first.
 - Load `references/online-flow.md` when implementing or debugging the hosted flow.
+- Load `references/category-demand-search.md` before external demand research.
+- Load `references/competitor-generation.md` before competitor generation.
+- Load `references/evidence-schema.md` when machine output needs reviewable evidence.
 - Load `references/geo-topic-generate.md` before generating Topics.
 - Load `references/geo-prompt-generate-by-topic.md` and `references/shared-prompt-rules.md` before generating Prompts.
+- Load `references/prompt-qa.md` before final QA.
 - Never rely on static industry templates without fresh domain evidence.
 
 ## Open-Core Boundary

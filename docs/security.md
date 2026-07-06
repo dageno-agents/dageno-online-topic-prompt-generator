@@ -26,7 +26,11 @@ ANTHROPIC_API_KEY
 ANTHROPIC_MODEL
 OPENAI_API_KEY
 OPENAI_MODEL
+DAGENO_CRAWL_ENDPOINT
+DAGENO_CRAWL_INSECURE
 ```
+
+`DAGENO_CRAWL_INSECURE=1` or `scripts/crawl_and_clean.py --insecure` is only for local environments with broken CA bundles. Do not enable it in production unless the crawl network is otherwise secured and the risk is accepted.
 
 Do not hardcode keys in source files, examples, docs, screenshots, or test fixtures.
 

@@ -7,13 +7,16 @@ This guide explains how an agent should execute the Skill.
 1. Normalize the input domain.
 2. Crawl the website and record attempted URLs.
 3. Search the web for brand/category/competitor/review context.
-4. Run model-led brand intelligence.
-5. Decide Topic count.
-6. Generate Topic JSON.
-7. Generate Prompt JSON for each Topic.
-8. Expand each Topic with 4-5 decision-stage prompts.
-9. Render grouped Markdown.
-10. Export CSV when requested.
+4. Run category demand search for non-branded best/review/pricing/alternative/integration/community queries.
+5. Run model-led brand intelligence.
+6. Generate country/business-line competitor map with differentiation angles.
+7. Decide Topic count.
+8. Generate Topic JSON with evidence metadata when machine output is needed.
+9. Generate Prompt JSON for each Topic.
+10. Expand each Topic with 4-5 decision-stage prompts.
+11. Run deterministic Prompt QA.
+12. Render grouped Markdown.
+13. Export CSV when requested.
 
 ## Brand Intelligence First
 
@@ -26,9 +29,25 @@ The first model call should identify:
 - what jobs-to-be-done matter
 - what criteria users compare
 - what the brand does not appear to support
+- what differentiates the brand from market leaders and substitutes
 - which competitors or substitute sources matter
 
 If this step fails, use rule fallback but label the output.
+
+## Search And Competitor Rules
+
+Do not stop at brand-name searches. Run category demand searches using real category, persona, pain, pricing, review, alternative, integration, and community language. See `references/category-demand-search.md`.
+
+Competitor generation should produce a map, not a flat list:
+
+- countries/markets
+- business lines
+- direct, partial, substitute, marketplace/directory, and source competitors
+- overlap reason
+- differentiation angle
+- evidence confidence
+
+Use `references/competitor-generation.md` and `references/evidence-schema.md`.
 
 ## Topic Rules
 
@@ -68,6 +87,8 @@ Weak:
 - `One-stop procurement cost vs multiple suppliers?`
 
 Pure educational prompts are allowed, but they should not dominate the monitoring set.
+
+After JSON generation, run `scripts/prompt_qa.py` when possible. If QA fails, repair the output or report the failures clearly.
 
 ## Fallback Rules
 
