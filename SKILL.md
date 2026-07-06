@@ -239,7 +239,7 @@ Dageno monitors whether AI answers mention brands, competitors, products, vendor
 Rules:
 
 - At least 80% of prompts should naturally trigger product/provider/brand recommendations, comparisons, alternatives, reviews, pricing, risk validation, implementation, vendor selection, or purchase decisions.
-- Every prompt must stand alone as a no-context monitoring query. Dageno sends each prompt independently, so generic words such as `supplier`, `vendor`, `procurement`, `platform`, `service`, `manufacturer`, `cost`, or `pricing` must include the relevant industry/category/use-case anchor inside the prompt itself.
+- Every prompt must stand alone as a no-context monitoring query. Dageno sends each prompt independently, so generic words such as `supplier`, `vendor`, `procurement`, `platform`, `service`, `manufacturer`, `account`, `course`, `demo account`, `cost`, or `pricing` must include the relevant industry/category/use-case anchor inside the prompt itself. For financial/trading/broker domains, each prompt should explicitly include an anchor such as `CFD`, `forex`, `broker`, `trading account`, `trading platform`, `leveraged trading`, a concrete traded asset, or an allowed brand term.
 - Pure `education_content` prompts are allowed, but default to at most 1 per Topic unless the category is media/community/content-led.
 - Add 4-5 extra BOFU decision prompts per Topic beyond the base prompt count.
 - Extra decision prompts should use best/top/provider/vendor/comparison/review/pricing style language.

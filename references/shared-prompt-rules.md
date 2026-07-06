@@ -22,11 +22,18 @@
   - 无指代词（"this"、"it"、"the tool"、"the platform"、"the service"）
   - 无模糊占位（"this industry"、"this category"）
   - 无上下文的读者也能知道讨论的是什么行业和产品/服务品类
+  - 每条 prompt 必须包含至少一个**业务上下文锚点**：具体行业、产品品类、服务类型、用户场景、或品牌词模式允许时的品牌名。不要只写通用对象，如 "account"、"platform"、"cost"、"course"、"demo account"、"technical analysis"。
   - 对跨行业通用词（"supplier"、"vendor"、"procurement"、"platform"、"software"、"service"、"agency"、"manufacturer"、"cost"、"pricing"）必须加上行业或场景修饰词
+  - 对金融/交易/经纪商类客户，prompt 中至少应出现 `CFD`、`forex`、`broker`、`trading account`、`trading platform`、`leveraged trading`、具体资产类别（如 `gold CFD`、`index CFD`）或品牌词模式允许时的品牌名。
   - ❌ "does the tool work offline?" / ❌ "what do Japanese blogs say about this industry?"
   - ❌ "one-stop procurement cost vs multiple suppliers?" / ❌ "supplier with fast delivery?"
+  - ❌ "what is the difference between raw spread and standard trading accounts?" / ❌ "how can I learn technical analysis systematically?"
+  - ❌ "how should beginners practice with a demo trading account?"
   - ✅ "can multilingual search work without internet connection?" / ✅ "what do Japanese blogs say about AI search tools?"
   - ✅ "hotel one-stop procurement cost vs multiple suppliers?" / ✅ "hotel supplies supplier with fast delivery?"
+  - ✅ "what is the difference between raw spread CFD accounts and standard CFD trading accounts?"
+  - ✅ "how can beginners learn technical analysis for forex and CFD trading systematically?"
+  - ✅ "how should beginners practice forex or CFD trading with a demo account before using a live account?"
 - 不用正式副词（"simultaneously"、"efficiently"、"seamlessly"）—— 改写为自然表达（"at the same time"、"quickly"、"easily"）。
 - 不写词典/教科书式问题 —— 始终锚定用户情境或目标。
   - 测试：这个 prompt 更像出现在 FAQ 页面而非搜索框？若是，围绕用户真实情境重写。

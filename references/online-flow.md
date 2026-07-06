@@ -242,6 +242,7 @@ Rules:
 - Extra prompts must be high-purchase-intent best/top/provider/vendor/comparison/review/pricing style questions.
 - At least 80% of prompts must naturally trigger product/provider/brand recommendations, comparisons, alternatives, reviews, pricing, risk validation, implementation vendor selection, or purchase decisions.
 - Every prompt is monitored independently with no prior context. Each prompt must include enough industry, category, or use-case language for the model to know the business context without reading the Topic name or brand summary.
+- Every prompt must include a business-context anchor: a concrete industry, product category, service type, user scenario, or allowed brand term. Do not ask vague cross-industry questions such as "raw spread vs standard accounts", "learn technical analysis systematically", or "practice with a demo account" unless the prompt explicitly says the relevant category, e.g. `CFD`, `forex`, `broker`, `trading account`, `trading platform`, `leveraged trading`, or a concrete asset for trading/broker domains.
 - Do not output cross-industry ambiguous prompts such as "one-stop procurement cost vs multiple suppliers?" or "supplier with fast delivery?" Rewrite them with the category anchor, e.g. "hotel one-stop procurement cost vs multiple suppliers?".
 - At most 1 `education_content` prompt per Topic unless category is content-led.
 - If `brandPromptMode=exclude`, exclude owned brand, aliases, and competitor names from every prompt and keyword.

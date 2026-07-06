@@ -26,7 +26,21 @@ VALID_IT = {
 }
 VALID_FUNNEL = {"TOFU", "MOFU", "BOFU"}
 AMBIGUOUS = {"this", "it", "this industry", "this category", "the tool", "the platform", "the service"}
-CROSS_INDUSTRY = {"vendor", "supplier", "procurement", "platform", "software", "service", "agency", "manufacturer", "cost", "pricing"}
+CROSS_INDUSTRY = {
+    "vendor",
+    "supplier",
+    "procurement",
+    "platform",
+    "software",
+    "service",
+    "agency",
+    "manufacturer",
+    "account",
+    "course",
+    "demo",
+    "cost",
+    "pricing",
+}
 
 
 def words(text: str) -> set[str]:
@@ -51,6 +65,12 @@ def main() -> int:
     parser.add_argument("--brand", action="append", default=[])
     parser.add_argument("--alias", action="append", default=[])
     parser.add_argument("--competitor", action="append", default=[])
+    parser.add_argument(
+        "--context-term",
+        action="append",
+        default=[],
+        help="Business/category anchors expected in each prompt, e.g. CFD, forex, broker, trading platform.",
+    )
     parser.add_argument("--mode", choices=["exclude", "include", "mixed", "brand_only"], default="exclude")
     args = parser.parse_args()
 
@@ -137,6 +157,9 @@ def main() -> int:
                     warnings.append(f"{prefix} may rely on ambiguous context: {term}")
                     break
 
+            if args.context_term and not contains_any(combined, args.context_term):
+                errors.append(f"{prefix} missing required business-context anchor")
+
             token_set = words(text)
             if token_set & CROSS_INDUSTRY and len(token_set) < 5:
                 warnings.append(f"{prefix} may lack category/use-case anchor for cross-industry term")
@@ -158,4 +181,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

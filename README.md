@@ -171,7 +171,7 @@ Which [product category] is best for [scenario]?
 [solution type] alternatives for [pain point]
 ```
 
-Each prompt must be understandable on its own. Dageno monitors prompts independently, without Topic names or prior chat context, so cross-industry terms like `supplier`, `vendor`, `procurement`, `platform`, `service`, `manufacturer`, `cost`, and `pricing` must include the industry/category/use-case anchor inside the prompt itself.
+Each prompt must be understandable on its own. Dageno monitors prompts independently, without Topic names or prior chat context, so cross-industry terms like `supplier`, `vendor`, `procurement`, `platform`, `service`, `manufacturer`, `account`, `course`, `demo account`, `cost`, and `pricing` must include the industry/category/use-case anchor inside the prompt itself. For trading or broker domains, vague questions like `raw spread vs standard accounts`, `learn technical analysis`, or `practice with a demo account` must be rewritten with anchors such as `CFD`, `forex`, `broker`, `trading account`, `trading platform`, `leveraged trading`, or a concrete traded asset.
 
 The rule of thumb:
 
