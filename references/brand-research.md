@@ -36,6 +36,51 @@ python3 scripts/crawl_and_clean.py "<用户站点 URL>"
 将证据分成 `confirmed`（页面明确出现）、`inferred`（从品类/场景强推断）、`unknown`（无证据，不用于生成高置信主题）。
 所有可复核证据用 [evidence-schema.md](evidence-schema.md) 的 `Evidence Source` 结构记录，后续 Topic、Prompt、竞品都应引用这些证据。
 
+## STEP 0.6 — 业务模式、经济中心与多假设判断（必须执行）
+
+不要只看页面上出现最多的产品名、功能词或导航栏目。很多客户官网规划并不清晰，页面可能同时堆叠多个业务、历史业务、SEO 栏目、产品目录和销售话术。先判断买家真正购买的“决策价值”，并评估“官网表达出来的业务”和“客户可能真正想占领的业务场景”是否一致。
+
+常见经济中心包括：
+
+- 单一产品/SKU：用户主要比较规格、价格、适配、评价和售后。
+- 软件/平台工作流：用户主要比较工作流效率、集成、权限、部署、成本和替代方案。
+- 本地服务：用户主要比较位置、服务项目、价格、预约、评价和可信度。
+- 专业服务：用户主要比较方法论、专家资历、案例、行业适配和交付结果。
+- 一站式采购/供应链整合：用户购买的是多品类采购简化、供应商整合、质量风险降低、定制能力、交期与总成本控制，而不是单个 SKU。
+- 项目交付/系统集成：用户购买的是完整方案、实施能力、风险控制、跨团队协同和最终结果。
+
+如果官网表达混乱或证据冲突，必须输出 2-4 个业务假设，而不是强行给一个确定行业：
+
+- `hypothesis`：可能的业务解释。
+- `confidence`：High / Medium / Low。
+- `evidence`：支持该假设的官网/搜索/需求侧证据。
+- `risk`：为什么该假设可能错误或不完整。
+- `topicImplication`：如果该假设成立，Topic 应如何规划。
+
+Topic 取舍规则：
+
+- High confidence：可作为核心 Topic 主线。
+- Medium confidence：如果商业价值高，可保留 1 个探索型 Topic。
+- Low confidence：只放入 warnings、content gaps 或后续需客户确认，不生成核心 Topic。
+- 当官网说了很多但核心不清晰时，优先围绕最清楚的 buyer JTBD、购买触发、风险验证和决策标准设计 Topic，而不是照抄页面栏目或产品名。
+
+当证据出现以下组合时，应优先考虑“一站式采购 / sourcing / supplier integration”模型：
+
+- broad catalog / multi-category / wholesale / bulk order / procurement / sourcing / one-stop / supplier network
+- supplier / manufacturer / factory / factory audit / quality control / sample approval / certification / ISO
+- OEM / ODM / private label / custom logo / custom packaging / design support
+- MOQ / payment terms / lead time / consolidated shipping / total landed cost
+- project opening / renovation / fit-out / OS&E / FF&E / developer / contractor
+
+此类业务的 Topic 不应拆成一堆孤立 SKU，而应围绕采购决策链：
+
+1. 一站式采购与多品类寻源：买家能否用一个供应商完成多品类采购。
+2. 核心品类组合包/复购包：只有当品类是信任入口、复购单元或项目包时才单独成 Topic。
+3. 项目开业/改造采购清单：买家如何按项目阶段采购、打包、交付。
+4. 定制品牌/OEM/设计配套：买家如何做 logo、包装、材质、主题一致性。
+5. 供应商质量与工厂验证：样品、认证、质检、产能、售后和真实性。
+6. 成本、MOQ、交期与集运：总 landed cost、付款条款、合并出货和交付风险。
+
 ## STEP 1 — 语言
 
 - `description` 和 `summary` 字段必须用 **English** 书写。

@@ -131,6 +131,31 @@ Run model-led brand research before Topic generation. The model must return:
 
 The model must not force the domain into SaaS, VPS, web scraping, AI PPT, or any previous category unless evidence proves it.
 
+Before Topic generation, the model must identify the brand's economic center of gravity: what decision value buyers are really purchasing. This may be a product/SKU, workflow, service outcome, risk reduction, supply-chain simplification, project delivery, or replacement of multiple vendors.
+
+Many customer websites are poorly planned, over-broad, under-written, or internally inconsistent. Do not assume the navigation structure equals the real business strategy. Compare:
+
+- crawl evidence from owned pages
+- external search evidence
+- category demand language
+- monetization cues
+- buyer roles
+- repeated decision criteria
+- content assets and content gaps
+
+If the website could plausibly mean several things, create 2-4 business hypotheses with confidence, evidence, risk, and Topic implications. Core Topics should follow the highest-confidence hypothesis. Medium-confidence hypotheses can contribute one exploratory Topic when commercially important. Low-confidence hypotheses should be shown as warnings or content gaps, not converted into core Topics.
+
+For one-stop procurement, sourcing, wholesale, manufacturer, OEM/ODM, private-label, or supplier-integration businesses, the core value is often reducing procurement complexity across multiple categories rather than selling one visible SKU. Use this procurement decision chain when evidence supports it:
+
+- one-stop procurement / multi-category sourcing
+- category bundles or replenishment packages
+- project opening, renovation, or launch procurement checklists
+- custom branding / OEM / design support
+- supplier quality and factory verification
+- cost, MOQ, lead time, payment terms, and consolidated shipping
+
+Do not hardcode any example company or vertical. Apply this only when crawl/search evidence supports the model.
+
 See `references/online-flow.md` for the exact JSON schema.
 
 ### 3. External Search And Category Demand Search
@@ -210,6 +235,7 @@ Guidance:
 - Multi-product DTC / hardware: usually 5-7 Topics.
 - SaaS / B2B software: usually 6-8 Topics.
 - Complex platform / marketplace / enterprise category: usually 7-10 Topics.
+- One-stop procurement / sourcing / supplier integration: usually 5-7 Topics, but the first Topic should represent the highest-level procurement value if evidence supports it. Product-bundle Topics are allowed only when they are buyer entry points, recurring purchase units, or project packages.
 
 ### 6. Prompt Generation
 

@@ -34,6 +34,15 @@
   - ✅ "what is the difference between raw spread CFD accounts and standard CFD trading accounts?"
   - ✅ "how can beginners learn technical analysis for forex and CFD trading systematically?"
   - ✅ "how should beginners practice forex or CFD trading with a demo account before using a live account?"
+- 对一站式采购 / sourcing / supplier integration / wholesale / OEM / manufacturer 类客户，prompt 必须同时带有采购品类或项目场景锚点。不要只写 "supplier"、"procurement"、"products"、"vendor"：
+  - ❌ "best one-stop procurement suppliers"
+  - ❌ "custom product manufacturer comparison"
+  - ❌ "supplier lead time comparison"
+  - ✅ "hotel supplies one-stop procurement supplier"
+  - ✅ "restaurant equipment OEM manufacturer comparison"
+  - ✅ "office furniture supplier lead time comparison"
+  - ✅ "custom packaging supplier with sample approval"
+  - ✅ "industrial parts total landed cost calculation"
 - 不用正式副词（"simultaneously"、"efficiently"、"seamlessly"）—— 改写为自然表达（"at the same time"、"quickly"、"easily"）。
 - 不写词典/教科书式问题 —— 始终锚定用户情境或目标。
   - 测试：这个 prompt 更像出现在 FAQ 页面而非搜索框？若是，围绕用户真实情境重写。
