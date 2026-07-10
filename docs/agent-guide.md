@@ -1,80 +1,94 @@
 # Agent Guide
 
-This guide explains how an agent should execute the Skill.
+This guide describes the mandatory execution order for an agent or hosted implementation.
 
-## Execution Order
+## Required Order
 
-1. Normalize the input domain.
-2. Crawl the website and record attempted URLs.
-3. Search the web for brand/category/competitor/review context.
-4. Run model-led brand intelligence.
-5. Decide Topic count.
-6. Generate Topic JSON.
-7. Generate Prompt JSON for each Topic.
-8. Expand each Topic with 4-5 decision-stage prompts.
-9. Render grouped Markdown.
-10. Export CSV when requested.
+1. Normalize the domain.
+2. Crawl high-signal owned pages and record attempted/effective URLs.
+3. Run universal brand, competitor, review, and buying-context search.
+4. Produce 2-4 business hypotheses when the business is ambiguous.
+5. Identify the economic center, primary decision object, and paying buyer.
+6. Build the Capability Ledger.
+7. Run category-demand research from the evidence-backed category.
+8. Build a market-aware competitor/source map.
+9. Construct the applicable serviceable-intent universe and coverage cells.
+10. Generate the smallest complete Topic set.
+11. Generate a coverage-driven number of Prompts for each Topic.
+12. Run deterministic QA.
+13. If QA fails, regenerate once from the QA errors.
+14. If the second attempt fails, stop and return the error.
+15. Export Markdown, CSV, or JSON only after QA passes.
 
-## Brand Intelligence First
+## Hard Failure Policy
 
-Do not start with a static industry library.
+When a model runtime is configured, never replace failed model research or missing Prompt rows with an industry scenario library.
 
-The first model call should identify:
+Static fallback is allowed only when no valid model runtime is available. It must be labeled `rules_fallback` and is not client-ready without review.
 
-- what the website actually sells
-- who buys or uses it
-- what jobs-to-be-done matter
-- what criteria users compare
-- what the brand does not appear to support
-- which competitors or substitute sources matter
+## Evidence Sufficiency
 
-If this step fails, use rule fallback but label the output.
+Mark research as `needs_confirmation` when:
+
+- the top business hypothesis is below 70 confidence
+- the top two hypotheses are close
+- the paying buyer is unclear
+- the priority revenue line cannot be determined
+- crawl and external evidence conflict materially
+
+Do not convert low-confidence hypotheses into core Topics.
 
 ## Topic Rules
 
-Topics should be demand clusters, not UI labels.
+Good Topics share one decision object and JTBD:
 
-Good:
+- `AI Citation & Source Intelligence`
+- `Cloud Scraping Browser & Browser Automation`
+- `Supplier Quality & Factory Verification`
+- `Appointment, Price & Local Availability`
 
-- `AI Search Visibility Platform Selection`
-- `Appointment Booking And Local Barber Availability`
-- `Portable Power Station Brand Comparison`
-
-Weak:
+Weak Topics are generic labels:
 
 - `Features`
 - `Solutions`
 - `Product Discovery`
 - `Workflow Automation`
 
+Every core Topic must map to at least one confirmed or strongly inferred capability.
+
 ## Prompt Rules
 
-Prompts should sound like real user queries.
+Every Prompt must:
 
-Good:
+- make sense without seeing the Topic title
+- describe a concrete category, service, workflow, buyer, or scenario
+- be serviceable by the customer
+- add a distinct coverage cell
+- use realistic natural language
+- respect brand-term mode
+- include evidence and exactly two keyword phrases
 
-- `Best AI search visibility platforms for SaaS teams`
-- `Which barber shops offer same-day beard trim appointments?`
-- `Portable power station pricing and warranty comparison`
+Do not append fixed quotas of `best`, `top`, comparison, or informational prompts. Add them only when they represent uncovered buyer decisions.
 
-Weak:
+## Two Pools
 
-- `What is AI visibility?`
-- `This platform feature overview`
-- `Product workflow benefits`
+Use `monitoring_core` when the question is likely to make an AI answer name a product, provider, brand, competitor, or source.
 
-Pure educational prompts are allowed, but they should not dominate the monitoring set.
+Use `content_opportunity` for serviceable educational demand with lower brand-mention probability.
 
-## Fallback Rules
+The pool ratio depends on the business model. Do not enforce one percentage across every industry.
 
-Fallback is acceptable only when:
+## QA Gate
 
-- crawl fails,
-- search fails,
-- no valid model key is configured,
-- or model output cannot be parsed.
+Before delivery, verify:
 
-Fallback output must include a visible warning.
+- dynamic Prompt count is satisfied for every Topic
+- every High-priority coverage cell is covered
+- every declared applicable intent is represented
+- there are no cross-Topic semantic duplicates
+- generic Prompts contain no owned or competitor brand names
+- Prompt wording contains a standalone business anchor
+- coverage IDs and evidence metadata are present
+- monitoring-core score thresholds are satisfied
 
-Do not present fallback as a final, client-ready result without human review.
-
+Read [Prompt QA](../references/prompt-qa.md) and run `scripts/prompt_qa.py` for portable validation.
