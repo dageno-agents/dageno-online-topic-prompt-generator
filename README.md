@@ -4,292 +4,269 @@
 
 Docs / 文档: [README](https://github.com/dageno-agents/dageno-online-topic-prompt-generator) · [简体中文](https://github.com/dageno-agents/dageno-online-topic-prompt-generator/blob/main/README.zh-CN.md)
 
-If this repo is useful, you may also want the adjacent Dageno Agent projects for GEO, SEO, AI visibility, and content operations.
-如果这个仓库对你有帮助，也可以看看这些相邻的 Dageno Agent 项目，用于 GEO、SEO、AI 可见性和内容增长工作流。
-
 | If you want to... / 如果你想... | Project / 项目 | Plain-language difference / 白话区别 |
 | --- | --- | --- |
-| First diagnose a site / 先给网站做体检 | [seo-geo-audit](https://github.com/dageno-agents/seo-geo-audit) | Like an SEO + GEO medical report: technical issues, content gaps, trust signals, off-site mentions, and AI visibility in one audit / 像一份 SEO + GEO 体检报告，把技术问题、内容缺口、信任信号、站外提及和 AI 可见性放到一起看 |
-| Turn a real website into Dageno topics and prompts / 把真实网站变成 Dageno 监控题库 | [dageno-online-topic-prompt-generator](https://github.com/dageno-agents/dageno-online-topic-prompt-generator) | Crawls the site and studies the business first, then generates Topic clusters and high-intent Prompts. Not an industry-template prompt dump / 先看网站和业务，再生成 Topic 集群和高意图 Prompt，不是套行业模板 |
-| Produce SEO/GEO articles from keywords or briefs / 从关键词或 brief 批量生产内容 | [seo-geo-content-engine](https://github.com/dageno-agents/seo-geo-content-engine) | A full content pipeline: research, SERP intent, article structure, draft, metadata, FAQ, and GEO packaging / 完整内容流水线：调研、搜索意图、文章结构、正文、metadata、FAQ 和 GEO 包装 |
-| Write from Dageno fanout data / 用 Dageno fanout 写文章 | [geo-content-writer](https://github.com/dageno-agents/geo-content-writer) | For when Dageno already found prompt opportunities: turn fanout into a backlog, editorial brief, draft contract, and review contract / 适合已经有 Dageno prompt opportunity 的情况：把 fanout 变成选题队列、编辑 brief、草稿契约和审核契约 |
-| Find why organic content is not converting / 找出自然流量内容为什么不转化 | [organic-content-intelligence](https://github.com/dageno-agents/organic-content-intelligence) | Joins GSC, GA4, crawl, intent, and AI/GEO signals to show which pages have demand but fail to answer or convert / 把 GSC、GA4、抓取、意图和 AI/GEO 信号连起来，看哪些页面有需求但没有承接住 |
-| Improve a site's GEO structure / 优化网站结构以适配 GEO | [geo-site-architecture-audit](https://github.com/dageno-agents/geo-site-architecture-audit) | Starts from the existing navigation, sitemap, landing pages, and help content, then finds missing AI-answerable pages and internal links / 从现有导航、站点地图、落地页和帮助内容出发，找缺失的 AI 可引用页面和内链结构 |
-| Create a client-facing AI visibility report / 做给客户看的 AI 可见性报告 | [brand-ai-performance-check](https://github.com/dageno-agents/brand-ai-performance-check) | A stable visual report template for brand AI performance, using Dageno API data or custom inputs / 稳定的品牌 AI 表现可视化报告模板，可接 Dageno API 或自定义数据 |
-| Automate Dageno in workflows / 把 Dageno 接进自动化流程 | [n8n-nodes-dageno](https://github.com/dageno-agents/n8n-nodes-dageno) | Use Dageno inside n8n: brands, GEO analysis, keywords, opportunities, topics, prompts, SEO, and citations / 在 n8n 里调用 Dageno：品牌、GEO 分析、关键词、机会、Topic、Prompt、SEO 和引用数据 |
-| Learn the API and MCP growth workflow / 学 Dageno API 和 MCP 怎么用于增长 | [dageno-mcp-growth-playbook](https://github.com/dageno-agents/dageno-mcp-growth-playbook) | The practical playbook for turning Dageno API/MCP data into reports, prompt gaps, citation intelligence, and growth actions / 把 Dageno API/MCP 数据变成报告、Prompt Gap、引用分析和增长动作的实战手册 |
-
-More projects / 更多项目: [geo-visual-content-engine](https://github.com/dageno-agents/geo-visual-content-engine), [seo-outreach-skill](https://github.com/dageno-agents/seo-outreach-skill), [geo-pre-sale-report-private](https://github.com/dageno-agents/geo-pre-sale-report-private), [GEO-SEO](https://github.com/dageno-agents/GEO-SEO).
+| First diagnose a site / 先给网站做体检 | [seo-geo-audit](https://github.com/dageno-agents/seo-geo-audit) | Technical, content, trust, off-site, and AI visibility audit / 技术、内容、信任、站外和 AI 可见性体检 |
+| Turn a website into Dageno Topics and Prompts / 把网站变成 Dageno 题库 | [dageno-online-topic-prompt-generator](https://github.com/dageno-agents/dageno-online-topic-prompt-generator) | Researches the business first, then generates evidence-backed monitoring assets / 先研究真实业务，再生成有证据的监控资产 |
+| Produce SEO/GEO content / 生产 SEO/GEO 内容 | [seo-geo-content-engine](https://github.com/dageno-agents/seo-geo-content-engine) | Research, intent, structure, draft, metadata, FAQ, and GEO packaging / 调研、意图、结构、正文、元数据、FAQ 和 GEO 包装 |
+| Find why organic content is not converting / 找出内容为什么不转化 | [organic-content-intelligence](https://github.com/dageno-agents/organic-content-intelligence) | Connects GSC, GA4, crawl, intent, and AI/GEO signals / 连接 GSC、GA4、抓取、意图和 AI/GEO 信号 |
+| Improve GEO site architecture / 优化 GEO 站点结构 | [geo-site-architecture-audit](https://github.com/dageno-agents/geo-site-architecture-audit) | Finds missing AI-answerable pages and internal links / 找缺失的 AI 可引用页面和内链 |
+| Build client-facing AI visibility reports / 生成客户 AI 可见性报告 | [brand-ai-performance-check](https://github.com/dageno-agents/brand-ai-performance-check) | Visual reporting from Dageno API or custom inputs / 使用 Dageno API 或自定义数据生成可视化报告 |
+| Automate Dageno workflows / 自动化 Dageno 工作流 | [n8n-nodes-dageno](https://github.com/dageno-agents/n8n-nodes-dageno) | Dageno brands, GEO, Topics, Prompts, SEO, citations, and opportunities in n8n / 在 n8n 调用 Dageno 品牌、GEO、Topic、Prompt、SEO、引用和机会数据 |
 
 Explore all repos / 查看全部项目: [github.com/dageno-agents](https://github.com/dageno-agents) · Product / 产品: [Dageno](https://dageno.ai/?utm_source=github&utm_medium=social&utm_campaign=official)
 
 <!-- DAGENO_AGENT_NAV_END -->
 
-# Dageno Online Topic Prompt Generator
+# Dageno Topic & Prompt Generator
 
-> Generate Dageno-ready GEO Topic clusters and high-intent monitoring prompts from any real customer domain.
+> Turn any real customer domain into evidence-backed GEO Topic clusters and Dageno-ready Prompt libraries.
 
-Most prompt generators start from an industry template.
+Most prompt generators begin with an industry template. That is the easiest way to generate polished but completely wrong results.
 
-This one starts from evidence.
+This Skill begins with evidence: crawl the website, search the market, infer what buyers are actually purchasing, build a Capability Ledger, and cover the smallest complete set of serviceable buyer intents.
 
-It crawls the customer website, looks for external search signals, asks a model to identify the real business, then turns that context into Topic clusters and Prompt libraries that can be monitored in Dageno.
+The output is designed for two jobs:
 
-The goal is not to create generic SEO questions.
+1. Monitor whether AI answers naturally mention products, providers, competitors, and sources.
+2. Identify useful informational questions that belong in SEO/GEO content planning.
 
-The goal is to create prompts that are likely to make AI systems mention:
+## The Core Rule
 
-- brands
-- competitors
-- products
-- vendors
-- trusted sources
-- pricing
-- risks
-- alternatives
-- implementation choices
+**A configured model may never fail silently and then present a cached industry template as a completed Skill result.**
 
-It can also generate a competitor map by country, business line, overlap type, and differentiation angle, then use that map to shape competitive Topics and Prompts.
+If brand research or deterministic QA fails, regenerate or return an explicit error. Static rules are allowed only when no model runtime is available, and the output must be labeled as lower-confidence fallback.
 
-## Why This Exists
-
-GEO monitoring only works when the prompts reflect how real users ask AI systems for help.
-
-If the prompts are too informational, the answer may never mention a brand.
-
-If the prompts are copied from a static industry template, the system can misread a customer website and generate the wrong Topic set.
-
-This Skill is designed to prevent that failure mode.
-
-It asks a harder question:
-
-**What would a real buyer, user, operator, or local customer ask before choosing a product, service, vendor, or alternative?**
-
-## How It Works
+## How The Pipeline Works
 
 ```mermaid
 flowchart LR
   A["Customer domain"] --> B["Website crawl"]
-  B --> C["Page evidence<br/>titles, headings, copy, products, docs, pricing"]
-  A --> D["Web search"]
-  D --> E["External signals<br/>competitors, reviews, alternatives, community"]
-  C --> F["Model-led brand intelligence"]
-  E --> F
-  F --> G["Capability ledger<br/>what the customer can actually deliver"]
-  G --> H["Category demand + competitor research"]
-  H --> I["Serviceable intent universe<br/>buyers + jobs + decisions + constraints"]
-  I --> J["Smallest complete Topic set"]
-  J --> K["Coverage-selected Prompt pools"]
-  K --> L["Dageno-ready output<br/>Markdown / CSV + deterministic QA"]
+  A --> C["Universal web search"]
+  B --> D["Business hypotheses"]
+  C --> D
+  D --> E["Economic center"]
+  E --> F["Capability Ledger"]
+  F --> G["Category demand research"]
+  G --> H["Market-aware competitor map"]
+  H --> I["Serviceable intent coverage"]
+  I --> J["Dynamic Topic clusters"]
+  J --> K["Dynamic Prompt library"]
+  K --> L["Deterministic QA"]
+  L --> M["Markdown / CSV / JSON"]
 ```
 
-The pipeline has eight gates:
+### 1. Crawl The Real Business
 
-1. **Crawl** the real website.
-2. **Search** for category, competitor, review, and buying-decision context.
-3. **Infer** the actual business with a model, instead of forcing a fixed industry label.
-4. **Find category demand** from non-branded best/review/pricing/alternative/integration/community searches.
-5. **Map competitors** by market, country, business line, overlap, and differentiation angle.
-6. **Build the serviceable intent universe** from customer capabilities, buyers, jobs, triggers, constraints, and applicable intents.
-7. **Select Topics and Prompts by coverage**, not preset counts or fixed best/top templates.
-8. **Run deterministic QA and export** evidence-backed monitoring and content-opportunity pools.
+The crawler prioritizes discovered product, solution, pricing, customer, documentation, use-case, and service pages. It records attempted URLs and filters empty JavaScript shells, CAPTCHA pages, repeated navigation, and generic error pages.
 
-## What It Produces
+### 2. Build Brand Intelligence
 
-### Topic Clusters
+The model identifies:
 
-Each Topic is a real demand cluster, not a feature label.
+- canonical brand and business category
+- economic center: the decision value buyers actually pay for
+- primary decision object and paying buyer
+- business hypotheses and uncertainty
+- products, services, buyers, JTBD, constraints, and geographies
+- monitoring-country recommendations
+- out-of-scope assumptions
 
-Example fields:
+The website navigation is evidence, not truth. A poorly planned site may expose many products without explaining the workflow, service outcome, procurement simplification, risk reduction, or project delivery that customers actually buy.
 
-| Field | Meaning |
-|---|---|
-| `t` | Topic name |
-| `ty` | Topic Cluster type |
-| `f` | Priority: High / Medium / Low |
-| `c` | Confidence score |
-| `pc` | Coverage-derived final prompt count |
-| `cv` | Capability mappings and coverage cells |
-| `ev` | Optional evidence metadata |
+### 3. Build A Capability Ledger
 
-Supported Topic types:
-
-- `product_category`
-- `use_case`
-- `persona_need`
-- `purchase_decision`
-- `risk_validation`
-- `competitive_alternative`
-- `content_coverage`
-
-### Prompt Rows
-
-Each prompt carries monitoring metadata:
-
-| Field | Meaning |
-|---|---|
-| `p` | Prompt text |
-| `pt` | `generic`, `branded`, or `competitive` |
-| `it` | Intent type |
-| `f` | Funnel stage: TOFU / MOFU / BOFU |
-| `is` | Intent score |
-| `kw` | Two keyword phrases for search volume aggregation |
-| `pool` | `monitoring_core` or `content_opportunity` |
-| `sv` | Customer serviceability score |
-| `dp` | Real demand plausibility score |
-| `mp` | Answer mention likelihood score |
-| `cg` | Covered intent-cell IDs |
-
-The default mode is non-branded:
+Every high-confidence Topic must map to something the customer can credibly deliver:
 
 ```text
-brandPromptMode = exclude
+offering + buyer + job-to-be-done + supported outcome + constraints + evidence
 ```
 
-That means prompts should not contain the customer's brand name, aliases, or competitor names unless the user explicitly asks for branded or mixed monitoring.
+Unsupported capabilities do not become Topics just because they are popular search terms.
 
-Supported brand prompt modes:
+### 4. Research Demand And Competitors
 
-- `exclude`: generic non-brand monitoring.
-- `include`: generic plus owned-brand validation prompts.
-- `mixed`: generic, branded, and limited competitive prompts.
-- `brand_only`: owned-brand reputation/entity monitoring only.
+The Skill searches non-branded category demand around:
 
-## Why Prompt Intent Matters
+- recommendation and provider selection
+- comparisons and alternatives
+- pricing and value
+- reviews, reputation, and trusted sources
+- implementation and workflow fit
+- risk, compliance, quality, and limitations
 
-Dageno tracks how AI answers mention and rank brands.
+Competitors are classified by market, business line, buyer segment, overlap, and differentiation angle. The result is not one global list.
 
-So the prompt set should not be dominated by questions like:
+### 5. Generate Coverage-Driven Topics
+
+A Topic is a coherent cluster of questions sharing the same decision object and core JTBD. It is not a feature label, page heading, funnel stage, or generic phrase such as `Product Discovery`.
+
+Topic count is an output of coverage. It is not always five, seven, or ten.
+
+### 6. Generate Two Prompt Pools
+
+`monitoring_core` contains questions likely to make an AI answer name products, brands, providers, competitors, or sources.
+
+`content_opportunity` contains useful, serviceable questions with lower brand-mention probability that are better suited to content production.
+
+Prompt count is also dynamic. A narrow Topic may stop at four to six distinct questions; a complex purchase decision may require twelve or more. Padding and paraphrase inflation are rejected.
+
+### 7. Run Deterministic QA
+
+The included QA checks:
+
+- exact Topic-level Prompt count
+- all High-priority coverage cells
+- all declared applicable intents
+- cross-Topic semantic duplication
+- standalone business context
+- brand/competitor leakage in non-branded mode
+- keyword shape and Prompt metadata
+- evidence and coverage-cell mappings
+- serviceability, demand plausibility, and mention-likelihood thresholds
+
+One failed attempt receives one model repair pass. A second failure stops the run.
+
+## Validation Examples
+
+These are examples of the reasoning outcome, not cached templates:
+
+| Domain type | Business conclusion | Result shape |
+|---|---|---|
+| GEO platform | Monitoring -> competitor/citation diagnosis -> execution loop | 9 Topics / 82 Prompts |
+| Web-data infrastructure suite | Browser + scraping API + proxy + crawl + agent/MCP + managed data | 9 Topics / 88 Prompts |
+
+The same rules apply to local services, ecommerce, professional services, finance, industrial products, procurement businesses, marketplaces, media, and developer tools.
+
+## Inputs
+
+Required:
+
+```json
+{
+  "domain": "example.com",
+  "market": "United States / North America",
+  "outputLanguage": "English"
+}
+```
+
+Optional controls:
+
+| Field | Values | Default |
+|---|---|---|
+| `topicMode` | `auto`, `manual` | `auto` |
+| `topicCount` | 1-10, manual mode only | coverage-derived |
+| `promptMode` | `auto`, `manual` | `auto` |
+| `promptCount` | 5-20, manual mode only | coverage-derived per Topic |
+| `brandPromptMode` | `exclude`, `include`, `mixed`, `brand_only` | `exclude` |
+| `crawlDepth` | 3-12 | 6-8 |
+| `targetCountries` | country list | inferred/target market |
+| `businessGoal` | optional client context | none |
+| `priorityOffering` | optional priority revenue line | inferred |
+| `idealCustomer` | optional paying buyer | inferred |
+| `excludedOfferings` | explicit scope exclusions | none |
+
+When Dageno controls location through IP, keep region words out of generic Prompts and execute the same Prompt set in separate regional runs.
+
+## Output Schema
+
+Topic fields include:
+
+- `t`: Topic name
+- `ty`: Topic Cluster type
+- `f`: priority
+- `c`: confidence
+- `pc`: coverage-derived Prompt count
+- `cv`: capabilities, intents, decision criteria, exclusions, and coverage cells
+- `ev`: source IDs, confidence reason, and warnings
+
+Prompt fields include:
+
+- `p`: natural user question
+- `pt`: `generic`, `branded`, or `competitive`
+- `it`: intent type
+- `f`: TOFU, MOFU, or BOFU
+- `is`: intent score
+- `kw`: exactly two keyword phrases
+- `pool`: `monitoring_core` or `content_opportunity`
+- `sv`: serviceability score
+- `dp`: demand plausibility score
+- `mp`: answer mention-likelihood score
+- `cg`: coverage-cell IDs
+- `ev`: evidence and intent justification
+
+See [Evidence Schema](references/evidence-schema.md) and [CSV Output](references/csv-output.md).
+
+## Install As A Codex Skill
+
+```bash
+git clone https://github.com/dageno-agents/dageno-online-topic-prompt-generator.git
+mkdir -p ~/.codex/skills/dageno-topic-prompt-generator
+cp -R dageno-online-topic-prompt-generator/* ~/.codex/skills/dageno-topic-prompt-generator/
+```
+
+Then ask Codex:
 
 ```text
-What is X?
-How does X work?
-History of X
+Generate a non-branded Dageno Topic and Prompt library for https://example.com.
+Use the United States as the monitored market and export CSV.
 ```
 
-Those can be useful for content planning, but often fail to trigger brand mentions.
+## Portable Scripts
 
-This Skill prioritizes prompts like:
+Crawl a website with standard-library Python:
+
+```bash
+python3 scripts/crawl_and_clean.py "https://example.com"
+```
+
+Run deterministic Prompt QA:
+
+```bash
+python3 scripts/prompt_qa.py output.json \
+  --brand "Example Brand" \
+  --mode exclude \
+  --context-term "product category"
+```
+
+## Hosted Runtime
+
+Use environment variables. Never hardcode keys:
 
 ```text
-Best [category] tools for [use case]
-Top [service] providers for [buyer type]
-Which [product category] is best for [scenario]?
-[category] pricing and reviews
-[solution type] alternatives for [pain point]
+OPENROUTER_API_KEY
+OPENROUTER_MODEL
+ANTHROPIC_API_KEY
+ANTHROPIC_MODEL
+OPENAI_API_KEY
+OPENAI_MODEL
 ```
 
-Each prompt must be understandable on its own. Dageno monitors prompts independently, without Topic names or prior chat context, so cross-industry terms like `supplier`, `vendor`, `procurement`, `platform`, `service`, `manufacturer`, `account`, `course`, `demo account`, `cost`, and `pricing` must include the industry/category/use-case anchor inside the prompt itself. For trading or broker domains, vague questions like `raw spread vs standard accounts`, `learn technical analysis`, or `practice with a demo account` must be rewritten with anchors such as `CFD`, `forex`, `broker`, `trading account`, `trading platform`, `leveraged trading`, or a concrete traded asset.
-
-The Skill uses two explicit pools:
-
-- `monitoring_core`: serviceable questions likely to trigger products, providers, brands, competitors, or sources.
-- `content_opportunity`: real serviceable questions useful for SEO/GEO content, even when brand-mention likelihood is lower.
-
-The mix is dynamic. Decision-led categories usually produce 75-90% monitoring prompts, while media, education, community, or content-led businesses may produce 50-70%.
-
-## Topic Count Is Not Fixed
-
-Different businesses need different Topic and Prompt counts. The system builds applicable coverage cells, then returns the smallest non-overlapping Topic set that covers every High-priority serviceable job and decision. Prompt generation stops when remaining candidates add no meaningful coverage. Manual override is allowed, but uncovered cells must remain visible.
-
-## Output Example
-
-```markdown
-# Example Brand — Topic & Prompt Monitoring Configuration
-
-Target site: example.com
-Detected industry: AI content operations platform
-Topic count strategy: system selected 7 Topics
-Brand term strategy: exclude
-
-## Topic 1: AI Search Visibility Platform Selection
-
-Monitoring goal:
-Monitor whether the brand is naturally recommended in AI search platform selection scenarios.
-
-Topic Schema: ty=product_category; f=High; c=94
-
-| # | Monitoring Prompt | Brand Term Type | Pool | User Intent | Funnel | Quality | Keywords |
-|---:|---|---|---|---|---|---|---|
-| 1 | Best AI search visibility platforms for SaaS teams | generic | monitoring_core | recommendation | MOFU | sv92/dp86/mp88 | AI search platforms / SaaS visibility tools |
-```
-
-## CSV Export
-
-The Skill supports spreadsheet-ready output:
-
-```csv
-Topic序号,Topic名称,Topic Cluster类型,用户购买路径,Topic优先级,Topic Prompt数,Prompt序号,Prompt,品牌词类型,用途池,用户意图,购买阶段,意图强度,关键词,业务承接分,需求真实性分,品牌提及概率分,监测模型,监测地区
-```
-
-See [CSV Output](references/csv-output.md).
+Preferred route: OpenRouter with the strongest available Claude Opus model. See [Security](docs/security.md).
 
 ## Repository Structure
 
 ```text
-dageno-online-topic-prompt-generator/
-  SKILL.md
-  agents/
-    openai.yaml
-  scripts/
-    crawl_and_clean.py
-    prompt_qa.py
-  references/
-    online-flow.md
-    category-demand-search.md
-    competitor-generation.md
-    evidence-schema.md
-    coverage-engine.md
-    geo-topic-generate.md
-    geo-prompt-generate-by-topic.md
-    brand-research.md
-    content-compress.md
-    shared-prompt-rules.md
-    prompt-qa.md
-    csv-output.md
-  docs/
-    agent-guide.md
-    security.md
+.
+├── SKILL.md
+├── agents/
+├── docs/
+├── references/
+│   ├── coverage-engine.md
+│   ├── evidence-schema.md
+│   ├── geo-topic-generate.md
+│   ├── geo-prompt-generate-by-topic.md
+│   ├── category-demand-search.md
+│   ├── competitor-generation.md
+│   └── prompt-qa.md
+└── scripts/
+    ├── crawl_and_clean.py
+    └── prompt_qa.py
 ```
 
-## For Humans And Agents
+## Security And Data Boundary
 
-If you are reviewing the Skill:
-
-- Start with this README.
-- Read [Agent Guide](docs/agent-guide.md) to understand the exact execution sequence.
-- Read [Security](docs/security.md) before adding any API runtime, hosted demo, or customer data.
-
-If you are an AI coding agent:
-
-- Load `SKILL.md` first.
-- Load `references/online-flow.md` when implementing or debugging the hosted flow.
-- Load `references/category-demand-search.md` before external demand research.
-- Load `references/competitor-generation.md` before competitor generation.
-- Load `references/evidence-schema.md` when machine output needs reviewable evidence.
-- Load `references/geo-topic-generate.md` before generating Topics.
-- Load `references/geo-prompt-generate-by-topic.md` and `references/shared-prompt-rules.md` before generating Prompts.
-- Load `references/prompt-qa.md` before final QA.
-- Never rely on static industry templates without fresh domain evidence.
-
-## Open-Core Boundary
-
-Good to keep in this public repository:
-
-- Skill workflow
-- Topic and Prompt schemas
-- Prompt intent rules
-- CSV output contract
-- Safety and fallback policy
-
-Keep private:
-
-- API keys
-- customer crawl data
-- customer Dageno exports
-- proprietary scoring weights
-- internal model prompts that include private customer examples
-- hosted runtime secrets
+This repository contains the workflow, schemas, and portable QA tools. It must not contain API keys, customer crawl exports, Dageno project data, private proposal documents, or authorization logs.
 
 ## License
 

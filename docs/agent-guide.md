@@ -1,108 +1,106 @@
 # Agent Guide
 
-This guide explains how an agent should execute the Skill.
+This guide describes the mandatory execution order for an agent or hosted implementation.
 
-## Execution Order
+## Required Order
 
-1. Normalize the input domain.
-2. Crawl the website and record attempted URLs.
-3. Search the web for brand/category/competitor/review context.
-4. Run model-led brand intelligence and generate follow-up research queries.
-5. Actually execute category-demand, disconfirmation, competitor, review, pricing, alternative, implementation and community searches.
-6. Reconcile the evidence into business hypotheses and a research-decision status.
-7. Build the Capability Ledger and applicable serviceable-intent coverage cells.
-8. Generate the smallest complete Topic set with `pc`, `cv`, and `ev`.
-9. Generate more Prompt candidates than needed, then select by score thresholds and marginal coverage.
-10. Separate `monitoring_core` from `content_opportunity`.
-11. Run deterministic schema, policy, semantic-duplicate and coverage QA.
-12. Render grouped Markdown and expose `qaReport` / `coverageReport`.
-13. Export CSV when requested.
+1. Normalize the domain.
+2. Crawl high-signal owned pages and record attempted/effective URLs.
+3. Run universal brand, competitor, review, and buying-context search.
+4. Produce 2-4 business hypotheses when the business is ambiguous.
+5. Identify the economic center, primary decision object, and paying buyer.
+6. Build the Capability Ledger.
+7. Run category-demand research from the evidence-backed category.
+8. Build a market-aware competitor/source map.
+9. Construct the applicable serviceable-intent universe and coverage cells.
+10. Generate the smallest complete Topic set.
+11. Generate a coverage-driven number of Prompts for each Topic.
+12. Run deterministic QA.
+13. If QA fails, regenerate once from the QA errors.
+14. If the second attempt fails, stop and return the error.
+15. Export Markdown, CSV, or JSON only after QA passes.
 
-## Brand Intelligence First
+## Hard Failure Policy
 
-Do not start with a static industry library.
+When a model runtime is configured, never replace failed model research or missing Prompt rows with an industry scenario library.
 
-The first model call should identify:
+Static fallback is allowed only when no valid model runtime is available. It must be labeled `rules_fallback` and is not client-ready without review.
 
-- what the website actually sells
-- who buys or uses it
-- what jobs-to-be-done matter
-- what criteria users compare
-- what the brand does not appear to support
-- what differentiates the brand from market leaders and substitutes
-- which competitors or substitute sources matter
-- what the customer can credibly deliver, with evidence and constraints
-- whether the conclusion is confirmed, provisional, or requires customer confirmation
+## Evidence Sufficiency
 
-If this step fails, use rule fallback but label the output.
+Mark research as `needs_confirmation` when:
+
+- the top business hypothesis is below 70 confidence
+- the top two hypotheses are close
+- the paying buyer is unclear
+- the priority revenue line cannot be determined
+- crawl and external evidence conflict materially
+
+Do not convert low-confidence hypotheses into core Topics.
 
 ## Search And Competitor Rules
 
-Do not stop at brand-name searches. Run category demand searches using real category, persona, pain, pricing, review, alternative, integration, and community language. See `references/category-demand-search.md`.
+Do not stop at brand-name searches. Run category-demand and disconfirmation searches using real category, persona, pain, pricing, review, alternative, integration, and community language.
 
-Competitor generation should produce a map, not a flat list:
-
-- countries/markets
-- business lines
-- direct, partial, substitute, marketplace/directory, and source competitors
-- overlap reason
-- differentiation angle
-- evidence confidence
-
-Use `references/competitor-generation.md` and `references/evidence-schema.md`.
+Competitor research must produce a map rather than a flat global list. Include countries, business lines, buyer segments, overlap type, differentiation angle, and evidence confidence. Read `references/category-demand-search.md`, `references/competitor-generation.md`, and `references/evidence-schema.md`.
 
 ## Topic Rules
 
-Topics should be demand clusters, not UI labels.
+Good Topics share one decision object and JTBD:
 
-Good:
+- `AI Citation & Source Intelligence`
+- `Cloud Scraping Browser & Browser Automation`
+- `Supplier Quality & Factory Verification`
+- `Appointment, Price & Local Availability`
 
-- `AI Search Visibility Platform Selection`
-- `Appointment Booking And Local Barber Availability`
-- `Portable Power Station Brand Comparison`
-
-Weak:
+Weak Topics are generic labels:
 
 - `Features`
 - `Solutions`
 - `Product Discovery`
 - `Workflow Automation`
 
+Every core Topic must map to at least one confirmed or strongly inferred capability.
+
 ## Prompt Rules
 
-Prompts should sound like real user queries.
+Every Prompt must:
 
-Each prompt must also work as a standalone monitoring query. Dageno sends prompts one by one without the Topic name, prior chat, brand context, or human explanation. If a prompt uses cross-industry words like `supplier`, `vendor`, `procurement`, `platform`, `service`, `manufacturer`, `cost`, or `pricing`, add the industry/category/use-case anchor inside the prompt itself.
+- make sense without seeing the Topic title
+- describe a concrete category, service, workflow, buyer, or scenario
+- be serviceable by the customer
+- add a distinct coverage cell
+- use realistic natural language
+- respect brand-term mode
+- include evidence and exactly two keyword phrases
 
-Good:
+Dageno sends each Prompt independently, without its Topic title or previous chat context. Cross-industry nouns such as `supplier`, `vendor`, `platform`, `service`, `manufacturer`, `cost`, and `pricing` therefore require an explicit category or scenario anchor inside the Prompt itself.
 
-- `Best AI search visibility platforms for SaaS teams`
-- `Which barber shops offer same-day beard trim appointments?`
-- `Portable power station pricing and warranty comparison`
-- `Hotel one-stop procurement cost vs multiple suppliers?`
+Good: `Hotel one-stop procurement cost vs multiple suppliers?`
 
-Weak:
+Weak: `One-stop procurement cost vs multiple suppliers?`
 
-- `What is AI visibility?`
-- `This platform feature overview`
-- `Product workflow benefits`
-- `One-stop procurement cost vs multiple suppliers?`
+Do not append fixed quotas of `best`, `top`, comparison, or informational prompts. Add them only when they represent uncovered buyer decisions.
 
-Pure educational prompts are allowed when demand is real and the customer can answer them. Put lower-mention questions in `content_opportunity`; do not force them into the monitoring pool or impose a universal ratio.
+## Two Pools
 
-Do not append a fixed number of best/top/pricing prompts. Each accepted Prompt must cover a valid Topic cell and add information not already covered by a stronger Prompt.
+Use `monitoring_core` when the question is likely to make an AI answer name a product, provider, brand, competitor, or source.
 
-After JSON generation, run `scripts/prompt_qa.py` when possible. If QA fails, repair the output or report the failures clearly.
+Use `content_opportunity` for serviceable educational demand with lower brand-mention probability.
 
-## Fallback Rules
+The pool ratio depends on the business model. Do not enforce one percentage across every industry.
 
-Fallback is acceptable only when:
+## QA Gate
 
-- crawl fails,
-- search fails,
-- no valid model key is configured,
-- or model output cannot be parsed.
+Before delivery, verify:
 
-Fallback output must include a visible warning.
+- dynamic Prompt count is satisfied for every Topic
+- every High-priority coverage cell is covered
+- every declared applicable intent is represented
+- there are no cross-Topic semantic duplicates
+- generic Prompts contain no owned or competitor brand names
+- Prompt wording contains a standalone business anchor
+- coverage IDs and evidence metadata are present
+- monitoring-core score thresholds are satisfied
 
-Do not present fallback as a final, client-ready result without human review.
+Read [Prompt QA](../references/prompt-qa.md) and run `scripts/prompt_qa.py` for portable validation.

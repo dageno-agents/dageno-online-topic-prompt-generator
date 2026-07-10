@@ -1,6 +1,6 @@
 ---
-name: dageno-online-topic-prompt-generator
-description: Exported Skill from the live GEO Sales Workbench for generating Dageno-ready Topic clusters and Prompt libraries from any real customer domain. Use when a user asks to create, audit, export, or improve Topic/Prompt monitoring configurations based on website crawling, web search, model-led brand research, high-intent GEO monitoring logic, optional brand terms, and CSV-ready outputs.
+name: dageno-topic-prompt-generator
+description: Generate Dageno-ready GEO Topic clusters and Prompt libraries from any real customer domain using crawl/search evidence, a Capability Ledger, serviceable-intent coverage, two Prompt pools, deterministic QA, optional brand terms, and CSV-ready outputs.
 ---
 
 # Dageno Online Topic Prompt Generator
@@ -34,6 +34,8 @@ Every new domain must run a fresh evidence chain:
 10. Use static rules only as fallback, and explicitly label fallback output as lower quality.
 
 If crawl/search/model evidence conflicts with a static industry library, trust the evidence.
+
+When a model runtime is configured, failed brand intelligence, missing coverage output, or failed deterministic QA must stop the run after one repair attempt. Never present a cached industry template as successful Skill execution.
 
 ## Inputs
 
