@@ -1,3 +1,23 @@
+<!-- DAGENO_AGENT_NAV_START -->
+
+**Dageno Agent Project Map / Dageno Agent 项目导航**
+
+Docs / 文档: [README](https://github.com/dageno-agents/dageno-online-topic-prompt-generator) · [简体中文](https://github.com/dageno-agents/dageno-online-topic-prompt-generator/blob/main/README.zh-CN.md)
+
+| If you want to... / 如果你想... | Project / 项目 | Plain-language difference / 白话区别 |
+| --- | --- | --- |
+| First diagnose a site / 先给网站做体检 | [seo-geo-audit](https://github.com/dageno-agents/seo-geo-audit) | Technical, content, trust, off-site, and AI visibility audit / 技术、内容、信任、站外和 AI 可见性体检 |
+| Turn a website into Dageno Topics and Prompts / 把网站变成 Dageno 题库 | [dageno-online-topic-prompt-generator](https://github.com/dageno-agents/dageno-online-topic-prompt-generator) | Researches the business first, then generates evidence-backed monitoring assets / 先研究真实业务，再生成有证据的监控资产 |
+| Produce SEO/GEO content / 生产 SEO/GEO 内容 | [seo-geo-content-engine](https://github.com/dageno-agents/seo-geo-content-engine) | Research, intent, structure, draft, metadata, FAQ, and GEO packaging / 调研、意图、结构、正文、元数据、FAQ 和 GEO 包装 |
+| Find why organic content is not converting / 找出内容为什么不转化 | [organic-content-intelligence](https://github.com/dageno-agents/organic-content-intelligence) | Connects GSC, GA4, crawl, intent, and AI/GEO signals / 连接 GSC、GA4、抓取、意图和 AI/GEO 信号 |
+| Improve GEO site architecture / 优化 GEO 站点结构 | [geo-site-architecture-audit](https://github.com/dageno-agents/geo-site-architecture-audit) | Finds missing AI-answerable pages and internal links / 找缺失的 AI 可引用页面和内链 |
+| Build client-facing AI visibility reports / 生成客户 AI 可见性报告 | [brand-ai-performance-check](https://github.com/dageno-agents/brand-ai-performance-check) | Visual reporting from Dageno API or custom inputs / 使用 Dageno API 或自定义数据生成可视化报告 |
+| Automate Dageno workflows / 自动化 Dageno 工作流 | [n8n-nodes-dageno](https://github.com/dageno-agents/n8n-nodes-dageno) | Dageno brands, GEO, Topics, Prompts, SEO, citations, and opportunities in n8n / 在 n8n 调用 Dageno 品牌、GEO、Topic、Prompt、SEO、引用和机会数据 |
+
+Explore all repos / 查看全部项目: [github.com/dageno-agents](https://github.com/dageno-agents) · Product / 产品: [Dageno](https://dageno.ai/?utm_source=github&utm_medium=social&utm_campaign=official)
+
+<!-- DAGENO_AGENT_NAV_END -->
+
 # Dageno Topic & Prompt Generator
 
 > Turn any real customer domain into evidence-backed GEO Topic clusters and Dageno-ready Prompt libraries.

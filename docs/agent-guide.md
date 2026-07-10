@@ -38,6 +38,12 @@ Mark research as `needs_confirmation` when:
 
 Do not convert low-confidence hypotheses into core Topics.
 
+## Search And Competitor Rules
+
+Do not stop at brand-name searches. Run category-demand and disconfirmation searches using real category, persona, pain, pricing, review, alternative, integration, and community language.
+
+Competitor research must produce a map rather than a flat global list. Include countries, business lines, buyer segments, overlap type, differentiation angle, and evidence confidence. Read `references/category-demand-search.md`, `references/competitor-generation.md`, and `references/evidence-schema.md`.
+
 ## Topic Rules
 
 Good Topics share one decision object and JTBD:
@@ -67,6 +73,12 @@ Every Prompt must:
 - use realistic natural language
 - respect brand-term mode
 - include evidence and exactly two keyword phrases
+
+Dageno sends each Prompt independently, without its Topic title or previous chat context. Cross-industry nouns such as `supplier`, `vendor`, `platform`, `service`, `manufacturer`, `cost`, and `pricing` therefore require an explicit category or scenario anchor inside the Prompt itself.
+
+Good: `Hotel one-stop procurement cost vs multiple suppliers?`
+
+Weak: `One-stop procurement cost vs multiple suppliers?`
 
 Do not append fixed quotas of `best`, `top`, comparison, or informational prompts. Add them only when they represent uncovered buyer decisions.
 
