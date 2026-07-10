@@ -7,7 +7,7 @@ CSV export is used for Dageno monitoring setup and spreadsheet review.
 Use this exact order:
 
 ```csv
-Topic序号,Topic名称,Topic Cluster类型,用户购买路径,Topic优先级,Topic Prompt数,Prompt序号,Prompt,品牌词类型,用户意图,购买阶段,意图强度,关键词,监测模型,监测地区
+Topic序号,Topic名称,Topic Cluster类型,用户购买路径,Topic优先级,Topic Prompt数,Prompt序号,Prompt,品牌词类型,用途池,用户意图,购买阶段,意图强度,关键词,业务承接分,需求真实性分,品牌提及概率分,监测模型,监测地区
 ```
 
 ## Field Mapping
@@ -21,10 +21,14 @@ Topic序号,Topic名称,Topic Cluster类型,用户购买路径,Topic优先级,To
 - `Prompt序号`: 1-based prompt index across the full export or within topic; be consistent.
 - `Prompt`: prompt text `p`.
 - `品牌词类型`: `generic`=非品牌词, `branded`=品牌词, `competitive`=竞品词.
+- `用途池`: `monitoring_core`=可见度监控池, `content_opportunity`=内容机会池.
 - `用户意图`: prompt `it`.
 - `购买阶段`: prompt `f`.
 - `意图强度`: first item in prompt `is`, formatted like `Commercial:84`.
 - `关键词`: two keywords joined by ` / `.
+- `业务承接分`: `sv`.
+- `需求真实性分`: `dp`.
+- `品牌提及概率分`: `mp`.
 - `监测模型`: e.g. `ChatGPT / Perplexity`.
 - `监测地区`: region setup, e.g. `由 Dageno IP 自动控制`.
 
@@ -35,4 +39,3 @@ Topic序号,Topic名称,Topic Cluster类型,用户购买路径,Topic优先级,To
 - Wrap cells with commas, quotes, or newlines in double quotes.
 - Keep prompts grouped by Topic in row order.
 - Do not put API keys, private crawl logs, or full raw model traces into CSV.
-

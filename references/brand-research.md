@@ -36,18 +36,15 @@ python3 scripts/crawl_and_clean.py "<用户站点 URL>"
 将证据分成 `confirmed`（页面明确出现）、`inferred`（从品类/场景强推断）、`unknown`（无证据，不用于生成高置信主题）。
 所有可复核证据用 [evidence-schema.md](evidence-schema.md) 的 `Evidence Source` 结构记录，后续 Topic、Prompt、竞品都应引用这些证据。
 
-## STEP 0.6 — 业务模式、经济中心与多假设判断（必须执行）
+## STEP 0.6 — 业务模式与经济中心判断（必须执行）
 
 不要只看页面上出现最多的产品名、功能词或导航栏目。很多客户官网规划并不清晰，页面可能同时堆叠多个业务、历史业务、SEO 栏目、产品目录和销售话术。先判断买家真正购买的“决策价值”，并评估“官网表达出来的业务”和“客户可能真正想占领的业务场景”是否一致。
-
-常见经济中心包括：
 
 - 单一产品/SKU：用户主要比较规格、价格、适配、评价和售后。
 - 软件/平台工作流：用户主要比较工作流效率、集成、权限、部署、成本和替代方案。
 - 本地服务：用户主要比较位置、服务项目、价格、预约、评价和可信度。
 - 专业服务：用户主要比较方法论、专家资历、案例、行业适配和交付结果。
 - 一站式采购/供应链整合：用户购买的是多品类采购简化、供应商整合、质量风险降低、定制能力、交期与总成本控制，而不是单个 SKU。
-- 项目交付/系统集成：用户购买的是完整方案、实施能力、风险控制、跨团队协同和最终结果。
 
 如果官网表达混乱或证据冲突，必须输出 2-4 个业务假设，而不是强行给一个确定行业：
 
@@ -63,6 +60,16 @@ Topic 取舍规则：
 - Medium confidence：如果商业价值高，可保留 1 个探索型 Topic。
 - Low confidence：只放入 warnings、content gaps 或后续需客户确认，不生成核心 Topic。
 - 当官网说了很多但核心不清晰时，优先围绕最清楚的 buyer JTBD、购买触发、风险验证和决策标准设计 Topic，而不是照抄页面栏目或产品名。
+
+业务假设之后，必须继续生成 [coverage-engine.md](coverage-engine.md) 定义的三项中间产物：
+
+1. `capabilityLedger`：客户真正能交付什么、卖给谁、解决什么任务、支持什么结果、有哪些边界与证据。
+2. `intentCoveragePlan`：哪些角色、JTBD、意图和决策标准适用，哪些不适用以及原因。
+3. `researchDecision`：`confirmed` / `provisional` / `needs_confirmation`。
+
+高优先级 Topic 只能映射到 confirmed 或有强证据的 inferred capability。不能因为品类用户经常提问，就为客户并不提供的产品、服务、地区、合规承诺或交付能力生成 Topic/Prompt。
+
+当最高业务假设低于 70 分、前两项假设接近，或付费买家/优先业务线仍不清楚时，`researchDecision.status` 必须为 `needs_confirmation`。此时可以生成暂定方案，但必须显示不确定性和需客户补充的信息，不能伪装成确定结论。
 
 当证据出现以下组合时，应优先考虑“一站式采购 / sourcing / supplier integration”模型：
 
@@ -138,6 +145,7 @@ Topic 取舍规则：
 9. 识别目标品牌主打的主要 SEO 关键词和 GEO 监测高意图查询。
 10. 识别品牌别名（本地化名、译名、旧称、昵称、缩写、被当作别名使用的子品牌/品牌符号等）。例如 Nike 别名可能有 "耐克"、"Swoosh"。无则输出 `[]`。
 11. 输出 `evidenceSources` 数组，供 Topic、Prompt、Competitor 结果引用。
+12. 输出 `businessHypotheses`、`capabilityLedger`、`intentCoveragePlan` 和 `researchDecision`，字段结构遵循 [coverage-engine.md](coverage-engine.md)。
 
 以严格 JSON 对象返回结果。
 

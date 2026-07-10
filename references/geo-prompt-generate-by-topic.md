@@ -14,7 +14,8 @@ description: 针对某个指定的品牌主题（Topic）生成搜索优化的 G
 | `langCode` | 目标语言代码，如 `en-US`、`zh-CN`，默认 `en-US` |
 | `websiteURL` | 品牌官网 URL / domain（用于品牌调研） |
 | `Topic` | 目标主题（由用户提供，逐字使用） |
-| `TotalPrompts` | 该主题需生成的 prompt 总数 |
+| `TotalPrompts` | manual 模式的最终数量；auto 模式读取 Topic 的 `pc` 与 `cv.cells` |
+| `TopicCoverage` | Topic 的 `cv`：capability、适用意图和 coverage cells |
 | `brandPromptMode` | 品牌词策略：`exclude` / `include` / `brand_only` / `mixed`，默认 `exclude` |
 | `brandPromptRatio` | 当 `brandPromptMode=include` 或 `mixed` 时，品牌词 prompt 占比，默认 `0.3`，建议范围 `0.1-0.5` |
 
@@ -50,21 +51,22 @@ description: 针对某个指定的品牌主题（Topic）生成搜索优化的 G
   - `brand_only`：所有 prompt 都必须包含自有品牌名或常用别名；用于品牌词场景单独监控，不应和非品牌可见度混算。
   - `mixed`：生成三类 prompt：`generic`、`branded`、`competitive`。`branded + competitive` 总占比约等于 `brandPromptRatio`，且 `competitive` 不超过总数 20%。
   - 无论哪种模式，JSON 中每个 prompt 必须用 `"pt"` 标明 `generic` / `branded` / `competitive`。
-- **G. 阶段分布自选（内部推理 — 不要输出）**：阅读品牌上下文，归类为以下之一：
+- **G. 购买阶段解释（内部推理 — 不要输出）**：阅读品牌上下文，可用以下类型帮助理解购买路径，但百分比只是参考，不是生成配额；最终分布由 coverage cells 决定：
   - **TYPE A — Discovery-driven**（消费品、冲动购买、低品类认知、社交/推荐获客）→ Early 35% / Mid 35% / Late 30%
   - **TYPE B — Standard SaaS / Productivity**（自助 SaaS、明确品类已有需求、个人或小团队买家、有免费试用）→ Early 20% / Mid 40% / Late 40%
   - **TYPE C — High-consideration / Enterprise**（企业买家、长销售周期、多干系人、合规要求、合同定价）→ Early 10% / Mid 60% / Late 30%
   - **TYPE D — Local / O2O Service**（实体位置、地理覆盖、预约或到店、本地信任信号）→ Early 15% / Mid 35% / Late 50%。注：晚期 prompt 须体现可用性、位置覆盖、预订、等待时间、本地信任，而非 SaaS 定价或功能对比。
   - **TYPE F — Content / Media / Community**（无传统购买漏斗，靠发现/推荐获客，留存与互动为主要转化目标，无付费计划作为主 CTA）→ Early 50% / Mid 30% / Late 20%。注：阶段重定义为 Early=discovery、Mid=engagement fit、Late=commitment。
-  - 信号混合或模糊时，默认 TYPE B。将所选分布应用到全部 prompt 生成。
+  - 信号混合或模糊时，不默认套用 TYPE B；根据真实买家角色、触发和决策距离标注每条 Prompt。
 - **H. 竞品和差异化策略（必须执行）**：从 `competitorMap` 中选择与当前 Topic、国家、业务线最相关的直接竞品、部分竞品、替代方案或 source competitor。将目标品牌的核心差异化转化为 prompt 角度，但遵守品牌词模式；`generic` 不包含品牌或竞品名，`mixed` 才能输出 competitor-name prompt。
 - **I. 证据映射（必须执行）**：每个 prompt 应能连接到品类需求、站内内容、竞品证据或明确推断。机器 JSON 中建议输出 `ev`。
+- **J. 可承接覆盖选择（必须执行）**：读取 [coverage-engine.md](coverage-engine.md)。先生成候选，再按 `sv`、`dp`、`mp` 和边际覆盖选择；每条 Prompt 用 `cg` 映射 coverage cells。未达到阈值的候选必须丢弃，不能为了数量保留。
 
 ## 输出语言要求（重要）
 所有内容（prompt、关键词）必须使用目标语言。JSON 输出中 `"l"` 字段设为 `langCode`。
 
 ## 1. 任务
-基于用户提供的 `Topic` 和 `TotalPrompts` 生成搜索优化的 prompt。
+基于 Topic 的 Capability 和 coverage cells 生成最小完整 Prompt 集合。manual 模式以 `TotalPrompts` 为最终目标，但不能绕过可承接性与 QA。
 
 ## 2. Topic 字段规则（关键）
 JSON 输出中的 `"t"` 字段必须与用户提供的 `Topic` **逐字完全一致**：
@@ -78,7 +80,7 @@ JSON 输出中的 `"t"` 字段必须与用户提供的 `Topic` **逐字完全一
 - 意图：`{i: "Type", s: Score}` 数组。TOFU: Informational (80-100) | MOFU: Commercial (70-90) | BOFU: Transactional (85-100)。
 - 漏斗分布：使用内部选择的业务类型分布；若 Topic 明显偏成交/风险验证，可提高 MOFU/BOFU 比例。
 - 每个 prompt 必须标注 `"it"`（细分意图类型）：`problem_solution` / `recommendation` / `comparison` / `pricing_value` / `risk_validation` / `implementation` / `alternative` / `local_availability` / `education_content` / `brand_validation`。
-- 若 `TotalPrompts >= 10`，除非业务不适用，至少覆盖 5 种不同 `"it"`。
+- 覆盖 Topic `cv.applicableIntentTypes` 中所有 High-priority 适用意图；不适用意图不得为了凑类型而生成。
 
 ## 4. 漏斗指南
 - TOFU：概念、趋势（"What is X"、"X benefits"）
@@ -100,7 +102,7 @@ JSON 输出中的 `"t"` 字段必须与用户提供的 `Topic` **逐字完全一
 ## 7. 输出格式
 
 ```json
-{"ts":[{"t":"<EXACT_USER_TOPIC>","f":"High","c":95,"ps":[{"p":"prompt text here","l":"<langCode>","pt":"generic","it":"comparison","f":"MOFU","is":[{"i":"Commercial","s":85}],"kw":["keyword 1","keyword 2"],"ev":{"sourceIds":["src_014"],"geoMonitoringValue":"high","seoKeywordConfidence":"medium","warnings":[]}}]}]}
+{"ts":[{"t":"<EXACT_USER_TOPIC>","f":"High","c":95,"cv":{"cells":[{"id":"cell_001"}]},"ps":[{"p":"prompt text here","l":"<langCode>","pt":"generic","it":"comparison","f":"MOFU","is":[{"i":"Commercial","s":85}],"kw":["keyword 1","keyword 2"],"pool":"monitoring_core","sv":90,"dp":82,"mp":86,"cg":["cell_001"],"ev":{"sourceIds":["src_014"],"intentJustification":"real buyer comparison","expectedAnswerType":"provider_comparison","warnings":[]}}]}]}
 ```
 
 ## Output Schema
@@ -110,8 +112,9 @@ ts: 数组
   - t: string  — 必须与用户 Topic 完全一致
   - f: "High" | "Medium" | "Low"
   - c: number (0-100)
+  - cv: object — copy the input Topic coverage plan unchanged
   - ps: 数组
-    - p: string   — 搜索优化的 prompt 文本（6-12 词）
+    - p: string   — 自然、完整、可独立理解的 prompt；通常 5-18 个英语词，复杂 B2B 问题可更长
     - l: string   — 语言代码（如 'en-US'）
     - pt: "generic" | "branded" | "competitive" — 品牌词监控类型
     - it: "problem_solution" | "recommendation" | "comparison" | "pricing_value" | "risk_validation" | "implementation" | "alternative" | "local_availability" | "education_content" | "brand_validation"
@@ -120,5 +123,10 @@ ts: 数组
       - i: "Informational" | "Navigational" | "Commercial" | "Transactional"
       - s: int (0-100)  — 意图强度分数
     - kw: string[]  — 恰好 2 个关键词
+    - pool: "monitoring_core" | "content_opportunity"
+    - sv: int (0-100) — business serviceability
+    - dp: int (0-100) — demand plausibility
+    - mp: int (0-100) — answer mention likelihood
+    - cg: string[] — valid Topic coverage-cell IDs
     - ev: object (optional) — evidence metadata from evidence-schema.md
 ```

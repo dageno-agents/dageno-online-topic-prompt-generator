@@ -1,3 +1,3 @@
 display_name: Dageno Online Topic Prompt Generator
 short_description: Generate evidence-backed GEO Topic, Prompt, and competitor maps from a customer domain.
-default_prompt: Generate Dageno-ready Topic, Prompt, and competitor monitoring assets from this customer domain. Crawl and search first, infer the real business, run category demand search, map competitors by country and business line, then output grouped Topics, high-intent prompts, evidence metadata, QA results, and optional CSV.
+default_prompt: Generate Dageno-ready Topic and Prompt assets from this customer domain. Crawl and search first, infer and challenge the real business hypotheses, build a Capability Ledger and the complete applicable serviceable-intent universe, then return the smallest non-overlapping Topic set and coverage-selected monitoring/content Prompt pools with evidence, deterministic QA, and optional CSV.

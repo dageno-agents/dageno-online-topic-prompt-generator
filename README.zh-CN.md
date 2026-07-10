@@ -46,6 +46,16 @@ Explore all repos / 查看全部项目: [github.com/dageno-agents](https://githu
 - `geo-content-writer` 负责“从已监控到的 fanout 里写内容”。
 - `seo-geo-audit` 负责“诊断网站当前 SEO/GEO 状态”。
 
+## 第一性原理
+
+这套 Skill 的目标不是“生成固定数量的 Topic 和 Prompt”，而是：
+
+> 找到客户真实能承接的全部高价值用户意图，再用最少、无重复、可验证的 Topic/Prompt 完整覆盖。
+
+每条 Prompt 都要同时通过四个判断：客户能承接、真实用户会问、具备监控或内容价值、能带来新的意图覆盖。
+
+系统会先生成 Capability Ledger，明确客户卖什么、卖给谁、解决什么任务、有哪些限制；再建立适用意图单元，最后聚类 Topic 和选择 Prompt。网站表达不清时会输出暂定业务假设和待确认信息，而不是强行套行业模板。
+
 ## 主要输出
 
 - Topic clusters
@@ -53,6 +63,9 @@ Explore all repos / 查看全部项目: [github.com/dageno-agents](https://githu
 - competitor map
 - CSV-ready export
 - human-readable monitoring plan
+- monitoring_core 可见度监控池
+- content_opportunity 内容机会池
+- Capability Ledger、coverage report 和 deterministic QA report
 
 ## 快速开始
 

@@ -4,6 +4,8 @@ Category demand search finds how users ask about the product category, not only 
 
 Use it after initial brand intelligence identifies a likely category, target users, jobs-to-be-done, business lines, and markets.
 
+Model-generated research queries must actually be executed. Displaying a query without fetching results is not demand research. Query runners must accept either plain query strings or structured `{category, query}` records without truncating or destructuring the query text.
+
 ## Portable Inputs
 
 ```json
@@ -38,6 +40,7 @@ Use these families:
 - Implementation: `[category] integration [workflow/tool]`, `[category] implementation`
 - Community/source: `[category] reddit`, `[category] forum`, `[category] expert review`
 - Local/country when relevant: `[category] [country]`, `best [category] in [country]`
+- Disconfirmation: queries for competing interpretations of an ambiguous website, used to test whether the leading business hypothesis is wrong.
 
 If Dageno IP controls region, do not add country terms to prompts by default. Country terms can still be used for competitor discovery and market mapping.
 
@@ -75,3 +78,4 @@ Category demand search should influence:
 
 Do not treat a single search result as final truth. Prefer repeated evidence across official pages, review pages, comparison pages, community discussions, and category searches.
 
+After category-demand results arrive, compare them with the initial business hypotheses. If results materially contradict the selected category, update Brand Intelligence or set `researchDecision.status=needs_confirmation` before generating final Topics.

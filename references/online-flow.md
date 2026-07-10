@@ -13,11 +13,16 @@ Input body:
   "domain": "https://example.com",
   "market": "United States / North America",
   "industry": "Auto detect",
+  "businessGoal": "optional strategic goal",
+  "priorityOffering": "optional priority offer or revenue line",
+  "idealCustomer": "optional paying customer",
+  "excludedOfferings": "optional explicit exclusions",
   "outputLanguage": "English",
   "models": "ChatGPT / Perplexity",
   "regionMode": "由 Dageno 地区/IP 设置控制",
   "topicMode": "auto",
   "topicCount": 7,
+  "promptMode": "auto",
   "promptCount": 10,
   "crawlDepth": 6,
   "brandPromptMode": "exclude",
@@ -25,11 +30,11 @@ Input body:
   "targetCountries": ["United States"],
   "businessLines": [],
   "openrouterApiKey": "",
-  "llmModel": "anthropic/claude-sonnet-4.6"
+  "llmModel": "anthropic/claude-opus-4.8"
 }
 ```
 
-`includeBrandTerms` is a legacy boolean. If `brandPromptMode` is absent and `includeBrandTerms=true`, treat it as `brandPromptMode=include`.
+`includeBrandTerms` is a legacy boolean. If `brandPromptMode` is absent and `includeBrandTerms=true`, treat it as `brandPromptMode=include`. `promptCount` is a final count only when `promptMode=manual`; in auto mode the coverage engine determines prompt counts per Topic.
 
 Output:
 
@@ -57,11 +62,18 @@ Output:
   "categoryDemandSignals": [],
   "competitorMap": [],
   "evidenceSources": [],
+  "brandIntelligence": {
+    "capabilityLedger": [],
+    "intentCoveragePlan": {},
+    "researchDecision": {}
+  },
   "qaReport": {
     "passed": true,
     "errors": [],
     "warnings": []
   },
+  "coverageReport": [],
+  "outputCounts": {"topics": 6, "prompts": 54},
   "content": "Markdown Topic/Prompt output"
 }
 ```
@@ -77,7 +89,7 @@ The live flow checks keys in this order:
 Preferred model:
 
 ```text
-anthropic/claude-sonnet-4.6
+anthropic/claude-opus-4.8
 ```
 
 ## Brand Intelligence JSON
@@ -102,6 +114,9 @@ Before Topic generation, call a model with website crawl evidence and external s
   "competitors": ["competitors, alternatives, substitute providers, platforms, directories, or comparison sources"],
   "searchQueries": ["5-8 search queries that would find more competitors/reviews/category context"],
   "categoryDemandQueries": ["5-12 non-branded category demand queries for best/review/pricing/alternative/integration/community"],
+  "capabilityLedger": [],
+  "intentCoveragePlan": {},
+  "researchDecision": {},
   "topicSeeds": ["4-10 high-value GEO topic clusters based on real buyer questions"],
   "suggestedTopicCount": 3,
   "evidenceSources": [],
@@ -122,6 +137,8 @@ Important model instructions:
 - For procurement/sourcing businesses, topic seeds should follow the buyer decision chain: one-stop procurement, category bundles or replenishment packages, project/opening checklists, custom branding/OEM, supplier quality/factory verification, and cost/MOQ/lead time/consolidated shipping. Do not fragment the strategy into isolated SKU topics unless a SKU category is a trust entry point, recurring purchase bundle, or project package.
 - Topic seeds must reflect real user/business scenarios, not generic product labels.
 - Differentiators must be concrete enough to guide competitor and prompt design.
+- Build the Capability Ledger and applicable intent universe from `references/coverage-engine.md` before Topic generation.
+- `suggestedTopicCount` must equal the smallest complete, non-overlapping Topic set; it is not an industry default.
 - For local services, topic seeds should reflect location, booking, price, reviews, service menu, and trust.
 - For ecommerce, topic seeds should reflect product selection, comparison, use cases, price, reviews, safety, and alternatives.
 - For B2B tools, topic seeds should reflect vendor selection, workflow fit, integrations, pricing, risks, competitors, and implementation.
@@ -183,7 +200,8 @@ User payload:
 ```text
 currentDate: YYYY-MM-DD
 langCode: en-US
-topicCount: [count]
+topicCountMode: auto|manual
+topicCount: [manual count or AUTO]
 websiteURL: [domain]
 brandPromptMode: exclude|include|mixed|brand_only
 
@@ -200,7 +218,7 @@ Competitor Map:
 Evidence Sources:
 [evidenceSources]
 
-Return the exact JSON schema required by the Skill.
+Return Topics with `pc`, `cv.cells`, and `ev` using the schema in `references/geo-topic-generate.md`.
 ```
 
 ## Prompt Model Prompt
@@ -217,9 +235,8 @@ User payload:
 currentDate: YYYY-MM-DD
 langCode: en-US
 websiteURL: [domain]
-BasePromptsPerTopic: [base count]
-DecisionExpansionPromptsPerTopic: 4-5
-TotalPromptsPerTopic: [base + expansion]
+PromptCountMode: auto|manual
+TotalPromptsPerTopic: [manual final count or per-Topic coverage-derived target]
 brandPromptMode: exclude|include|mixed|brand_only
 brandPromptRatio: 0.3
 
@@ -236,20 +253,20 @@ Evidence Sources:
 [evidenceSources]
 
 Topics to generate. Use every topic exactly once and do not add extra topics:
-[{"t":"Topic","ty":"use_case","f":"High","c":95}]
+[{"t":"Topic","ty":"use_case","f":"High","c":95,"pc":8,"cv":{"cells":[]}}]
 ```
 
 Rules:
 
-- Each provided topic must have exactly `TotalPromptsPerTopic` prompts.
-- Preserve diversified intent mix for the first `BasePromptsPerTopic` prompts.
-- Add 4-5 extra BOFU decision prompts per topic.
-- Extra prompts must be high-purchase-intent best/top/provider/vendor/comparison/review/pricing style questions.
-- At least 80% of prompts must naturally trigger product/provider/brand recommendations, comparisons, alternatives, reviews, pricing, risk validation, implementation vendor selection, or purchase decisions.
+- In auto mode, select prompts by marginal coverage and stop when all High-priority cells are covered. In manual mode, use the requested number as the final target without fixed expansions.
+- Every prompt must include `pool`, `sv`, `dp`, `mp`, `cg`, and `ev`.
+- `monitoring_core` requires `sv>=70`, `dp>=60`, `mp>=55`; `content_opportunity` requires `sv>=70`, `dp>=50`.
+- Monitoring/content mix is dynamic by business model. Do not enforce a universal 80% ratio.
+- Best/top/provider/vendor/comparison/review/pricing prompts are generated only for distinct uncovered decisions.
 - Every prompt is monitored independently with no prior context. Each prompt must include enough industry, category, or use-case language for the model to know the business context without reading the Topic name or brand summary.
 - Every prompt must include a business-context anchor: a concrete industry, product category, service type, user scenario, or allowed brand term. Do not ask vague cross-industry questions such as "raw spread vs standard accounts", "learn technical analysis systematically", or "practice with a demo account" unless the prompt explicitly says the relevant category, e.g. `CFD`, `forex`, `broker`, `trading account`, `trading platform`, `leveraged trading`, or a concrete asset for trading/broker domains.
 - Do not output cross-industry ambiguous prompts such as "one-stop procurement cost vs multiple suppliers?" or "supplier with fast delivery?" Rewrite them with the category anchor, e.g. "hotel one-stop procurement cost vs multiple suppliers?".
-- At most 1 `education_content` prompt per Topic unless category is content-led.
+- Lower-mention informational prompts belong in `content_opportunity`; their quantity follows applicable coverage rather than a fixed cap.
 - If `brandPromptMode=exclude`, exclude owned brand, aliases, and competitor names from every prompt and keyword.
 - If `brandPromptMode=include`, include owned-brand validation prompts but do not include competitor names unless explicitly requested.
 - If `brandPromptMode=mixed`, competitive prompts must map to real competitors from `competitorMap`.

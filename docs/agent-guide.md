@@ -7,15 +7,15 @@ This guide explains how an agent should execute the Skill.
 1. Normalize the input domain.
 2. Crawl the website and record attempted URLs.
 3. Search the web for brand/category/competitor/review context.
-4. Run category demand search for non-branded best/review/pricing/alternative/integration/community queries.
-5. Run model-led brand intelligence.
-6. Generate country/business-line competitor map with differentiation angles.
-7. Decide Topic count.
-8. Generate Topic JSON with evidence metadata when machine output is needed.
-9. Generate Prompt JSON for each Topic.
-10. Expand each Topic with 4-5 decision-stage prompts.
-11. Run deterministic Prompt QA.
-12. Render grouped Markdown.
+4. Run model-led brand intelligence and generate follow-up research queries.
+5. Actually execute category-demand, disconfirmation, competitor, review, pricing, alternative, implementation and community searches.
+6. Reconcile the evidence into business hypotheses and a research-decision status.
+7. Build the Capability Ledger and applicable serviceable-intent coverage cells.
+8. Generate the smallest complete Topic set with `pc`, `cv`, and `ev`.
+9. Generate more Prompt candidates than needed, then select by score thresholds and marginal coverage.
+10. Separate `monitoring_core` from `content_opportunity`.
+11. Run deterministic schema, policy, semantic-duplicate and coverage QA.
+12. Render grouped Markdown and expose `qaReport` / `coverageReport`.
 13. Export CSV when requested.
 
 ## Brand Intelligence First
@@ -31,6 +31,8 @@ The first model call should identify:
 - what the brand does not appear to support
 - what differentiates the brand from market leaders and substitutes
 - which competitors or substitute sources matter
+- what the customer can credibly deliver, with evidence and constraints
+- whether the conclusion is confirmed, provisional, or requires customer confirmation
 
 If this step fails, use rule fallback but label the output.
 
@@ -86,7 +88,9 @@ Weak:
 - `Product workflow benefits`
 - `One-stop procurement cost vs multiple suppliers?`
 
-Pure educational prompts are allowed, but they should not dominate the monitoring set.
+Pure educational prompts are allowed when demand is real and the customer can answer them. Put lower-mention questions in `content_opportunity`; do not force them into the monitoring pool or impose a universal ratio.
+
+Do not append a fixed number of best/top/pricing prompts. Each accepted Prompt must cover a valid Topic cell and add information not already covered by a stronger Prompt.
 
 After JSON generation, run `scripts/prompt_qa.py` when possible. If QA fails, repair the output or report the failures clearly.
 

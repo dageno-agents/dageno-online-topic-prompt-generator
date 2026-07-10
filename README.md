@@ -75,23 +75,24 @@ flowchart LR
   D --> E["External signals<br/>competitors, reviews, alternatives, community"]
   C --> F["Model-led brand intelligence"]
   E --> F
-  F --> G["Category demand search<br/>best, review, pricing, alternative, integration"]
-  G --> H["Competitor map<br/>country + business line + differentiation"]
-  H --> I["Topic clusters<br/>business scenarios + buyer intent"]
-  I --> J["Prompt library<br/>high-intent monitoring prompts"]
-  J --> K["Dageno-ready output<br/>Markdown / CSV + QA"]
+  F --> G["Capability ledger<br/>what the customer can actually deliver"]
+  G --> H["Category demand + competitor research"]
+  H --> I["Serviceable intent universe<br/>buyers + jobs + decisions + constraints"]
+  I --> J["Smallest complete Topic set"]
+  J --> K["Coverage-selected Prompt pools"]
+  K --> L["Dageno-ready output<br/>Markdown / CSV + deterministic QA"]
 ```
 
-The pipeline has six gates:
+The pipeline has eight gates:
 
 1. **Crawl** the real website.
 2. **Search** for category, competitor, review, and buying-decision context.
 3. **Infer** the actual business with a model, instead of forcing a fixed industry label.
 4. **Find category demand** from non-branded best/review/pricing/alternative/integration/community searches.
 5. **Map competitors** by market, country, business line, overlap, and differentiation angle.
-6. **Plan Topics** by buyer roles, jobs-to-be-done, content assets, competitors, and decision criteria.
-7. **Generate Prompts** that can trigger product/provider/brand mentions in AI answers.
-8. **Run QA and export** grouped Topic/Prompt tables for Dageno monitoring.
+6. **Build the serviceable intent universe** from customer capabilities, buyers, jobs, triggers, constraints, and applicable intents.
+7. **Select Topics and Prompts by coverage**, not preset counts or fixed best/top templates.
+8. **Run deterministic QA and export** evidence-backed monitoring and content-opportunity pools.
 
 ## What It Produces
 
@@ -107,6 +108,8 @@ Example fields:
 | `ty` | Topic Cluster type |
 | `f` | Priority: High / Medium / Low |
 | `c` | Confidence score |
+| `pc` | Coverage-derived final prompt count |
+| `cv` | Capability mappings and coverage cells |
 | `ev` | Optional evidence metadata |
 
 Supported Topic types:
@@ -131,6 +134,11 @@ Each prompt carries monitoring metadata:
 | `f` | Funnel stage: TOFU / MOFU / BOFU |
 | `is` | Intent score |
 | `kw` | Two keyword phrases for search volume aggregation |
+| `pool` | `monitoring_core` or `content_opportunity` |
+| `sv` | Customer serviceability score |
+| `dp` | Real demand plausibility score |
+| `mp` | Answer mention likelihood score |
+| `cg` | Covered intent-cell IDs |
 
 The default mode is non-branded:
 
@@ -173,25 +181,16 @@ Which [product category] is best for [scenario]?
 
 Each prompt must be understandable on its own. Dageno monitors prompts independently, without Topic names or prior chat context, so cross-industry terms like `supplier`, `vendor`, `procurement`, `platform`, `service`, `manufacturer`, `account`, `course`, `demo account`, `cost`, and `pricing` must include the industry/category/use-case anchor inside the prompt itself. For trading or broker domains, vague questions like `raw spread vs standard accounts`, `learn technical analysis`, or `practice with a demo account` must be rewritten with anchors such as `CFD`, `forex`, `broker`, `trading account`, `trading platform`, `leveraged trading`, or a concrete traded asset.
 
-The rule of thumb:
+The Skill uses two explicit pools:
 
-**At least 80% of prompts should be capable of producing a recommendation, comparison, review, pricing, implementation, risk, vendor, or alternative answer.**
+- `monitoring_core`: serviceable questions likely to trigger products, providers, brands, competitors, or sources.
+- `content_opportunity`: real serviceable questions useful for SEO/GEO content, even when brand-mention likelihood is lower.
+
+The mix is dynamic. Decision-led categories usually produce 75-90% monitoring prompts, while media, education, community, or content-led businesses may produce 50-70%.
 
 ## Topic Count Is Not Fixed
 
-Different businesses need different Topic counts.
-
-The system should decide based on business complexity:
-
-| Business type | Typical Topic count |
-|---|---:|
-| Local service | 4-5 |
-| Simple DTC product | 4-6 |
-| Multi-product DTC / hardware | 5-7 |
-| B2B SaaS / developer tool | 6-8 |
-| Enterprise platform / marketplace | 7-10 |
-
-Manual override is allowed, but the default should be system judgment.
+Different businesses need different Topic and Prompt counts. The system builds applicable coverage cells, then returns the smallest non-overlapping Topic set that covers every High-priority serviceable job and decision. Prompt generation stops when remaining candidates add no meaningful coverage. Manual override is allowed, but uncovered cells must remain visible.
 
 ## Output Example
 
@@ -210,9 +209,9 @@ Monitor whether the brand is naturally recommended in AI search platform selecti
 
 Topic Schema: ty=product_category; f=High; c=94
 
-| # | Monitoring Prompt | Brand Term Type | User Intent | Funnel | Intent Score | Keywords |
-|---:|---|---|---|---|---|---|
-| 1 | Best AI search visibility platforms for SaaS teams | generic | recommendation | BOFU | Transactional:92 | AI search platforms / SaaS visibility tools |
+| # | Monitoring Prompt | Brand Term Type | Pool | User Intent | Funnel | Quality | Keywords |
+|---:|---|---|---|---|---|---|---|
+| 1 | Best AI search visibility platforms for SaaS teams | generic | monitoring_core | recommendation | MOFU | sv92/dp86/mp88 | AI search platforms / SaaS visibility tools |
 ```
 
 ## CSV Export
@@ -220,7 +219,7 @@ Topic Schema: ty=product_category; f=High; c=94
 The Skill supports spreadsheet-ready output:
 
 ```csv
-Topic序号,Topic名称,Topic Cluster类型,用户购买路径,Topic优先级,Topic Prompt数,Prompt序号,Prompt,品牌词类型,用户意图,购买阶段,意图强度,关键词,监测模型,监测地区
+Topic序号,Topic名称,Topic Cluster类型,用户购买路径,Topic优先级,Topic Prompt数,Prompt序号,Prompt,品牌词类型,用途池,用户意图,购买阶段,意图强度,关键词,业务承接分,需求真实性分,品牌提及概率分,监测模型,监测地区
 ```
 
 See [CSV Output](references/csv-output.md).
@@ -240,6 +239,7 @@ dageno-online-topic-prompt-generator/
     category-demand-search.md
     competitor-generation.md
     evidence-schema.md
+    coverage-engine.md
     geo-topic-generate.md
     geo-prompt-generate-by-topic.md
     brand-research.md
