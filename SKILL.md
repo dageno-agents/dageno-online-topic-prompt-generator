@@ -62,9 +62,9 @@ Optional:
 
 Preferred model route:
 
-1. OpenRouter, model `anthropic/claude-opus-4.8` or the strongest available Claude Opus model.
-2. Anthropic Claude Opus fallback.
-3. OpenAI fallback.
+1. OpenRouter, model `openai/gpt-5.6-sol` or the strongest approved GPT-5.6 model.
+2. OpenAI fallback.
+3. Anthropic Claude Opus fallback.
 4. Rule fallback only when no valid model key is available.
 
 When no model key is available, tell the user clearly that output is rule fallback and may miss business nuance.

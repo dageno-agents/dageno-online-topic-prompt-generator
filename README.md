@@ -242,7 +242,7 @@ OPENAI_API_KEY
 OPENAI_MODEL
 ```
 
-Preferred route: OpenRouter with the strongest available Claude Opus model. See [Security](docs/security.md).
+Preferred route: OpenRouter with `openai/gpt-5.6-sol`, the flagship GPT-5.6 model. See [Security](docs/security.md).
 
 ## Repository Structure
 

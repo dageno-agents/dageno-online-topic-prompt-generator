@@ -30,7 +30,7 @@ Input body:
   "targetCountries": ["United States"],
   "businessLines": [],
   "openrouterApiKey": "",
-  "llmModel": "anthropic/claude-opus-4.8"
+  "llmModel": "openai/gpt-5.6-sol"
 }
 ```
 
@@ -89,7 +89,7 @@ The live flow checks keys in this order:
 Preferred model:
 
 ```text
-anthropic/claude-opus-4.8
+openai/gpt-5.6-sol
 ```
 
 ## Brand Intelligence JSON
