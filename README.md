@@ -24,7 +24,7 @@ Explore all repos / 查看全部项目: [github.com/dageno-agents](https://githu
 
 Most prompt generators begin with an industry template. That is the easiest way to generate polished but completely wrong results.
 
-This Skill begins with evidence: crawl the website, search the market, infer what buyers are actually purchasing, build a Capability Ledger, and cover the smallest complete set of serviceable buyer intents.
+This Skill begins with evidence: crawl the website, search the market, infer what buyers are actually purchasing, build a Capability Ledger and a competitive decision-surface map, then cover every material serviceable buyer intent without padding.
 
 The output is designed for two jobs:
 
@@ -47,13 +47,14 @@ flowchart LR
   C --> D
   D --> E["Economic center"]
   E --> F["Capability Ledger"]
-  F --> G["Category demand research"]
-  G --> H["Market-aware competitor map"]
-  H --> I["Serviceable intent coverage"]
-  I --> J["Dynamic Topic clusters"]
-  J --> K["Dynamic Prompt library"]
-  K --> L["Deterministic QA"]
-  L --> M["Markdown / CSV / JSON"]
+  F --> G["Competitive decision-surface map"]
+  G --> H["Category demand research"]
+  H --> I["Market-aware competitor map"]
+  I --> J["Serviceable intent coverage"]
+  J --> K["Dynamic Topic clusters"]
+  K --> L["Dynamic Prompt library"]
+  L --> M["Deterministic QA"]
+  M --> N["Markdown / CSV / JSON"]
 ```
 
 ### 1. Crawl The Real Business
@@ -97,27 +98,34 @@ The Skill searches non-branded category demand around:
 
 Competitors are classified by market, business line, buyer segment, overlap, and differentiation angle. The result is not one global list.
 
-### 5. Generate Coverage-Driven Topics
+### 5. Build A Competitive Decision-Surface Map
+
+The generator maps the actual commercial questions a buyer must resolve: which offer or bundle fits, who owns the decision, which project/workflow is involved, what trust proof is required, and how price, MOQ, quality, delivery, integration, risk, or alternatives are compared. It uses these as coverage units only when the website and search evidence show the customer can credibly serve them.
+
+This is how a rich supplier, industrial, or B2B service business avoids being reduced to a few product nouns. It is also why an unrelated simple business is not forced into an inflated taxonomy.
+
+### 6. Generate Coverage-Driven Topics
 
 A Topic is a coherent cluster of questions sharing the same decision object and core JTBD. It is not a feature label, page heading, funnel stage, or generic phrase such as `Product Discovery`.
 
-Topic count is an output of coverage. It is not always five, seven, or ten.
+Topic count is an output of coverage. It is not always five, seven, or ten. Distinct decision surfaces are merged only when they share the decision object, buyer context, proof required, and expected answer set.
 
-### 6. Generate Two Prompt Pools
+### 7. Generate Two Prompt Pools
 
 `monitoring_core` contains questions likely to make an AI answer name products, brands, providers, competitors, or sources.
 
 `content_opportunity` contains useful, serviceable questions with lower brand-mention probability that are better suited to content production.
 
-Prompt count is also dynamic. A narrow Topic may stop at four to six distinct questions; a complex purchase decision may require twelve or more. Padding and paraphrase inflation are rejected.
+Prompt count is also dynamic. A narrow Topic may stop at three to seven distinct questions; a complex purchase decision may require twenty or more. The online run has a 32-Prompt safety limit per Topic; a larger evidence-backed scope must be returned as a continuation plan, never silently truncated. Padding and paraphrase inflation are rejected.
 
-### 7. Run Deterministic QA
+### 8. Run Deterministic QA
 
 The included QA checks:
 
 - exact Topic-level Prompt count
 - all High-priority coverage cells
 - all declared applicable intents
+- all High-priority decision surfaces
 - cross-Topic semantic duplication
 - standalone business context
 - brand/competitor leakage in non-branded mode
@@ -155,9 +163,9 @@ Optional controls:
 | Field | Values | Default |
 |---|---|---|
 | `topicMode` | `auto`, `manual` | `auto` |
-| `topicCount` | 1-10, manual mode only | coverage-derived |
+| `topicCount` | 1-24, manual mode only | coverage-derived; online safety ceiling is 24 |
 | `promptMode` | `auto`, `manual` | `auto` |
-| `promptCount` | 5-20, manual mode only | coverage-derived per Topic |
+| `promptCount` | 3-32, manual mode only | coverage-derived per Topic; safety ceiling is 32 |
 | `brandPromptMode` | `exclude`, `include`, `mixed`, `brand_only` | `exclude` |
 | `crawlDepth` | 3-12 | 6-8 |
 | `targetCountries` | country list | inferred/target market |
@@ -177,7 +185,7 @@ Topic fields include:
 - `f`: priority
 - `c`: confidence
 - `pc`: coverage-derived Prompt count
-- `cv`: capabilities, intents, decision criteria, exclusions, and coverage cells
+- `cv`: capabilities, intents, decision criteria, decision surfaces, exclusions, and coverage cells
 - `ev`: source IDs, confidence reason, and warnings
 
 Prompt fields include:

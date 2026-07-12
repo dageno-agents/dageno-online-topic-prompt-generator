@@ -138,7 +138,7 @@ Important model instructions:
 - Topic seeds must reflect real user/business scenarios, not generic product labels.
 - Differentiators must be concrete enough to guide competitor and prompt design.
 - Build the Capability Ledger and applicable intent universe from `references/coverage-engine.md` before Topic generation.
-- `suggestedTopicCount` must equal the smallest complete, non-overlapping Topic set; it is not an industry default.
+- Build the competitive decision-surface map before Topic planning. `suggestedTopicCount` must equal the complete non-overlapping Topic set needed to cover all material serviceable surfaces; it is not an industry default and must not use 10 as an automatic ceiling.
 - For local services, topic seeds should reflect location, booking, price, reviews, service menu, and trust.
 - For ecommerce, topic seeds should reflect product selection, comparison, use cases, price, reviews, safety, and alternatives.
 - For B2B tools, topic seeds should reflect vendor selection, workflow fit, integrations, pricing, risks, competitors, and implementation.

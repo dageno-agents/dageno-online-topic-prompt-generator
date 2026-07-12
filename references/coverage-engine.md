@@ -4,7 +4,7 @@ This is the canonical Topic/Prompt planning algorithm.
 
 ## First Principle
 
-The generator succeeds only when it produces the smallest non-redundant prompt set that covers the customer's complete **serviceable intent universe**.
+The generator succeeds only when it produces a complete, non-redundant Topic and Prompt system covering the customer's **serviceable intent universe** and **competitive decision surfaces**.
 
 Every accepted prompt must satisfy four conditions:
 
@@ -13,7 +13,7 @@ Every accepted prompt must satisfy four conditions:
 3. **Monitoring value**: the answer is likely to mention products, providers, brands, competitors, or trusted sources; otherwise the prompt must be explicitly classified as a content opportunity.
 4. **Marginal coverage**: the prompt covers at least one relevant intent cell not already covered by a stronger prompt.
 
-Topic count and prompt count are outputs of coverage. They are not fixed by industry templates.
+Topic and Prompt counts are outputs of coverage. They are not fixed by industry templates, fixed quotas, or default numbers such as 10.
 
 ## 1. Evidence Sufficiency Gate
 
@@ -56,7 +56,28 @@ Build a ledger before generating Topics:
 
 High-priority Topics may map only to `confirmed` or strongly supported `inferred` capabilities. Do not create prompts for `unknown` capabilities.
 
-## 3. Applicable Intent Universe
+## 3. Competitive Decision-Surface Map
+
+Before building cells, create a map of the commercial questions a buyer must resolve before selecting a provider. A surface is valid only when it has evidence of a supported capability and a plausible buyer decision.
+
+```json
+{
+  "id": "surface_001",
+  "label": "supplier quality and factory verification",
+  "decisionObject": "category procurement partner",
+  "buyerContext": "project procurement lead",
+  "proofNeeded": ["certification", "sample approval", "inspection process"],
+  "decisionCriteria": ["quality consistency", "factory credibility"],
+  "capabilityIds": ["cap_001"],
+  "priority": "High",
+  "topicImplication": "own Topic",
+  "evidenceSourceIds": ["src_001"]
+}
+```
+
+This is a schema example, not a vertical template. Typical surface families may include offer/category fit, buyer/project workflow, supplier selection, customisation, quality/compliance proof, price/MOQ/TCO, lead time/logistics, implementation, and risk. Do not form a Cartesian product. Merge only when the decision object, buyer context, proof needed, and expected answer entities are compatible.
+
+## 4. Applicable Intent Universe
 
 Construct only combinations that are both realistic and serviceable. Candidate dimensions:
 
@@ -92,6 +113,7 @@ Represent each applicable unit as a coverage cell:
 ```json
 {
   "id": "cell_001",
+  "decisionSurface": "supplier quality and factory verification",
   "buyerRole": "ecommerce operations manager",
   "jobToBeDone": "select a post-purchase tracking platform",
   "intentType": "comparison",
@@ -102,7 +124,7 @@ Represent each applicable unit as a coverage cell:
 }
 ```
 
-## 4. Topic Clustering
+## 5. Topic Clustering
 
 A Topic is a coherent cluster of coverage cells that share:
 
@@ -112,7 +134,7 @@ A Topic is a coherent cluster of coverage cells that share:
 
 Do not use page sections, feature names, generic funnel stages, or abstract intent labels as Topics.
 
-Select the smallest set of non-overlapping Topics that covers all High-priority capabilities, jobs, triggers, risks, and decision criteria. Medium-confidence hypotheses may contribute one exploratory Topic. Low-confidence hypotheses remain warnings.
+Select the complete non-overlapping Topic set that covers all High-priority capabilities, jobs, triggers, risks, decision criteria, and decision surfaces. Compactness is secondary to coverage: do not merge surfaces merely to keep a Topic count low. Medium-confidence hypotheses may contribute one exploratory Topic. Low-confidence hypotheses remain warnings.
 
 Each Topic stores:
 
@@ -121,7 +143,7 @@ Each Topic stores:
 - `cv`: capability IDs, buyers, jobs, applicable intents, decision criteria, excluded intents, coverage cells and rationale
 - `ev`: supporting evidence
 
-## 5. Prompt Candidate Generation
+## 6. Prompt Candidate Generation
 
 Generate more candidates than needed, then select by marginal coverage. A prompt may cover multiple cells only when it remains a natural, single-focus user question.
 
@@ -140,7 +162,7 @@ Acceptance thresholds:
 
 Do not add fixed quotas of `best`, `top`, pricing, comparison, or alternative prompts. Use those forms only when they cover a distinct buyer decision.
 
-## 6. Two Output Pools
+## 7. Two Output Pools
 
 ### Monitoring Core
 
@@ -156,7 +178,7 @@ The mix is dynamic:
 - media, education, community and content-led categories may produce 50-70%
 - do not apply one global ratio to every business
 
-## 7. Stopping Condition
+## 8. Stopping Condition
 
 Stop adding prompts when all conditions hold:
 
@@ -167,9 +189,9 @@ Stop adding prompts when all conditions hold:
 - remaining candidates add no meaningful new coverage
 - remaining candidates are semantic paraphrases or below acceptance thresholds
 
-A narrow Topic may stop at 4-7 prompts. A complex Topic may require 12-20. Never pad to a preset number.
+A narrow Topic may stop at 3-7 prompts. A complex Topic with several evidence-backed buyer contexts and decision surfaces may require 20-32 prompts, or a follow-on scope if it exceeds a single-run safety limit. Never pad to a preset number and never truncate a required surface solely to maintain a familiar count.
 
-## 8. QA Contract
+## 9. QA Contract
 
 Deterministic QA must verify:
 
@@ -181,6 +203,7 @@ Deterministic QA must verify:
 - valid coverage-cell references
 - High-priority cell coverage
 - applicable-intent coverage
+- decision-surface coverage and explicit handling of uncovered surfaces
 - evidence retention
 
 Return `qaReport` and `coverageReport`. If QA fails, repair and rerun or expose the failures; never silently label the result complete.

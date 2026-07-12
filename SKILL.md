@@ -10,7 +10,7 @@ This Skill reproduces the Topic/Prompt generation logic used by Dageno's GEO Sal
 Use it to turn a real customer website into Dageno monitoring assets:
 
 - Topic clusters that reflect the customer's real business scenarios.
-- A coverage-driven number of prompts per Topic, grouped by Topic without padding.
+- An evidence-driven, exhaustive number of Topics and Prompts, grouped by decision surface without padding.
 - Competitor maps by market, country, business line, and differentiation angle.
 - Prompt metadata for Dageno monitoring: brand-term type, intent type, funnel stage, intent score, and keywords.
 - Evidence metadata that explains why each Topic, Prompt, and competitor was generated.
@@ -28,7 +28,7 @@ Every new domain must run a fresh evidence chain:
 4. Run category demand search for non-branded user questions, buying criteria, and comparison language.
 5. Generate market-aware competitors by country, business line, overlap, and differentiation angle.
 6. Build a Capability Ledger and the complete applicable serviceable-intent universe.
-7. Cluster coverage cells into the smallest complete set of Topics.
+7. Build a competitive decision-surface map, then cluster every materially distinct coverage cell into complete Topics.
 8. Select Prompts by serviceability, real demand, mention/content value and marginal coverage.
 9. Attach evidence metadata and run deterministic Prompt/coverage QA before final output.
 10. Use static rules only as fallback, and explicitly label fallback output as lower quality.
@@ -48,9 +48,9 @@ Required:
 Optional:
 
 - `topicMode`: `auto` or `manual`.
-- `topicCount`: only used when `topicMode=manual`; valid range 1-10.
-- `promptMode`: `auto` or `manual`. Default `auto`. In auto mode, prompt count is decided per Topic based on business-scene completeness, buyer-journey depth, and whether enough distinct high-intent monitoring prompts exist.
-- `promptCount`: only used when `promptMode=manual`; final prompt count per Topic, valid range 5-20. Manual mode does not bypass serviceability, demand, coverage, or QA rules.
+- `topicCount`: only used when `topicMode=manual`; valid range 1-24. Auto mode returns every material, evidence-backed Topic required for coverage (safety ceiling: 24 per online run, not a target).
+- `promptMode`: `auto` or `manual`. Default `auto`. In auto mode, prompt count is decided from complete Topic coverage cells, not a fixed baseline.
+- `promptCount`: only used when `promptMode=manual`; final prompt count per Topic, valid range 3-32. Manual mode does not bypass serviceability, demand, coverage, or QA rules.
 - `brandPromptMode`: `exclude` / `include` / `mixed` / `brand_only`. Default `exclude`.
 - `includeBrandTerms`: legacy boolean. If true and `brandPromptMode` is absent, use `include`.
 - `crawlDepth`: default 6-8, valid range 3-12.
@@ -162,7 +162,7 @@ Do not hardcode any example company or vertical. Apply this only when crawl/sear
 
 See `references/online-flow.md` for the exact JSON schema.
 
-### 2.5 Serviceable Intent Coverage
+### 2.5 Competitive Decision-Surface Map And Serviceable Intent Coverage
 
 Read `references/coverage-engine.md` before Topic generation.
 
@@ -170,8 +170,11 @@ Build, in order:
 
 1. Evidence sufficiency decision.
 2. Capability Ledger: what the customer can credibly deliver, to whom, for which job, under which constraints.
-3. Applicable intent universe: only realistic and serviceable buyer-intent combinations.
-4. Coverage cells: the auditable units Topics and Prompts must cover.
+3. Competitive decision-surface map: the buyer-readable reasons a customer chooses, rejects, compares or verifies a provider.
+4. Applicable intent universe: only realistic and serviceable buyer-intent combinations.
+5. Coverage cells: the auditable units Topics and Prompts must cover.
+
+A decision surface can be an offer/category, buyer/project scenario, workflow, customization, trust proof, quality/performance, price/MOQ/TCO, lead time/logistics, risk, implementation, or local availability. It is not derived mechanically from navigation or a full Cartesian product. Collapse surfaces only when they have the same decision object, buyer context, proof required and expected answer set.
 
 Every accepted Prompt must pass serviceability, demand plausibility, monitoring/content value, and marginal coverage checks. Topic and Prompt counts are outputs of this process.
 
@@ -245,7 +248,7 @@ Topic fields:
 - `cv`: capability mappings, applicable intents, decision criteria, excluded intents and coverage cells
 - `ev`: evidence object. Include sources, confidence reason, mapped pages, demand signals, and competitor links when machine output is requested.
 
-Auto Topic count is the smallest non-overlapping set that covers all High-priority serviceable capabilities, buyer jobs, triggers, decision criteria and risks. Do not choose a count from an industry default. Manual mode may constrain count, but must disclose any uncovered High-priority cells.
+Auto Topic count is the complete non-overlapping set that covers all High-priority serviceable capabilities, buyer jobs, triggers, decision criteria, risks and decision surfaces. Compactness is secondary to coverage: do not merge a distinct buyer decision merely to maintain a familiar count. Manual mode may constrain count, but must disclose any uncovered High-priority cells.
 
 ### 6. Prompt Generation
 
@@ -269,7 +272,7 @@ Generate prompts per Topic with this metadata. Do not force every Topic to have 
 
 Prompt count rules:
 
-- Auto mode: stop when all High-priority and applicable coverage cells are covered and remaining candidates add no meaningful coverage. A Topic may contain 4-20 prompts.
+- Auto mode: stop when all High-priority and applicable coverage cells are covered and remaining candidates add no meaningful coverage. A narrow Topic may contain 3-7 prompts; a complex Topic may require 20-32 prompts or a follow-on scope.
 - Manual mode: treat the requested number as a final cap/target. Do not append a fixed decision-prompt quota.
 - Never pad a Topic with weak, repetitive, unsupported or low-demand prompts.
 
@@ -352,7 +355,7 @@ Before final delivery:
 - Did every domain get fresh crawl/search/model research?
 - Does the detected business match the real website?
 - Does every core Topic map to a confirmed or strongly inferred capability?
-- Is Topic count the smallest set that covers all High-priority serviceable intent cells?
+- Does Topic and Prompt scope cover all High-priority serviceable intent cells and decision surfaces, without merging commercially distinct decisions just to reduce count?
 - Are Topics free of brand names by default?
 - Are prompts grouped by Topic?
 - Are monitoring prompts above serviceability, demand and mention thresholds?
