@@ -24,7 +24,7 @@ Docs: [English](README.md) · [简体中文](README.zh-CN.md) · [Dageno](https:
 
 Most Prompt generators start with a category template and produce plausible-looking questions. That fails as soon as the website sells something more nuanced than the template understands.
 
-This Skill starts from evidence. It crawls the website, studies external demand and competitors, identifies what buyers are actually paying for, and builds the complete set of commercially meaningful questions the customer can credibly answer.
+This Skill starts from evidence. It crawls the website, studies external demand and competitors, identifies what buyers are actually paying for, and maps both the questions the customer can credibly answer and the wider category questions needed for an unbiased benchmark.
 
 It is built for GEO teams, SEO specialists, agencies, growth teams, and Dageno operators who need a defensible monitoring baseline rather than a prompt dump.
 
@@ -36,6 +36,7 @@ It is built for GEO teams, SEO specialists, agencies, growth teams, and Dageno o
 - Coverage-driven Topics. Topic count is not fixed at 5, 7, or 10.
 - Coverage-driven Prompts. A simple Topic may need 3-7; a complex one may need 20+.
 - Separate `monitoring_core` and `content_opportunity` pools.
+- Four coverage layers that prevent favorable-prompt bias: brand core, industry benchmark, competitive whitespace, and out-of-scope reference.
 - Market-aware competitors and evidence mappings.
 - Deterministic QA for coverage, duplication, brand leakage, and business context.
 - Markdown, CSV-ready, and machine-readable outputs.
@@ -55,8 +56,8 @@ flowchart LR
   C --> D["Economic center"]
   D --> E["Capability Ledger"]
   E --> F["Decision-surface map"]
-  F --> G["Serviceable intent cells"]
-  G --> H["Topic clusters"]
+  F --> G["Brand + category intent universes"]
+  G --> H["Layered Topic clusters"]
   H --> I["Prompt pools"]
   I --> J["Deterministic QA"]
   J --> K["Dageno / CSV / JSON"]
@@ -72,7 +73,7 @@ An evidence-backed inventory of:
 offering + buyer + job-to-be-done + supported outcome + constraints + evidence
 ```
 
-Popular demand does not become a Topic unless the customer can actually serve it.
+Confirmed capabilities define the core KPI, but they do not define the entire industry benchmark. Material category demand and competitor-owned decision surfaces are retained in separate layers.
 
 ### Competitive Decision Surface
 
@@ -120,6 +121,17 @@ That structure is closer to how procurement teams, engineers, and product owners
 `content_opportunity` captures real informational demand that is useful for SEO/GEO content planning but less likely to produce a brand mention.
 
 The ratio is dynamic. Decision-led businesses usually need more monitoring prompts; media or education businesses may legitimately need more informational coverage.
+
+## Four Coverage Layers
+
+| Layer | Purpose | Visibility use |
+| --- | --- | --- |
+| `brand_core` | Confirmed customer capabilities and buyer decisions | Core KPI |
+| `industry_benchmark` | Material category demand regardless of current customer strength | Category benchmark |
+| `competitive_whitespace` | Valuable intents competitors serve but the customer does not yet own | Opportunity analysis |
+| `out_of_scope_reference` | Relevant category context too far from the current offer | Diagnostic only |
+
+The Skill never blends all four into one headline score. Measuring only `brand_core` inflates visibility; measuring every category question as if the customer should win it unfairly depresses visibility.
 
 ## Automatic Scope, Without Silent Truncation
 
@@ -215,7 +227,7 @@ If model-led research or QA fails, the hosted workflow must repair or stop expli
 └── docs/
     ├── agent-guide.md
     ├── security.md
-    └── wechat-geo-topic-prompt-methodology.zh-CN.md
+    └── wechat-geo-intent-content-distribution.zh-CN.md
 ```
 
 ## Runtime And Security
@@ -235,7 +247,7 @@ The repository must not contain customer crawl exports, private reports, authori
 
 ## Learn The Method
 
-Read the Chinese field guide: [你的 GEO 监控，可能从第一批 Prompt 就错了](docs/wechat-geo-topic-prompt-methodology.zh-CN.md).
+Read the Chinese field guide: [为什么你的 GEO 内容发了很多，AI 还是不推荐你？](docs/wechat-geo-intent-content-distribution.zh-CN.md).
 
 ## License
 

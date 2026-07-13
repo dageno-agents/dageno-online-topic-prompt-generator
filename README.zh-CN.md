@@ -2,7 +2,7 @@
 
 > 把任意真实客户网站，转换成一套有业务证据、可导入 Dageno 的 GEO 监控问题体系。
 
-[English](README.md) · [完整 Skill](SKILL.md) · [方法论文章](docs/wechat-geo-topic-prompt-methodology.zh-CN.md) · [Dageno](https://dageno.ai/?utm_source=github&utm_medium=readme&utm_campaign=topic_prompt_generator)
+[English](README.md) · [完整 Skill](SKILL.md) · [方法论文章](docs/wechat-geo-intent-content-distribution.zh-CN.md) · [Dageno](https://dageno.ai/?utm_source=github&utm_medium=readme&utm_campaign=topic_prompt_generator)
 
 ## 它解决的不是“生成几个问题”
 
@@ -86,6 +86,17 @@ Prompt 是用户可以单独发给 ChatGPT、Gemini、Perplexity 等产品的问
 
 系统会根据行业和商业模式动态决定两类 Prompt 的比例。
 
+## 四层覆盖，避免“只问品牌擅长的问题”
+
+| 覆盖层 | 作用 | 数据口径 |
+| --- | --- | --- |
+| `brand_core` | 客户已确认能承接的能力与购买决策 | 核心可见度 KPI |
+| `industry_benchmark` | 行业内真实且重要的需求，不因客户暂时不擅长而删除 | 行业基准可见度 |
+| `competitive_whitespace` | 竞品已占据、客户尚未充分承接的高价值意图 | 竞争机会分析 |
+| `out_of_scope_reference` | 与行业有关但距离当前业务过远的需求 | 诊断参考，不计 KPI |
+
+系统不会把四层混成一个总分。只测 `brand_core` 会让可见度虚高；把所有行业问题都当成客户必须赢下的问题，又会不公平地拉低结果。
+
 ## 一个简单例子
 
 假设某制造商官网列出了几十种电芯、容量和电压页面。传统方法可能按产品目录拆 Topic；这套 Skill 会继续研究买家的决策过程：
@@ -163,7 +174,7 @@ cp -R dageno-online-topic-prompt-generator/* ~/.codex/skills/dageno-topic-prompt
 - [Topic 生成规范](references/geo-topic-generate.md)
 - [Prompt 生成规范](references/geo-prompt-generate-by-topic.md)
 - [确定性 QA](references/prompt-qa.md)
-- [公众号文章：你的 GEO 监控，可能从第一批 Prompt 就错了](docs/wechat-geo-topic-prompt-methodology.zh-CN.md)
+- [公众号文章：为什么你的 GEO 内容发了很多，AI 还是不推荐你？](docs/wechat-geo-intent-content-distribution.zh-CN.md)
 
 ## 安全
 
