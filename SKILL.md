@@ -1,6 +1,6 @@
 ---
 name: dageno-topic-prompt-generator
-description: Generate Dageno-ready GEO Topic clusters and Prompt libraries from any real customer domain using crawl/search evidence, a Capability Ledger, serviceable-intent coverage, two Prompt pools, deterministic QA, optional brand terms, and CSV-ready outputs.
+description: Generate Dageno-ready GEO Topic clusters and Prompt libraries from any real customer domain using crawl/search evidence, brand-serviceable and industry-benchmark coverage, competitor whitespace research, deterministic QA, optional brand terms, and CSV-ready outputs.
 ---
 
 # Dageno Online Topic Prompt Generator
@@ -27,11 +27,13 @@ Every new domain must run a fresh evidence chain:
 3. Use a model to infer the real business from crawl + search evidence.
 4. Run category demand search for non-branded user questions, buying criteria, and comparison language.
 5. Generate market-aware competitors by country, business line, overlap, and differentiation angle.
-6. Build a Capability Ledger and the complete applicable serviceable-intent universe.
-7. Build a competitive decision-surface map, then cluster every materially distinct coverage cell into complete Topics.
-8. Select Prompts by serviceability, real demand, mention/content value and marginal coverage.
-9. Attach evidence metadata and run deterministic Prompt/coverage QA before final output.
-10. Use static rules only as fallback, and explicitly label fallback output as lower quality.
+6. Build a Capability Ledger and a separate evidence-backed category demand map.
+7. Research competitor capabilities and the decision surfaces they already occupy.
+8. Build four coverage layers: brand core, industry benchmark, competitive whitespace, and out-of-scope reference.
+9. Cluster every materially distinct coverage cell into complete Topics.
+10. Select Prompts by layer-specific eligibility, real demand, mention/content value and marginal coverage.
+11. Attach evidence metadata and run deterministic Prompt/coverage QA before final output.
+12. Use static rules only as fallback, and explicitly label fallback output as lower quality.
 
 If crawl/search/model evidence conflicts with a static industry library, trust the evidence.
 
@@ -162,7 +164,7 @@ Do not hardcode any example company or vertical. Apply this only when crawl/sear
 
 See `references/online-flow.md` for the exact JSON schema.
 
-### 2.5 Competitive Decision-Surface Map And Serviceable Intent Coverage
+### 2.5 Dual-Universe Coverage And Competitive Decision Surfaces
 
 Read `references/coverage-engine.md` before Topic generation.
 
@@ -170,13 +172,16 @@ Build, in order:
 
 1. Evidence sufficiency decision.
 2. Capability Ledger: what the customer can credibly deliver, to whom, for which job, under which constraints.
-3. Competitive decision-surface map: the buyer-readable reasons a customer chooses, rejects, compares or verifies a provider.
-4. Applicable intent universe: only realistic and serviceable buyer-intent combinations.
-5. Coverage cells: the auditable units Topics and Prompts must cover.
+3. Category Demand Map: what buyers across the whole category ask, independent of the target brand's current strengths.
+4. Competitor Capability Map: which decision surfaces direct, partial, substitute, and source competitors occupy.
+5. Four coverage layers: `brand_core`, `industry_benchmark`, `competitive_whitespace`, and `out_of_scope_reference`.
+6. Coverage cells: the auditable units Topics and Prompts must cover.
 
 A decision surface can be an offer/category, buyer/project scenario, workflow, customization, trust proof, quality/performance, price/MOQ/TCO, lead time/logistics, risk, implementation, or local availability. It is not derived mechanically from navigation or a full Cartesian product. Collapse surfaces only when they have the same decision object, buyer context, proof required and expected answer set.
 
-Every accepted Prompt must pass serviceability, demand plausibility, monitoring/content value, and marginal coverage checks. Topic and Prompt counts are outputs of this process.
+Do not let brand serviceability define the whole industry universe. That would make visibility look artificially high by measuring only questions the brand is already positioned to win. Do not mix every industry question into the same KPI denominator either. Layered coverage and layered metrics are mandatory.
+
+Every accepted Prompt must pass the eligibility rules for its layer, demand plausibility, monitoring/content value, evidence, and marginal coverage. Topic and Prompt counts are outputs of this process.
 
 ### 3. External Search And Category Demand Search
 
@@ -268,6 +273,10 @@ Generate prompts per Topic with this metadata. Do not force every Topic to have 
 - `dp`: demand plausibility score 0-100
 - `mp`: answer mention likelihood score 0-100
 - `cg`: coverage-cell IDs
+- `scope`: `brand_core` / `industry_benchmark` / `competitive_whitespace` / `out_of_scope_reference`
+- `metricUse`: `core_kpi` / `category_benchmark` / `opportunity_analysis` / `diagnostic_only`
+- `serviceabilityStatus`: `confirmed` / `adjacent` / `unsupported`
+- `competitorEvidenceIds`: competitor/source evidence supporting benchmark or whitespace coverage
 - `ev`: prompt evidence and expected answer type
 
 Prompt count rules:
@@ -283,14 +292,23 @@ Brand term mode:
 - `mixed`: include generic, branded validation, and limited competitive prompts.
 - `brand_only`: only for brand reputation/occupancy monitoring.
 
-### 7. Monitoring And Content Pools
+### 7. Coverage Layers, Monitoring And Content Pools
 
-Dageno primarily monitors whether AI answers mention brands, competitors, products, vendors, or trusted sources. Content planning also needs real informational demand, so keep the two uses explicit.
+Dageno primarily monitors whether AI answers mention brands, competitors, products, vendors, or trusted sources. Content planning also needs real informational demand, so keep `pool` and `scope` as separate dimensions.
+
+Coverage layers:
+
+- `brand_core`: confirmed or strongly inferred customer capabilities. Included in core GEO KPI.
+- `industry_benchmark`: category-standard buyer demand, even when current customer serviceability is weak. Included in the category benchmark, not the core KPI.
+- `competitive_whitespace`: evidenced demand where competitors have capabilities, content, citations, or visibility and the customer has an adjacent gap. Used for opportunity analysis.
+- `out_of_scope_reference`: materially relevant category context that is too far from the current business. Diagnostic only; never used to judge execution performance.
 
 Rules:
 
-- `monitoring_core` prompts must have `sv>=70`, `dp>=60`, and `mp>=55`.
-- `content_opportunity` prompts must have `sv>=70` and `dp>=50`; lower mention likelihood is allowed.
+- `brand_core + monitoring_core` prompts must have `sv>=70`, `dp>=60`, and `mp>=55`.
+- `brand_core + content_opportunity` prompts must have `sv>=70` and `dp>=50`; lower mention likelihood is allowed.
+- `industry_benchmark` and `competitive_whitespace` monitoring prompts may have `sv<70`, but require `dp>=60`, `mp>=55`, explicit category/competitor evidence, and a non-core `metricUse`.
+- Never report one blended visibility score across all layers. Report core visibility, category benchmark visibility, whitespace opportunity, and out-of-scope context separately.
 - Decision-led businesses usually produce 75-90% monitoring-core prompts. Media, education, community, and content-led businesses may produce 50-70%. Do not enforce one ratio across industries.
 - Every prompt must stand alone as a no-context monitoring query. Dageno sends each prompt independently, so generic words such as `supplier`, `vendor`, `procurement`, `platform`, `service`, `manufacturer`, `account`, `course`, `demo account`, `cost`, or `pricing` must include the relevant industry/category/use-case anchor inside the prompt itself. For financial/trading/broker domains, each prompt should explicitly include an anchor such as `CFD`, `forex`, `broker`, `trading account`, `trading platform`, `leveraged trading`, a concrete traded asset, or an allowed brand term.
 - Information-oriented prompts belong in `content_opportunity` unless they naturally trigger entity or source mentions.
@@ -336,8 +354,8 @@ Topic 数量策略：
 
 Topic Schema：ty=...；f=...；c=...
 
-| 序号 | 监控 Prompt | 品牌词类型 | 用户意图 | 购买阶段 | 意图强度 | 关键词 |
-|---:|---|---|---|---|---|---|
+| 序号 | 监控 Prompt | 覆盖层 | 指标用途 | 品牌词类型 | 用户意图 | 购买阶段 | 意图强度 | 关键词 |
+|---:|---|---|---|---|---|---|---|---|
 ```
 
 For CSV export, use:
@@ -355,6 +373,9 @@ Before final delivery:
 - Did every domain get fresh crawl/search/model research?
 - Does the detected business match the real website?
 - Does every core Topic map to a confirmed or strongly inferred capability?
+- Does the industry benchmark come from category demand and competitor evidence rather than the target website alone?
+- Are brand-core, industry-benchmark, competitive-whitespace and out-of-scope cells separated?
+- Are KPI denominators reported by layer instead of blended into a flattering or punitive total?
 - Does Topic and Prompt scope cover all High-priority serviceable intent cells and decision surfaces, without merging commercially distinct decisions just to reduce count?
 - Are Topics free of brand names by default?
 - Are prompts grouped by Topic?

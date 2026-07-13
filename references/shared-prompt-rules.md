@@ -82,11 +82,15 @@
 - SaaS / API / 软件类 Topic 必须覆盖 `comparison`、`pricing_value`、`implementation`、`risk_validation`，若有免费试用或自助注册则覆盖 `brand_validation`。
 - 如果客户有博客、学院、资源中心、帮助中心、术语库、课程、电子书或市场分析栏目，应生成有真实需求证据的 `education_content` Prompt，并默认放入 `content_opportunity`；只有可能自然触发产品/信源提及时才进入 `monitoring_core`。
 
-## Coverage And Pool Rules
+## Coverage Layer And Pool Rules
 
-- 每条 Prompt 必须携带 `pool`、`sv`、`dp`、`mp`、`cg` 和 `ev`。
-- `monitoring_core`：`sv>=70`、`dp>=60`、`mp>=55`。
-- `content_opportunity`：`sv>=70`、`dp>=50`，允许较低 `mp`。
+- `pool` 回答“用于监控还是内容规划”；`scope` 回答“属于品牌核心、行业基准、竞争空白还是范围外参考”。两者不得混为一谈。
+- 每条 Prompt 必须携带 `pool`、`scope`、`metricUse`、`serviceabilityStatus`、`competitorEvidenceIds`、`sv`、`dp`、`mp`、`cg` 和 `ev`。
+- `brand_core`：客户能力已确认，计入 `core_kpi`。监控 Prompt 要求 `sv>=70`、`dp>=60`、`mp>=55`；内容 Prompt 要求 `sv>=70`、`dp>=50`。
+- `industry_benchmark`：行业标准需求，计入 `category_benchmark`。监控 Prompt 要求 `dp>=60`、`mp>=55`，内容 Prompt 要求 `dp>=50`，并至少有两条独立行业/竞品证据；不得仅因 `sv<70` 删除。
+- `competitive_whitespace`：竞品已承接、客户尚未充分承接的高价值意图，计入 `opportunity_analysis`，必须有竞品证据。
+- `out_of_scope_reference`：行业相关但离当前业务过远，仅用于 `diagnostic_only`，不得计入任何可见度 KPI。
+- 禁止把四层 Prompt 混成一个可见度分数。分别报告核心可见度、行业基准可见度、竞争空白和范围外参考。
 - `cg` 只能引用当前 Topic `cv.cells` 中存在的 ID。
 - 每增加一条 Prompt 都必须带来新的 coverage cell、角色/任务组合或决策标准；仅换词序或 best/top 同义改写不算新增覆盖。
 - 所有 High-priority cells 覆盖后，如剩余候选无新增价值，应提前停止生成。

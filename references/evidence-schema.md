@@ -55,6 +55,10 @@ Topic machine output should also retain `pc` and `cv` from [coverage-engine.md](
     "demandPlausibilityScore": 82,
     "mentionLikelihoodScore": 86,
     "pool": "monitoring_core|content_opportunity",
+    "scope": "brand_core|industry_benchmark|competitive_whitespace|out_of_scope_reference",
+    "metricUse": "core_kpi|category_benchmark|opportunity_analysis|diagnostic_only",
+    "serviceabilityStatus": "confirmed|adjacent|unsupported",
+    "competitorEvidenceIds": ["competitor_src_001"],
     "coverageCellIds": ["cell_001"],
     "geoMonitoringValue": "high|medium|low",
     "seoKeywordConfidence": "high|medium|low",
@@ -89,3 +93,5 @@ Topic machine output should also retain `pc` and `cv` from [coverage-engine.md](
 - If evidence is weak, lower confidence and add a warning.
 - Do not fabricate source URLs, search results, customer data, certifications, or country coverage.
 - Do not discard `ev`, `cv`, `cg`, or score fields during normalization/rendering; evidence and coverage must survive to API output and QA.
+- Industry-benchmark and whitespace Prompts require category or competitor evidence independent of the target brand's own website.
+- Never use `out_of_scope_reference` Prompts in a performance KPI.
