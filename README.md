@@ -226,8 +226,7 @@ If model-led research or QA fails, the hosted workflow must repair or stop expli
 │   └── prompt_qa.py
 └── docs/
     ├── agent-guide.md
-    ├── security.md
-    └── wechat-geo-intent-content-distribution.zh-CN.md
+    └── security.md
 ```
 
 ## Runtime And Security
@@ -244,10 +243,6 @@ ANTHROPIC_MODEL
 ```
 
 The repository must not contain customer crawl exports, private reports, authorization logs, or API keys. See [Security](docs/security.md).
-
-## Learn The Method
-
-Read the Chinese field guide: [为什么你的 GEO 内容发了很多，AI 还是不推荐你？](docs/wechat-geo-intent-content-distribution.zh-CN.md).
 
 ## License
 

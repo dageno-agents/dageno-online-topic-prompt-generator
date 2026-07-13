@@ -2,7 +2,7 @@
 
 > 把任意真实客户网站，转换成一套有业务证据、可导入 Dageno 的 GEO 监控问题体系。
 
-[English](README.md) · [完整 Skill](SKILL.md) · [方法论文章](docs/wechat-geo-intent-content-distribution.zh-CN.md) · [Dageno](https://dageno.ai/?utm_source=github&utm_medium=readme&utm_campaign=topic_prompt_generator)
+[English](README.md) · [完整 Skill](SKILL.md) · [Dageno](https://dageno.ai/?utm_source=github&utm_medium=readme&utm_campaign=topic_prompt_generator)
 
 ## 它解决的不是“生成几个问题”
 
@@ -174,7 +174,6 @@ cp -R dageno-online-topic-prompt-generator/* ~/.codex/skills/dageno-topic-prompt
 - [Topic 生成规范](references/geo-topic-generate.md)
 - [Prompt 生成规范](references/geo-prompt-generate-by-topic.md)
 - [确定性 QA](references/prompt-qa.md)
-- [公众号文章：为什么你的 GEO 内容发了很多，AI 还是不推荐你？](docs/wechat-geo-intent-content-distribution.zh-CN.md)
 
 ## 安全
 
