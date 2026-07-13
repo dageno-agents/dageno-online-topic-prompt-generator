@@ -1,88 +1,174 @@
-<!-- DAGENO_AGENT_NAV_START -->
+# Dageno Topic & Prompt Generator
 
-**Dageno Agent Project Map / Dageno Agent 项目导航**
+> 把任意真实客户网站，转换成一套有业务证据、可导入 Dageno 的 GEO 监控问题体系。
 
-Docs / 文档: [README](https://github.com/dageno-agents/dageno-online-topic-prompt-generator) · [简体中文](https://github.com/dageno-agents/dageno-online-topic-prompt-generator/blob/main/README.zh-CN.md)
+[English](README.md) · [完整 Skill](SKILL.md) · [方法论文章](docs/wechat-geo-topic-prompt-methodology.zh-CN.md) · [Dageno](https://dageno.ai/?utm_source=github&utm_medium=readme&utm_campaign=topic_prompt_generator)
 
-If this repo is useful, you may also want the adjacent Dageno Agent projects for GEO, SEO, AI visibility, and content operations.
-如果这个仓库对你有帮助，也可以看看这些相邻的 Dageno Agent 项目，用于 GEO、SEO、AI 可见性和内容增长工作流。
+## 它解决的不是“生成几个问题”
 
-| If you want to... / 如果你想... | Project / 项目 | Plain-language difference / 白话区别 |
-| --- | --- | --- |
-| First diagnose a site / 先给网站做体检 | [seo-geo-audit](https://github.com/dageno-agents/seo-geo-audit) | Like an SEO + GEO medical report: technical issues, content gaps, trust signals, off-site mentions, and AI visibility in one audit / 像一份 SEO + GEO 体检报告，把技术问题、内容缺口、信任信号、站外提及和 AI 可见性放到一起看 |
-| Turn a real website into Dageno topics and prompts / 把真实网站变成 Dageno 监控题库 | [dageno-online-topic-prompt-generator](https://github.com/dageno-agents/dageno-online-topic-prompt-generator) | Crawls the site and studies the business first, then generates Topic clusters and high-intent Prompts. Not an industry-template prompt dump / 先看网站和业务，再生成 Topic 集群和高意图 Prompt，不是套行业模板 |
-| Produce SEO/GEO articles from keywords or briefs / 从关键词或 brief 批量生产内容 | [seo-geo-content-engine](https://github.com/dageno-agents/seo-geo-content-engine) | A full content pipeline: research, SERP intent, article structure, draft, metadata, FAQ, and GEO packaging / 完整内容流水线：调研、搜索意图、文章结构、正文、metadata、FAQ 和 GEO 包装 |
-| Write from Dageno fanout data / 用 Dageno fanout 写文章 | [geo-content-writer](https://github.com/dageno-agents/geo-content-writer) | For when Dageno already found prompt opportunities: turn fanout into a backlog, editorial brief, draft contract, and review contract / 适合已经有 Dageno prompt opportunity 的情况：把 fanout 变成选题队列、编辑 brief、草稿契约和审核契约 |
-| Find why organic content is not converting / 找出自然流量内容为什么不转化 | [organic-content-intelligence](https://github.com/dageno-agents/organic-content-intelligence) | Joins GSC, GA4, crawl, intent, and AI/GEO signals to show which pages have demand but fail to answer or convert / 把 GSC、GA4、抓取、意图和 AI/GEO 信号连起来，看哪些页面有需求但没有承接住 |
-| Improve a site's GEO structure / 优化网站结构以适配 GEO | [geo-site-architecture-audit](https://github.com/dageno-agents/geo-site-architecture-audit) | Starts from the existing navigation, sitemap, landing pages, and help content, then finds missing AI-answerable pages and internal links / 从现有导航、站点地图、落地页和帮助内容出发，找缺失的 AI 可引用页面和内链结构 |
-| Create a client-facing AI visibility report / 做给客户看的 AI 可见性报告 | [brand-ai-performance-check](https://github.com/dageno-agents/brand-ai-performance-check) | A stable visual report template for brand AI performance, using Dageno API data or custom inputs / 稳定的品牌 AI 表现可视化报告模板，可接 Dageno API 或自定义数据 |
-| Automate Dageno in workflows / 把 Dageno 接进自动化流程 | [n8n-nodes-dageno](https://github.com/dageno-agents/n8n-nodes-dageno) | Use Dageno inside n8n: brands, GEO analysis, keywords, opportunities, topics, prompts, SEO, and citations / 在 n8n 里调用 Dageno：品牌、GEO 分析、关键词、机会、Topic、Prompt、SEO 和引用数据 |
-| Learn the API and MCP growth workflow / 学 Dageno API 和 MCP 怎么用于增长 | [dageno-mcp-growth-playbook](https://github.com/dageno-agents/dageno-mcp-growth-playbook) | The practical playbook for turning Dageno API/MCP data into reports, prompt gaps, citation intelligence, and growth actions / 把 Dageno API/MCP 数据变成报告、Prompt Gap、引用分析和增长动作的实战手册 |
+GEO 监控的准确度，首先取决于你监控了什么问题。
 
-More projects / 更多项目: [geo-visual-content-engine](https://github.com/dageno-agents/geo-visual-content-engine), [seo-outreach-skill](https://github.com/dageno-agents/seo-outreach-skill), [geo-pre-sale-report-private](https://github.com/dageno-agents/geo-pre-sale-report-private), [GEO-SEO](https://github.com/dageno-agents/GEO-SEO).
+很多生成器从行业模板开始：输入一个 SaaS 网站，就生成“最好用的软件”“软件价格”“软件替代品”；输入一个制造商，就按产品目录机械拆 Topic。结果看起来完整，却可能没有理解客户真正卖什么、谁负责采购、用户为什么选择供应商。
 
-Explore all repos / 查看全部项目: [github.com/dageno-agents](https://github.com/dageno-agents) · Product / 产品: [Dageno](https://dageno.ai/?utm_source=github&utm_medium=social&utm_campaign=official)
+这套 Skill 从证据开始：
 
-<!-- DAGENO_AGENT_NAV_END -->
+1. 抓取官网真实页面。
+2. 联网研究品牌、品类需求和竞争环境。
+3. 判断客户真正的业务、付费买家与商业边界。
+4. 建立客户能够承接的 Capability Ledger（能力账本）。
+5. 建立买家选择、比较、拒绝和验证供应商时的“竞争决策面”。
+6. 把全部高价值、可承接意图聚类成 Topic。
+7. 为每个 Topic 生成不重复、可独立理解的 Prompt。
+8. 用确定性 QA 检查覆盖、重复、品牌词和证据。
 
-# Dageno Online Topic Prompt Generator 中文说明
+## 一张图看懂流程
 
-> 把一个真实客户网站，变成可以导入 Dageno 监控的 Topic 集群和高意图 Prompt 列表。
+```mermaid
+flowchart LR
+  A["客户域名"] --> B["官网抓取 + 联网搜索"]
+  B --> C["业务假设与经济中心"]
+  C --> D["能力账本"]
+  D --> E["竞争决策面地图"]
+  E --> F["可承接意图单元"]
+  F --> G["Topic 集群"]
+  G --> H["两类 Prompt 池"]
+  H --> I["确定性 QA"]
+  I --> J["Dageno / CSV / JSON"]
+```
 
-## 它解决什么问题
+## 四个核心概念
 
-- 很多 Prompt 生成器是从行业模板开始，所以产出的题库很泛，和真实业务、产品、竞争对手关系不够紧。
-- 这个项目从客户网站、搜索信号和模型辅助理解开始，先确认业务，再生成可监控的 Topic 和 Prompt。
+### 1. 能力账本
 
-## 什么时候用它
+每个高优先级 Topic 都必须对应客户真实能交付的能力：
 
-- 你要给一个新客户或新网站搭 Dageno 监控题库。
-- 你希望 Prompt 能覆盖品牌、竞品、购买决策、风险、替代方案、定价和实施问题。
-- 你不想人工一条条猜 AI 用户会怎么问。
+```text
+产品或服务 + 付费买家 + 用户任务 + 可交付结果 + 限制条件 + 证据
+```
 
-## 和相邻项目有什么区别
+一个搜索需求再热门，如果客户无法承接，就不应该成为核心 Topic。
 
-- 它负责“题库生成”，也就是让 Dageno 有什么可以监控。
-- `geo-content-writer` 负责“从已监控到的 fanout 里写内容”。
-- `seo-geo-audit` 负责“诊断网站当前 SEO/GEO 状态”。
+### 2. 竞争决策面
 
-## 第一性原理
+买家在选择、拒绝、比较或验证供应商时真正关心的维度，例如：
 
-这套 Skill 的目标不是“生成固定数量的 Topic 和 Prompt”，而是：
+- 产品或组合方案是否适配
+- 特定角色、项目阶段和业务流程
+- 定制、兼容和集成能力
+- 质量、安全、认证和合规证明
+- 价格、MOQ、总体成本和合同条件
+- 交期、实施、物流和地区服务
+- 评价、替代方案、质保和风险
 
-> 找到客户真实能承接的全部高价值用户意图，再用最少、无重复、可验证的 Topic/Prompt 完整覆盖。
+这些只是通用维度，不是固定模板。系统只会保留有网站或外部证据、客户又确实能承接的决策面。
 
-每条 Prompt 都要同时通过四个判断：客户能承接、真实用户会问、具备监控或内容价值、能带来新的意图覆盖。
+### 3. Topic
 
-系统会先生成 Capability Ledger，明确客户卖什么、卖给谁、解决什么任务、有哪些限制；再建立适用意图单元，最后聚类 Topic 和选择 Prompt。网站表达不清时会输出暂定业务假设和待确认信息，而不是强行套行业模板。
+Topic 是共享同一决策对象和核心用户任务的一组问题，不是官网导航、关键词分类或漏斗阶段。
 
-在进入 Topic 规划前，系统还会明确“业务经济中心”：客户真正付费购买的是产品、工作流、项目结果、风险降低、采购简化，还是多供应商替代。官网导航只是证据，不会被直接当成业务战略。
+Topic 数量由业务覆盖决定，不固定为 5、7 或 10。
 
-## 失败策略
+### 4. Prompt
 
-如果已经配置大模型，品牌深度研究或确定性 QA 失败后只允许自动修复一次。第二次仍失败就明确停止，不得静默回退到旧行业模板并伪装成 Skill 成功结果。只有在没有模型运行环境时才允许规则保底，并且必须标记为低置信度输出。
+Prompt 是用户可以单独发给 ChatGPT、Gemini、Perplexity 等产品的问题。每条 Prompt 必须脱离 Topic 标题和对话历史也能被理解。
 
-## 主要输出
+简单 Topic 可能只需要 3-7 条；复杂 B2B 决策可能需要 20 条以上。系统不会为了凑数量重复改写同一个问题。
 
-- Topic clusters
-- Prompt rows
-- competitor map
-- CSV-ready export
-- human-readable monitoring plan
-- monitoring_core 可见度监控池
-- content_opportunity 内容机会池
-- Capability Ledger、coverage report 和 deterministic QA report
+## 两种 Prompt 池
 
-## 快速开始
+### 可见度监控池 `monitoring_core`
 
-1. 阅读英文 README 的安装和运行说明。
-2. 准备目标网站域名和必要的模型/API 配置。
-3. 生成 Topic/Prompt 后导入 Dageno 做持续监控。
+更容易让 AI 回答出现产品、品牌、供应商、竞品或第三方信源，适合监控推荐、对比、价格、风险、实施和替代方案。
 
-## 给中文读者的说明
+### 内容机会池 `content_opportunity`
 
-这是当前公开仓库的中文本地化入口。英文 README.md 仍然保留更完整的原始说明、命令细节和历史上下文；中文版本优先帮助国内用户快速理解这个项目是做什么的、什么时候该用、以及它和其他 Dageno Agent 项目的区别。
+用户确实会问、客户也能回答，但品牌提及概率较低，更适合指导 SEO/GEO 内容生产。
+
+系统会根据行业和商业模式动态决定两类 Prompt 的比例。
+
+## 一个简单例子
+
+假设某制造商官网列出了几十种电芯、容量和电压页面。传统方法可能按产品目录拆 Topic；这套 Skill 会继续研究买家的决策过程：
+
+| 买家决策面 | 可能形成的 Topic |
+| --- | --- |
+| 工程设计和定制 | 定制电池 OEM 与工程设计 |
+| 化学体系和性能适配 | 电芯体系、规格与性能选型 |
+| 应用适配 | 工业、机器人与医疗设备电池方案 |
+| 安全证明 | 电池安全、BMS 与认证合规 |
+| 供应商风险 | 工厂质量与 OEM 供应商验证 |
+| 商业可行性 | 报价、MOQ、样品与交期 |
+
+这样的 Topic 更接近采购、工程和产品负责人真实询问 AI 的方式。
+
+## 快速安装
+
+```bash
+git clone https://github.com/dageno-agents/dageno-online-topic-prompt-generator.git
+mkdir -p ~/.codex/skills/dageno-topic-prompt-generator
+cp -R dageno-online-topic-prompt-generator/* ~/.codex/skills/dageno-topic-prompt-generator/
+```
+
+然后对 Codex 说：
+
+```text
+请为 https://example.com 生成一套不含品牌词的 Dageno Topic 和 Prompt。
+先抓取官网并联网研究真实业务，目标监控市场为美国，地区由 IP 控制，
+所以 Prompt 不写国家词，最后导出 CSV。
+```
+
+还可以补充：重点业务目标、优先产品线、理想付费客户和明确排除的业务。用户提供的战略信息优先于系统推断，但仍需与网站证据相互校验。
+
+## 数量与安全边界
+
+自动模式不会把 10 当成目标。
+
+在线实现目前设置了 24 个 Topic、每 Topic 32 条 Prompt 的单次请求安全边界。这是运行保护，不是推荐数量。若证据证明需要更大范围，系统应提示按业务线、买家或市场拆分，而不是静默删除覆盖。
+
+## 品牌词与地区策略
+
+- `exclude`：自然发现，不含自有品牌和竞品名称。
+- `include`：自然发现 + 自有品牌验证。
+- `mixed`：自然发现 + 品牌验证 + 有限竞品问题。
+- `brand_only`：只用于品牌知识、声誉和舆情监控。
+
+如果 Dageno 通过 IP 控制地区，Prompt 中通常不再写国家词；同一套问题可在不同地区分别运行。
+
+## QA 检查什么
+
+- 客户是否真实能承接问题中的需求
+- 高优先级决策面是否完整覆盖
+- Prompt 是否存在重复或换词改写
+- 单条 Prompt 是否能脱离上下文独立理解
+- 非品牌模式是否泄漏品牌或竞品名称
+- 是否有明确的业务与品类锚点
+- 是否保留证据、意图和覆盖单元映射
+
+配置了模型时，品牌研究或 QA 失败必须修复或明确停止，不能偷偷退回旧行业模板并显示“执行成功”。
+
+## 输出
+
+- Markdown 监控配置
+- CSV-ready Topic/Prompt 表格
+- 机器可读 JSON
+- Competitor Map
+- Capability Ledger
+- Coverage Report
+- Deterministic QA Report
+
+## 深入阅读
+
+- [完整运行规范](SKILL.md)
+- [覆盖引擎](references/coverage-engine.md)
+- [Topic 生成规范](references/geo-topic-generate.md)
+- [Prompt 生成规范](references/geo-prompt-generate-by-topic.md)
+- [确定性 QA](references/prompt-qa.md)
+- [公众号文章：你的 GEO 监控，可能从第一批 Prompt 就错了](docs/wechat-geo-topic-prompt-methodology.zh-CN.md)
+
+## 安全
+
+API Key 必须通过环境变量配置。仓库不得包含客户抓取数据、私有报告、授权日志或任何密钥。详见 [Security](docs/security.md)。
 
 ## License
 
-请参考英文 README 和仓库内的 LICENSE 文件。
+MIT
