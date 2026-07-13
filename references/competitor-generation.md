@@ -116,3 +116,17 @@ Rules:
 - In `brandPromptMode=mixed`, limit `competitive` prompts to comparison or alternative scenarios and keep them realistic.
 - Do not invent competitor names. If evidence is weak, classify as `source_competitor` or add a warning.
 
+## Competitor Intent Mining
+
+Competitor research must do more than populate a related-brand column. For each credible competitor, extract:
+
+- capabilities and product lines the target brand does not clearly support
+- buyer roles and industries addressed
+- high-intent use cases and purchasing triggers
+- comparison criteria, risks, implementation requirements, pricing models, and proof assets
+- recurring categories in cited pages, reviews, communities, and AI answers
+- regions, languages, integrations, or delivery models that expand the category boundary
+
+Aggregate these into industry decision surfaces. A competitor-only claim becomes `competitive_whitespace` when it has demand and adjacency evidence. It becomes `out_of_scope_reference` when the target brand has no credible route to serve it. Multiple competitors plus independent demand evidence may establish an `industry_benchmark` surface.
+
+Do not promote every competitor feature into a Topic. Require buyer demand, category relevance, and a materially distinct answer set.

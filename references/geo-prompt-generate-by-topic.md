@@ -60,13 +60,13 @@ description: 针对某个指定的品牌主题（Topic）生成搜索优化的 G
   - 信号混合或模糊时，不默认套用 TYPE B；根据真实买家角色、触发和决策距离标注每条 Prompt。
 - **H. 竞品和差异化策略（必须执行）**：从 `competitorMap` 中选择与当前 Topic、国家、业务线最相关的直接竞品、部分竞品、替代方案或 source competitor。将目标品牌的核心差异化转化为 prompt 角度，但遵守品牌词模式；`generic` 不包含品牌或竞品名，`mixed` 才能输出 competitor-name prompt。
 - **I. 证据映射（必须执行）**：每个 prompt 应能连接到品类需求、站内内容、竞品证据或明确推断。机器 JSON 中建议输出 `ev`。
-- **J. 可承接覆盖选择（必须执行）**：读取 [coverage-engine.md](coverage-engine.md)。先生成候选，再按 `sv`、`dp`、`mp` 和边际覆盖选择；每条 Prompt 用 `cg` 映射 coverage cells。未达到阈值的候选必须丢弃，不能为了数量保留。
+- **J. 分层覆盖选择（必须执行）**：读取 [coverage-engine.md](coverage-engine.md)。先生成候选，再按覆盖层对应的证据与阈值、`sv`、`dp`、`mp` 和边际覆盖选择；每条 Prompt 用 `cg` 映射 coverage cells，并继承 `scope`、`metricUse` 和 `serviceabilityStatus`。品牌核心层按承接能力筛选；行业基准与竞品空白层不能因为目标品牌 `sv` 较低而被删除。
 
 ## 输出语言要求（重要）
 所有内容（prompt、关键词）必须使用目标语言。JSON 输出中 `"l"` 字段设为 `langCode`。
 
 ## 1. 任务
-基于 Topic 的 Capability 和 coverage cells 生成最小完整 Prompt 集合。manual 模式以 `TotalPrompts` 为最终目标，但不能绕过可承接性与 QA。
+基于 Topic 的 Capability、行业需求、竞品能力和 coverage cells 生成完整 Prompt 集合。manual 模式以 `TotalPrompts` 为最终目标，但不能绕过分层证据与 QA。
 
 ## 2. Topic 字段规则（关键）
 JSON 输出中的 `"t"` 字段必须与用户提供的 `Topic` **逐字完全一致**：
@@ -102,7 +102,7 @@ JSON 输出中的 `"t"` 字段必须与用户提供的 `Topic` **逐字完全一
 ## 7. 输出格式
 
 ```json
-{"ts":[{"t":"<EXACT_USER_TOPIC>","f":"High","c":95,"cv":{"cells":[{"id":"cell_001"}]},"ps":[{"p":"prompt text here","l":"<langCode>","pt":"generic","it":"comparison","f":"MOFU","is":[{"i":"Commercial","s":85}],"kw":["keyword 1","keyword 2"],"pool":"monitoring_core","sv":90,"dp":82,"mp":86,"cg":["cell_001"],"ev":{"sourceIds":["src_014"],"intentJustification":"real buyer comparison","expectedAnswerType":"provider_comparison","warnings":[]}}]}]}
+{"ts":[{"t":"<EXACT_USER_TOPIC>","f":"High","c":95,"cv":{"cells":[{"id":"cell_001","scope":"brand_core","metricUse":"core_kpi"}]},"ps":[{"p":"prompt text here","l":"<langCode>","pt":"generic","it":"comparison","f":"MOFU","is":[{"i":"Commercial","s":85}],"kw":["keyword 1","keyword 2"],"pool":"monitoring_core","scope":"brand_core","metricUse":"core_kpi","serviceabilityStatus":"confirmed","competitorEvidenceIds":[],"sv":90,"dp":82,"mp":86,"cg":["cell_001"],"ev":{"sourceIds":["src_014"],"intentJustification":"real buyer comparison","expectedAnswerType":"provider_comparison","warnings":[]}}]}]}
 ```
 
 ## Output Schema
@@ -124,6 +124,10 @@ ts: 数组
       - s: int (0-100)  — 意图强度分数
     - kw: string[]  — 恰好 2 个关键词
     - pool: "monitoring_core" | "content_opportunity"
+    - scope: "brand_core" | "industry_benchmark" | "competitive_whitespace" | "out_of_scope_reference"
+    - metricUse: "core_kpi" | "category_benchmark" | "opportunity_analysis" | "diagnostic_only"
+    - serviceabilityStatus: "confirmed" | "adjacent" | "unsupported"
+    - competitorEvidenceIds: string[]
     - sv: int (0-100) — business serviceability
     - dp: int (0-100) — demand plausibility
     - mp: int (0-100) — answer mention likelihood

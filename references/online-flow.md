@@ -259,8 +259,10 @@ Topics to generate. Use every topic exactly once and do not add extra topics:
 Rules:
 
 - In auto mode, select prompts by marginal coverage and stop when all High-priority cells are covered. In manual mode, use the requested number as the final target without fixed expansions.
-- Every prompt must include `pool`, `sv`, `dp`, `mp`, `cg`, and `ev`.
-- `monitoring_core` requires `sv>=70`, `dp>=60`, `mp>=55`; `content_opportunity` requires `sv>=70`, `dp>=50`.
+- Every prompt must include `pool`, `scope`, `metricUse`, `serviceabilityStatus`, `competitorEvidenceIds`, `sv`, `dp`, `mp`, `cg`, and `ev`.
+- Brand-core monitoring requires `sv>=70`, `dp>=60`, `mp>=55`; brand-core content requires `sv>=70`, `dp>=50`.
+- Industry-benchmark and competitive-whitespace monitoring require `dp>=60`, `mp>=55`; their content prompts require `dp>=50`. These layers must not be deleted only because current customer serviceability is weak.
+- Use separate denominators for `core_kpi` and `category_benchmark`; report `opportunity_analysis` and `diagnostic_only` separately.
 - Monitoring/content mix is dynamic by business model. Do not enforce a universal 80% ratio.
 - Best/top/provider/vendor/comparison/review/pricing prompts are generated only for distinct uncovered decisions.
 - Every prompt is monitored independently with no prior context. Each prompt must include enough industry, category, or use-case language for the model to know the business context without reading the Topic name or brand summary.
