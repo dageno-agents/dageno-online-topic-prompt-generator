@@ -66,6 +66,8 @@
 
 ## Intent Coverage Rules
 
+Read [intent-ontology.md](intent-ontology.md). `it` is a stable reporting family; `subIntent` records the concrete buyer question. Coverage must be checked at sub-intent/intent-unit level.
+
 - 每个 prompt 必须标注一个细分意图 `"it"`：
   - `problem_solution`：用户有问题但不一定知道品类。
   - `recommendation`：寻找工具、服务、供应商、产品推荐。
@@ -78,6 +80,10 @@
   - `education_content`：用户在学习概念、策略、术语、市场背景、教程或文章型内容时会问的问题；用于追踪未来内容生产效果。
   - `brand_validation`：品牌是否适合、是否靠谱、是否支持某场景。
 - 覆盖 Topic `cv.applicableIntentTypes` 中的全部 High-priority 适用意图；不要求每个 Topic 凑满五种意图。
+- 每个 prompt 还必须标注 `subIntent`、`intentUnitId`、`variantPurpose`、`variantSetId` 和 `expectedEntityType`。
+- 不得因为一个 Topic 已出现 `comparison` 就认为比较意图完整；`comparison_within`、`vs_named`、`concept_comparison`、`criteria_comparison` 仅在真实适用时分别覆盖。
+- 同一 `intentUnitId` 默认只有一条 `canonical`。只有常见措辞证据或检索敏感性充分时，才增加 1-2 条 `wording_robustness` 变体。变体不是新意图，不得增加覆盖权重。
+- 模型随机性通过调度系统重复运行同一 canonical Prompt 测量，不通过堆叠改写句测量。
 - B2B、高客单、制造、代理商、工程服务类 Topic 必须覆盖 `risk_validation` 和 `pricing_value`，若涉及安装/技术则覆盖 `implementation`。
 - SaaS / API / 软件类 Topic 必须覆盖 `comparison`、`pricing_value`、`implementation`、`risk_validation`，若有免费试用或自助注册则覆盖 `brand_validation`。
 - 如果客户有博客、学院、资源中心、帮助中心、术语库、课程、电子书或市场分析栏目，应生成有真实需求证据的 `education_content` Prompt，并默认放入 `content_opportunity`；只有可能自然触发产品/信源提及时才进入 `monitoring_core`。

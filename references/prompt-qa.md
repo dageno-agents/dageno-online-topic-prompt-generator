@@ -7,7 +7,7 @@ Run deterministic QA after prompt generation. Model-based QA may be added in hos
 - Valid JSON when machine output is requested.
 - Every Topic has prompts grouped under it.
 - Every prompt is unique across all Topics.
-- Every prompt has `p`, `pt`, `it`, `f`, `is`, and exactly two `kw` values.
+- Every prompt has `p`, `pt`, `it`, `subIntent`, `intentUnitId`, `variantPurpose`, `variantSetId`, `expectedEntityType`, `f`, `is`, and exactly two `kw` values.
 - Every prompt has `pool`, `scope`, `metricUse`, `serviceabilityStatus`, `competitorEvidenceIds`, `sv`, `dp`, `mp`, `cg`, and evidence metadata.
 - `pt` is one of `generic`, `branded`, `competitive`.
 - `it` and funnel values are valid.
@@ -26,6 +26,12 @@ Run deterministic QA after prompt generation. Model-based QA may be added in hos
 - Every High-priority coverage cell is covered.
 - Cross-industry terms such as `vendor`, `supplier`, `platform`, `software`, `service`, `agency`, `manufacturer`, `account`, `course`, `demo account`, `cost`, and `pricing` have a category/use-case anchor.
 - Every applicable High-priority intent is covered; excluded intents have explicit reasons.
+- Every material High-priority sub-intent and intent unit is covered; a broad `it` appearing once is not sufficient.
+- Every `subIntent` is valid for its parent `it`, or is a documented domain-specific extension.
+- Every intent unit has exactly one canonical Prompt. Wording variants share its `intentUnitId` and `variantSetId`, are limited to justified retrieval-sensitive phrasing, and do not count as additional intent coverage.
+- Repeated sampling of one Prompt is configured outside the Prompt library.
+- `intentCoverageReport` counts canonical semantic intent units, not raw Prompt rows, and retains excluded units plus reason codes.
+- Visibility aggregation order is model repeats -> wording variants -> intent unit -> sub-intent/Topic -> compatible metric layer.
 - Informational Prompt volume follows the business model and coverage plan, and is separated into `content_opportunity` when mention likelihood is low.
 
 ## Portable Script

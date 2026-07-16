@@ -24,7 +24,21 @@ VALID_IT = {
     "education_content",
     "brand_validation",
 }
+VALID_SUBINTENTS = {
+    "problem_solution": {"problem_diagnosis", "achieve_outcome", "replace_manual_process", "trigger_response"},
+    "recommendation": {"best_overall", "scenario_fit", "budget_selection", "premium_selection", "provider_shortlist", "audience_fit"},
+    "comparison": {"comparison_within", "vs_named", "concept_comparison", "criteria_comparison", "bundle_or_route_comparison"},
+    "pricing_value": {"price", "fee_structure", "total_cost", "hidden_fees", "free_trial", "billing_model", "credit_usage_limits", "quote_request", "roi_value", "contract_warranty", "moq_payment_terms"},
+    "risk_validation": {"reviews_reputation", "worth_it", "pros_cons", "pre_purchase_check", "requirement_fit", "personal_suitability", "compliance_audit", "data_security", "privacy_data_handling", "commercial_usage_rights", "output_quality", "reliability_support", "quality_verification", "supply_delivery_risk"},
+    "implementation": {"how_it_works", "how_to_achieve", "onboarding_install", "integration_sso", "api_sdk", "migration_switching", "permissions_multi_account", "export_workflow", "operations_maintenance"},
+    "alternative": {"category_alternative", "competitor_alternative", "substitute_method", "switch_provider"},
+    "local_availability": {"local_provider", "where_to_buy", "inventory_availability", "delivery_coverage", "appointment_wait_time"},
+    "education_content": {"definition", "types", "benefits", "principles_trends", "checklist_framework", "source_research"},
+    "brand_validation": {"brand_fit", "brand_capability", "brand_pricing", "brand_reputation", "brand_trust", "brand_alternative"},
+}
 VALID_FUNNEL = {"TOFU", "MOFU", "BOFU"}
+VALID_VARIANT_PURPOSE = {"canonical", "wording_robustness"}
+VALID_EXPECTED_ENTITY = {"brand_or_provider", "product_or_model", "source_or_authority", "method_or_concept"}
 VALID_POOL = {"monitoring_core", "content_opportunity"}
 VALID_SCOPE = {"brand_core", "industry_benchmark", "competitive_whitespace", "out_of_scope_reference"}
 VALID_METRIC_USE = {"core_kpi", "category_benchmark", "opportunity_analysis", "diagnostic_only"}
@@ -94,13 +108,14 @@ def main() -> int:
     errors: list[str] = []
     warnings: list[str] = []
     seen_prompts: set[str] = set()
-    seen_prompt_texts: list[str] = []
+    seen_prompt_records: list[dict[str, str]] = []
     topic_count = 0
     prompt_count = 0
     monitoring_count = 0
     content_count = 0
     scope_counts = {scope: 0 for scope in VALID_SCOPE}
     coverage_by_topic: list[dict[str, Any]] = []
+    intent_unit_prompts: dict[str, list[dict[str, Any]]] = {}
 
     try:
         data = load_json(args.json_path)
@@ -141,6 +156,11 @@ def main() -> int:
             text = str(prompt.get("p", "")).strip()
             pt = prompt.get("pt")
             it = prompt.get("it")
+            sub_intent = prompt.get("subIntent")
+            intent_unit_id = str(prompt.get("intentUnitId", "")).strip()
+            variant_purpose = prompt.get("variantPurpose")
+            variant_set_id = str(prompt.get("variantSetId", "")).strip()
+            expected_entity_type = prompt.get("expectedEntityType")
             funnel = prompt.get("f")
             kw = prompt.get("kw")
             score = prompt.get("is")
@@ -161,10 +181,30 @@ def main() -> int:
             normalized = re.sub(r"\s+", " ", text.lower())
             if normalized in seen_prompts:
                 errors.append(f"{prefix} duplicate prompt: {text}")
-            if any(similarity(previous, text) >= 0.82 for previous in seen_prompt_texts):
-                errors.append(f"{prefix} semantic duplicate prompt: {text}")
+            similar_records = [
+                previous
+                for previous in seen_prompt_records
+                if similarity(previous["text"], text) >= 0.82
+            ]
+            for previous in similar_records:
+                allowed_variant_pair = (
+                    intent_unit_id
+                    and previous["intentUnitId"] == intent_unit_id
+                    and variant_purpose == "wording_robustness"
+                    and previous["variantSetId"] == variant_set_id
+                )
+                if allowed_variant_pair:
+                    warnings.append(f"{prefix} is a wording variant of {previous['prefix']}; aggregate by intentUnitId")
+                else:
+                    errors.append(f"{prefix} semantic duplicate of {previous['prefix']}: {text}")
             seen_prompts.add(normalized)
-            seen_prompt_texts.append(text)
+            seen_prompt_records.append({
+                "prefix": prefix,
+                "text": text,
+                "intentUnitId": intent_unit_id,
+                "variantPurpose": str(variant_purpose or ""),
+                "variantSetId": variant_set_id,
+            })
 
             if pt not in VALID_PT:
                 errors.append(f"{prefix} invalid pt: {pt}")
@@ -172,6 +212,26 @@ def main() -> int:
                 errors.append(f"{prefix} invalid it: {it}")
             else:
                 intent_types.add(it)
+                allowed_sub_intents = VALID_SUBINTENTS.get(it, set())
+                if not isinstance(sub_intent, str) or not sub_intent.strip():
+                    errors.append(f"{prefix} missing subIntent")
+                elif sub_intent not in allowed_sub_intents and not sub_intent.startswith("custom_"):
+                    errors.append(f"{prefix} invalid subIntent {sub_intent} for it={it}")
+            if not intent_unit_id:
+                errors.append(f"{prefix} missing intentUnitId")
+            if variant_purpose not in VALID_VARIANT_PURPOSE:
+                errors.append(f"{prefix} invalid variantPurpose: {variant_purpose}")
+            if not variant_set_id:
+                errors.append(f"{prefix} missing variantSetId")
+            if expected_entity_type not in VALID_EXPECTED_ENTITY:
+                errors.append(f"{prefix} invalid expectedEntityType: {expected_entity_type}")
+            if intent_unit_id:
+                intent_unit_prompts.setdefault(intent_unit_id, []).append({
+                    "prefix": prefix,
+                    "variantPurpose": variant_purpose,
+                    "variantSetId": variant_set_id,
+                    "text": text,
+                })
             if funnel not in VALID_FUNNEL:
                 errors.append(f"{prefix} invalid funnel: {funnel}")
             if not isinstance(kw, list) or len(kw) != 2 or not all(isinstance(item, str) and item.strip() for item in kw):
@@ -225,11 +285,20 @@ def main() -> int:
                         errors.append(f"{prefix} references unknown coverage cell: {cell_id}")
                     else:
                         covered_cell_ids.add(cell_id)
-                        cell_scope = cell_by_id.get(cell_id, {}).get("scope")
+                        cell = cell_by_id.get(cell_id, {})
+                        cell_scope = cell.get("scope")
                         if cell_scope and scope and cell_scope != scope:
                             errors.append(f"{prefix} scope {scope} conflicts with coverage cell {cell_id} scope {cell_scope}")
+                        cell_sub_intent = cell.get("subIntent")
+                        if cell_sub_intent and sub_intent and cell_sub_intent != sub_intent:
+                            errors.append(f"{prefix} subIntent {sub_intent} conflicts with coverage cell {cell_id} subIntent {cell_sub_intent}")
+                        cell_intent_unit = cell.get("intentUnitId")
+                        if cell_intent_unit and intent_unit_id and str(cell_intent_unit) != intent_unit_id:
+                            errors.append(f"{prefix} intentUnitId {intent_unit_id} conflicts with coverage cell {cell_id} intentUnitId {cell_intent_unit}")
             if not isinstance(evidence, dict) or not evidence:
                 warnings.append(f"{prefix} missing evidence metadata")
+            if pool == "monitoring_core" and expected_entity_type == "method_or_concept" and isinstance(mp, (int, float)) and mp >= 55:
+                warnings.append(f"{prefix} monitoring_core expects only methods/concepts; verify that entity mention likelihood is not overstated")
             if scope == "industry_benchmark":
                 source_ids = evidence.get("sourceIds", []) if isinstance(evidence, dict) else []
                 category_evidence = set(map(str, source_ids or [])) | set(map(str, competitor_evidence_ids or []))
@@ -266,6 +335,15 @@ def main() -> int:
         missing_intents = sorted(applicable_intents - intent_types)
         if missing_intents:
             warnings.append(f"topic {ti} missing applicable intents: {', '.join(missing_intents)}")
+        applicable_sub_intents = {str(value) for value in cv.get("applicableSubIntents", [])} if isinstance(cv.get("applicableSubIntents"), list) else set()
+        covered_sub_intents = {
+            str(prompt.get("subIntent"))
+            for prompt in prompts
+            if isinstance(prompt, dict) and prompt.get("subIntent")
+        }
+        missing_sub_intents = sorted(applicable_sub_intents - covered_sub_intents)
+        if missing_sub_intents:
+            errors.append(f"topic {ti} missing applicable sub-intents: {', '.join(missing_sub_intents)}")
         coverage_by_topic.append({
             "topic": topic.get("t") if isinstance(topic, dict) else f"Topic {ti}",
             "expectedCells": len(valid_cell_ids),
@@ -273,11 +351,23 @@ def main() -> int:
             "coverageRate": round(len(covered_cell_ids) / len(valid_cell_ids) * 100) if valid_cell_ids else None,
             "missingHighPriority": missing_high,
             "missingIntents": missing_intents,
+            "missingSubIntents": missing_sub_intents,
         })
+
+    for intent_unit_id, unit_prompts in intent_unit_prompts.items():
+        canonical = [item for item in unit_prompts if item["variantPurpose"] == "canonical"]
+        variants = [item for item in unit_prompts if item["variantPurpose"] == "wording_robustness"]
+        if len(canonical) != 1:
+            errors.append(f"intent unit {intent_unit_id} must have exactly one canonical prompt; found {len(canonical)}")
+        variant_sets = {item["variantSetId"] for item in unit_prompts if item["variantSetId"]}
+        if len(variant_sets) > 1:
+            errors.append(f"intent unit {intent_unit_id} uses multiple variantSetId values")
+        if len(variants) > 2:
+            warnings.append(f"intent unit {intent_unit_id} has more than two wording variants; verify evidence and reporting weight")
 
     report = {
         "passed": not errors,
-        "summary": {"topics": topic_count, "prompts": prompt_count, "monitoringCore": monitoring_count, "contentOpportunity": content_count, "scopeCounts": scope_counts},
+        "summary": {"topics": topic_count, "prompts": prompt_count, "intentUnits": len(intent_unit_prompts), "monitoringCore": monitoring_count, "contentOpportunity": content_count, "scopeCounts": scope_counts},
         "errors": errors,
         "warnings": warnings,
         "coverageByTopic": coverage_by_topic,

@@ -21,9 +21,9 @@ Input body:
   "models": "ChatGPT / Perplexity",
   "regionMode": "由 Dageno 地区/IP 设置控制",
   "topicMode": "auto",
-  "topicCount": 7,
+  "topicCount": null,
   "promptMode": "auto",
-  "promptCount": 10,
+  "promptCount": null,
   "crawlDepth": 6,
   "brandPromptMode": "exclude",
   "includeBrandTerms": false,
@@ -73,6 +73,17 @@ Output:
     "warnings": []
   },
   "coverageReport": [],
+  "intentCoverageReport": {
+    "ontologyVersion": "2.0",
+    "materialIntentUnits": 0,
+    "coveredCanonicalUnits": 0,
+    "wordingVariants": 0,
+    "coverageRate": 0,
+    "byScope": {},
+    "byTopic": {},
+    "bySubIntent": {},
+    "blindSpots": []
+  },
   "outputCounts": {"topics": 6, "prompts": 54},
   "content": "Markdown Topic/Prompt output"
 }
@@ -102,6 +113,7 @@ Before Topic generation, call a model with website crawl evidence and external s
   "businessCategory": "plain-English category, not a fixed enum",
   "industryLabel": "short Chinese industry label suitable for UI",
   "businessModel": "B2B SaaS / DTC ecommerce / local service / marketplace / media / professional service / game / other",
+  "businessArchetypes": ["one or more evidence-backed archetypes from references/intent-ontology.md, assigned per business line"],
   "confidence": 0,
   "coreOfferings": ["specific products/services the site sells or promotes"],
   "targetUsers": ["specific buyers/users"],
@@ -138,6 +150,7 @@ Important model instructions:
 - Topic seeds must reflect real user/business scenarios, not generic product labels.
 - Differentiators must be concrete enough to guide competitor and prompt design.
 - Build the Capability Ledger and applicable intent universe from `references/coverage-engine.md` before Topic generation.
+- Read `references/intent-ontology.md`; enumerate sub-intents and intent units for each business line before clustering Topics. Do not treat broad intent-family presence as complete coverage.
 - Build the competitive decision-surface map before Topic planning. `suggestedTopicCount` must equal the complete non-overlapping Topic set needed to cover all material serviceable surfaces; it is not an industry default and must not use 10 as an automatic ceiling.
 - For local services, topic seeds should reflect location, booking, price, reviews, service menu, and trust.
 - For ecommerce, topic seeds should reflect product selection, comparison, use cases, price, reviews, safety, and alternatives.
@@ -218,7 +231,7 @@ Competitor Map:
 Evidence Sources:
 [evidenceSources]
 
-Return Topics with `pc`, `cv.cells`, and `ev` using the schema in `references/geo-topic-generate.md`.
+Return Topics with `pc`, `cv.businessArchetypes`, `cv.applicableSubIntents`, `cv.cells`, explicit exclusions, and `ev` using the schema in `references/geo-topic-generate.md`.
 ```
 
 ## Prompt Model Prompt
@@ -259,6 +272,9 @@ Topics to generate. Use every topic exactly once and do not add extra topics:
 Rules:
 
 - In auto mode, select prompts by marginal coverage and stop when all High-priority cells are covered. In manual mode, use the requested number as the final target without fixed expansions.
+- Every Prompt must include `subIntent`, `intentUnitId`, `variantPurpose`, `variantSetId`, and `expectedEntityType` from `references/intent-ontology.md`.
+- Generate exactly one canonical Prompt per intent unit. Add at most two wording variants only when justified by real phrasing evidence or retrieval sensitivity. Aggregate variants to one intent unit in reporting.
+- If the complete ontology exceeds one response or UI page, paginate Topics/Prompts. Never treat a runtime batch size as an industry coverage ceiling.
 - Every prompt must include `pool`, `scope`, `metricUse`, `serviceabilityStatus`, `competitorEvidenceIds`, `sv`, `dp`, `mp`, `cg`, and `ev`.
 - Brand-core monitoring requires `sv>=70`, `dp>=60`, `mp>=55`; brand-core content requires `sv>=70`, `dp>=50`.
 - Industry-benchmark and competitive-whitespace monitoring require `dp>=60`, `mp>=55`; their content prompts require `dp>=50`. These layers must not be deleted only because current customer serviceability is weak.

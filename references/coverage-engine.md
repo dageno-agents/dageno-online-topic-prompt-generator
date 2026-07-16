@@ -11,7 +11,7 @@ Every accepted prompt must satisfy four conditions:
 1. **Layer eligibility**: the Prompt has the evidence required for its declared coverage layer.
 2. **Demand plausibility**: a real target buyer is likely to ask the question.
 3. **Monitoring value**: the answer is likely to mention products, providers, brands, competitors, or trusted sources; otherwise the prompt must be explicitly classified as a content opportunity.
-4. **Marginal coverage**: the prompt covers at least one relevant intent cell not already covered by a stronger prompt.
+4. **Marginal coverage**: the prompt covers at least one relevant intent unit not already covered by a stronger prompt, or is an explicitly justified wording-robustness variant.
 
 Topic and Prompt counts are outputs of coverage. They are not fixed by industry templates, fixed quotas, or default numbers such as 10.
 
@@ -112,6 +112,8 @@ This is a schema example, not a vertical template. Typical surface families may 
 
 ## 6. Applicable Intent Universe
 
+Read [intent-ontology.md](intent-ontology.md). Broad `intentType` values are reporting families, not a sufficient enumeration system. Build coverage at `intentType + subIntent + decision object + buyer context` granularity.
+
 Construct only combinations that are realistic and supported by the evidence contract for their layer. Candidate dimensions:
 
 - buyer role
@@ -119,6 +121,7 @@ Construct only combinations that are realistic and supported by the evidence con
 - job-to-be-done
 - purchase trigger
 - intent type
+- sub-intent
 - decision criterion
 - constraint
 - expected answer entity
@@ -150,6 +153,8 @@ Represent each applicable unit as a coverage cell:
   "buyerRole": "ecommerce operations manager",
   "jobToBeDone": "select a post-purchase tracking platform",
   "intentType": "comparison",
+  "subIntent": "criteria_comparison",
+  "intentUnitId": "post-purchase-platform-carrier-coverage-comparison",
   "decisionCriterion": "carrier coverage",
   "constraint": "multi-region delivery",
   "expectedAnswerType": "provider_comparison",
@@ -183,7 +188,9 @@ Each Topic stores:
 
 ## 8. Prompt Candidate Generation
 
-Generate more candidates than needed, then select by marginal coverage. A prompt may cover multiple cells only when it remains a natural, single-focus user question.
+Generate more candidates than needed, then select by marginal intent-unit coverage. A prompt may cover multiple cells only when it remains a natural, single-focus user question.
+
+Generate one canonical Prompt per intent unit. Add a wording variant only when it tests a materially different common phrasing; keep the same `intentUnitId`, assign a shared `variantSetId`, and set `variantPurpose=wording_robustness`. Repeated execution of an identical Prompt belongs in monitoring configuration, not the Prompt library.
 
 Score each candidate:
 
@@ -227,12 +234,13 @@ Stop adding prompts when all conditions hold:
 - all material category-standard decision surfaces are either covered or explicitly assigned to benchmark, whitespace, or out-of-scope
 - competitor-occupied high-demand surfaces have an opportunity classification
 - every applicable core intent is covered
+- every material High-priority sub-intent and intent unit is covered or explicitly excluded with a reason
 - every core buyer/JTBD combination has representation
 - key price, risk, fit, implementation and alternative criteria are covered when applicable
 - remaining candidates add no meaningful new coverage
-- remaining candidates are semantic paraphrases or below acceptance thresholds
+- remaining candidates are unjustified semantic paraphrases or below acceptance thresholds
 
-A narrow Topic may stop at 3-7 prompts. A complex Topic with several evidence-backed buyer contexts and decision surfaces may require 20-32 prompts, or a follow-on scope if it exceeds a single-run safety limit. Never pad to a preset number and never truncate a required surface solely to maintain a familiar count.
+A narrow Topic may stop at 3-7 intent units. A complex Topic with several evidence-backed buyer contexts, sub-intents and decision surfaces may require 20-32 or more intent units, delivered in batches if needed. A runtime safety ceiling is a pagination boundary, never an ontology ceiling. Never pad to a preset number and never truncate a required surface solely to maintain a familiar count.
 
 ## 11. QA Contract
 
@@ -246,9 +254,42 @@ Deterministic QA must verify:
 - valid coverage-cell references
 - High-priority cell coverage
 - applicable-intent coverage
+- applicable sub-intent and intent-unit coverage, including explicit exclusion reasons
+- variant grouping and one-unit reporting weight
 - decision-surface coverage and explicit handling of uncovered surfaces
 - evidence sufficiency by coverage layer
 - metric separation: no blended core/category/whitespace/out-of-scope KPI
 - evidence retention
 
 Return `qaReport` and `coverageReport`. If QA fails, repair and rerun or expose the failures; never silently label the result complete.
+
+## 12. Intent Coverage Report And Visibility Denominators
+
+Return an `intentCoverageReport` with:
+
+```json
+{
+  "ontologyVersion": "2.0",
+  "businessArchetypes": ["manufacturing_procurement"],
+  "materialIntentUnits": 60,
+  "coveredCanonicalUnits": 58,
+  "wordingVariants": 9,
+  "coverageRate": 96.7,
+  "excludedUnits": [{"intentUnitId":"...","reasonCode":"low_demand","reason":"..."}],
+  "byScope": {},
+  "byTopic": {},
+  "byPrimaryIntent": {},
+  "bySubIntent": {},
+  "byBuyerRole": {},
+  "blindSpots": []
+}
+```
+
+Reporting order:
+
+1. Aggregate repeated model runs for the exact Prompt.
+2. Aggregate canonical and wording variants to one `intentUnitId` result.
+3. Aggregate intent units to sub-intent and Topic results.
+4. Aggregate only compatible `metricUse` groups; never blend core KPI, category benchmark, whitespace opportunity and diagnostic reference.
+
+Coverage rate uses semantic intent units, not raw Prompt rows. Excluded units stay visible with reason codes so a high score cannot be created by silently deleting difficult industry demand.
