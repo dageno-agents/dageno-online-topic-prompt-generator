@@ -37,6 +37,7 @@ It is built for GEO teams, SEO specialists, agencies, growth teams, and Dageno o
 - Coverage-driven Prompts. A simple Topic may need 3-7; a complex one may need 20+.
 - Separate `monitoring_core` and `content_opportunity` pools.
 - Four coverage layers that prevent favorable-prompt bias: brand core, industry benchmark, competitive whitespace, and out-of-scope reference.
+- Three-level intent coverage: primary intent, concrete sub-intent, and deduplicated semantic intent unit.
 - Market-aware competitors and evidence mappings.
 - Deterministic QA for coverage, duplication, brand leakage, and business context.
 - Markdown, CSV-ready, and machine-readable outputs.
@@ -57,10 +58,11 @@ flowchart LR
   D --> E["Capability Ledger"]
   E --> F["Decision-surface map"]
   F --> G["Brand + category intent universes"]
-  G --> H["Layered Topic clusters"]
-  H --> I["Prompt pools"]
-  I --> J["Deterministic QA"]
-  J --> K["Dageno / CSV / JSON"]
+  G --> H["Intent ontology<br/>primary + sub-intent + intent unit"]
+  H --> I["Layered Topic clusters"]
+  I --> J["Prompt pools"]
+  J --> L["Deterministic QA"]
+  L --> K["Dageno / CSV / JSON"]
 ```
 
 ## The Core Concepts, In Plain English
@@ -96,6 +98,18 @@ A coherent group of questions sharing the same decision object and core job-to-b
 ### Prompt
 
 A standalone question that a real user could send to an AI assistant. It must carry enough category and scenario context to make sense without the Topic title or previous chat history.
+
+### Intent Granularity
+
+A broad intent appearing once does not mean buyer demand is covered. The Skill uses three levels:
+
+| Level | Example | Purpose |
+| --- | --- | --- |
+| Primary intent (`it`) | `comparison` | Stable reporting family |
+| Sub-intent (`subIntent`) | `vs_named`, `criteria_comparison`, `concept_comparison` | The concrete decision the buyer is making |
+| Intent unit (`intentUnitId`) | `carrier-coverage-analytics-comparison` | One semantic buyer question, deduplicated across wording variants |
+
+Coverage is checked at the intent-unit level. A canonical Prompt represents the unit. A wording variant keeps the same `intentUnitId` and does not inflate the demand denominator.
 
 ## Example: From Website Pages To Buyer Decisions
 

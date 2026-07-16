@@ -32,6 +32,7 @@ description: 针对某个指定的品牌主题（Topic）生成搜索优化的 G
 - [category-demand-search.md](category-demand-search.md)：使用真实品类需求、搜索措辞、best/review/pricing/alternative/integration/community 信号。
 - [competitor-generation.md](competitor-generation.md)：使用国家、业务线、用户场景、差异化角度生成竞争与替代关系。
 - [evidence-schema.md](evidence-schema.md)：为 prompt 保留可复核证据。
+- [intent-ontology.md](intent-ontology.md)：使用业务原型与细分意图枚举完整行业问题，不以粗意图出现一次代替覆盖。
 
 整体提示词结构：先做品牌调研（第 0 步）→ 内部品牌解析（步骤 A–E）→ 生成 prompt。
 
@@ -40,7 +41,7 @@ description: 针对某个指定的品牌主题（Topic）生成搜索优化的 G
 重要：在写任何 prompt 之前，必须完成 A 到 E 全部步骤，每步产出明确的内部结论；E 完成前不要开始生成 prompt。
 
 - **A. 购买模型**：对每个用户角色，判断适用哪种购买模型 —— 个人/自助（什么个人问题触发搜索？）或 B2B/团队采购（用户/采购者/审批者分别搜什么？）。用用户语言描述问题，而非产品语言。
-- **B. 真实查询矩阵**：对 A 中识别的每个角色与问题，列出他们会问 AI / Google 的问题，并覆盖适用的意图类型：problem_solution、recommendation、comparison、pricing_value、risk_validation、implementation、alternative、local_availability、education_content、brand_validation。
+- **B. 真实查询矩阵**：对 A 中识别的每个角色与问题，先判定业务线的 `businessArchetype`，再列出他们会问 AI / Google 的问题，覆盖适用的主意图与 `subIntent`。不得把所有非 SaaS 业务归为消费品，也不得用一个粗意图代表多个细分决策。
 - **C. 主题—品牌连接（关键）**：若品牌有多条产品线，先确定该主题属于哪条产品线，不要跨产品线混用特性。然后把主题映射到该产品线的具体特性、场景、差异化。问："THIS 品牌版本的这个主题有什么独特之处？" 生成体现独特角度的 prompt，而非通用品类版本。
   - 例：Topic "pricing"，通用角度（错）："how much does multilingual search cost?"；品牌特定角度（对）："does the presentation generation feature cost extra?"
 - **D. 内容资产映射（必须执行）**：查看客户网站已有产品目录、博客/学院、帮助中心、费用/账户/平台页、术语库、课程、电子书、市场分析等内容资产。Prompt 不只服务当前品牌可见度，也要服务未来内容覆盖后的效果追踪；因此必须覆盖“已写内容可监控”和“应补内容可监控”两类问题。
@@ -80,6 +81,7 @@ JSON 输出中的 `"t"` 字段必须与用户提供的 `Topic` **逐字完全一
 - 意图：`{i: "Type", s: Score}` 数组。TOFU: Informational (80-100) | MOFU: Commercial (70-90) | BOFU: Transactional (85-100)。
 - 漏斗分布：使用内部选择的业务类型分布；若 Topic 明显偏成交/风险验证，可提高 MOFU/BOFU 比例。
 - 每个 prompt 必须标注 `"it"`（细分意图类型）：`problem_solution` / `recommendation` / `comparison` / `pricing_value` / `risk_validation` / `implementation` / `alternative` / `local_availability` / `education_content` / `brand_validation`。
+- 每个 prompt 必须标注 `subIntent`、`intentUnitId`、`variantPurpose`、`variantSetId`、`expectedEntityType`。字段定义见 `intent-ontology.md`。
 - 覆盖 Topic `cv.applicableIntentTypes` 中所有 High-priority 适用意图；不适用意图不得为了凑类型而生成。
 
 ## 4. 漏斗指南
@@ -102,7 +104,7 @@ JSON 输出中的 `"t"` 字段必须与用户提供的 `Topic` **逐字完全一
 ## 7. 输出格式
 
 ```json
-{"ts":[{"t":"<EXACT_USER_TOPIC>","f":"High","c":95,"cv":{"cells":[{"id":"cell_001","scope":"brand_core","metricUse":"core_kpi"}]},"ps":[{"p":"prompt text here","l":"<langCode>","pt":"generic","it":"comparison","f":"MOFU","is":[{"i":"Commercial","s":85}],"kw":["keyword 1","keyword 2"],"pool":"monitoring_core","scope":"brand_core","metricUse":"core_kpi","serviceabilityStatus":"confirmed","competitorEvidenceIds":[],"sv":90,"dp":82,"mp":86,"cg":["cell_001"],"ev":{"sourceIds":["src_014"],"intentJustification":"real buyer comparison","expectedAnswerType":"provider_comparison","warnings":[]}}]}]}
+{"ts":[{"t":"<EXACT_USER_TOPIC>","f":"High","c":95,"cv":{"businessArchetypes":["b2b_saas"],"cells":[{"id":"cell_001","intentType":"comparison","subIntent":"criteria_comparison","intentUnitId":"platform-criteria-comparison","scope":"brand_core","metricUse":"core_kpi"}]},"ps":[{"p":"prompt text here","l":"<langCode>","pt":"generic","it":"comparison","subIntent":"criteria_comparison","intentUnitId":"platform-criteria-comparison","variantPurpose":"canonical","variantSetId":"variant-platform-criteria-comparison","expectedEntityType":"brand_or_provider","f":"MOFU","is":[{"i":"Commercial","s":85}],"kw":["keyword 1","keyword 2"],"pool":"monitoring_core","scope":"brand_core","metricUse":"core_kpi","serviceabilityStatus":"confirmed","competitorEvidenceIds":[],"sv":90,"dp":82,"mp":86,"cg":["cell_001"],"ev":{"sourceIds":["src_014"],"intentJustification":"real buyer comparison","expectedAnswerType":"provider_comparison","warnings":[]}}]}]}
 ```
 
 ## Output Schema
@@ -118,6 +120,11 @@ ts: 数组
     - l: string   — 语言代码（如 'en-US'）
     - pt: "generic" | "branded" | "competitive" — 品牌词监控类型
     - it: "problem_solution" | "recommendation" | "comparison" | "pricing_value" | "risk_validation" | "implementation" | "alternative" | "local_availability" | "education_content" | "brand_validation"
+    - subIntent: string — `intent-ontology.md` 中的具体意图
+    - intentUnitId: string — 稳定语义问题 ID
+    - variantPurpose: "canonical" | "wording_robustness"
+    - variantSetId: string — canonical 与措辞变体的分组 ID
+    - expectedEntityType: "brand_or_provider" | "product_or_model" | "source_or_authority" | "method_or_concept"
     - f: "TOFU" | "MOFU" | "BOFU"
     - is: 数组
       - i: "Informational" | "Navigational" | "Commercial" | "Transactional"

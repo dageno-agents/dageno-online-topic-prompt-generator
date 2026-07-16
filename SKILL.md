@@ -14,6 +14,7 @@ Use it to turn a real customer website into Dageno monitoring assets:
 - Competitor maps by market, country, business line, and differentiation angle.
 - Prompt metadata for Dageno monitoring: brand-term type, intent type, funnel stage, intent score, and keywords.
 - Evidence metadata that explains why each Topic, Prompt, and competitor was generated.
+- An intent coverage report that makes industry-universe completeness, exclusions, blind spots and metric denominators auditable.
 - Optional CSV-ready output.
 
 ## Non-Negotiable Principle
@@ -30,10 +31,11 @@ Every new domain must run a fresh evidence chain:
 6. Build a Capability Ledger and a separate evidence-backed category demand map.
 7. Research competitor capabilities and the decision surfaces they already occupy.
 8. Build four coverage layers: brand core, industry benchmark, competitive whitespace, and out-of-scope reference.
-9. Cluster every materially distinct coverage cell into complete Topics.
-10. Select Prompts by layer-specific eligibility, real demand, mention/content value and marginal coverage.
-11. Attach evidence metadata and run deterministic Prompt/coverage QA before final output.
-12. Use static rules only as fallback, and explicitly label fallback output as lower quality.
+9. Apply the business-archetype and sub-intent ontology; enumerate material intent units rather than checking only broad intent families.
+10. Cluster every materially distinct coverage cell into complete Topics.
+11. Select Prompts by layer-specific eligibility, real demand, mention/content value and marginal coverage.
+12. Attach evidence metadata and run deterministic Prompt/coverage QA before final output.
+13. Use static rules only as fallback, and explicitly label fallback output as lower quality.
 
 If crawl/search/model evidence conflicts with a static industry library, trust the evidence.
 
@@ -50,9 +52,9 @@ Required:
 Optional:
 
 - `topicMode`: `auto` or `manual`.
-- `topicCount`: only used when `topicMode=manual`; valid range 1-24. Auto mode returns every material, evidence-backed Topic required for coverage (safety ceiling: 24 per online run, not a target).
+- `topicCount`: only used when `topicMode=manual`; valid range 1-50. Auto mode returns every material, evidence-backed Topic required for coverage. If one online response cannot hold the result, paginate it; a page limit is not a Topic ceiling.
 - `promptMode`: `auto` or `manual`. Default `auto`. In auto mode, prompt count is decided from complete Topic coverage cells, not a fixed baseline.
-- `promptCount`: only used when `promptMode=manual`; final prompt count per Topic, valid range 3-32. Manual mode does not bypass serviceability, demand, coverage, or QA rules.
+- `promptCount`: only used when `promptMode=manual`; final prompt count per Topic, valid range 1-100. Manual mode does not bypass serviceability, demand, coverage, or QA rules and must disclose uncovered intent units.
 - `brandPromptMode`: `exclude` / `include` / `mixed` / `brand_only`. Default `exclude`.
 - `includeBrandTerms`: legacy boolean. If true and `brandPromptMode` is absent, use `include`.
 - `crawlDepth`: default 6-8, valid range 3-12.
@@ -166,7 +168,7 @@ See `references/online-flow.md` for the exact JSON schema.
 
 ### 2.5 Dual-Universe Coverage And Competitive Decision Surfaces
 
-Read `references/coverage-engine.md` before Topic generation.
+Read `references/coverage-engine.md` and `references/intent-ontology.md` before Topic generation.
 
 Build, in order:
 
@@ -176,6 +178,7 @@ Build, in order:
 4. Competitor Capability Map: which decision surfaces direct, partial, substitute, and source competitors occupy.
 5. Four coverage layers: `brand_core`, `industry_benchmark`, `competitive_whitespace`, and `out_of_scope_reference`.
 6. Coverage cells: the auditable units Topics and Prompts must cover.
+7. Intent-unit registry: every applicable `primary intent + sub-intent + decision object + buyer context` combination, including explicit exclusions.
 
 A decision surface can be an offer/category, buyer/project scenario, workflow, customization, trust proof, quality/performance, price/MOQ/TCO, lead time/logistics, risk, implementation, or local availability. It is not derived mechanically from navigation or a full Cartesian product. Collapse surfaces only when they have the same decision object, buyer context, proof required and expected answer set.
 
@@ -229,7 +232,7 @@ Use competitors to inform Topic and Prompt design, but do not put competitor nam
 
 ### 5. Topic Generation
 
-Read `references/geo-topic-generate.md`, `references/brand-research.md`, `references/content-compress.md`, and `references/evidence-schema.md` when generating Topics.
+Read `references/geo-topic-generate.md`, `references/brand-research.md`, `references/content-compress.md`, `references/intent-ontology.md`, and `references/evidence-schema.md` when generating Topics.
 
 Topics are not feature labels. A Topic is a coherent user-question cluster sharing the same decision object and core job-to-be-done.
 
@@ -250,7 +253,7 @@ Topic fields:
 - `f`: `High` / `Medium` / `Low`
 - `c`: confidence score 0-100
 - `pc`: coverage-derived final prompt count
-- `cv`: capability mappings, applicable intents, decision criteria, excluded intents and coverage cells
+- `cv`: capability mappings, business archetypes, applicable intent families and sub-intents, decision criteria, excluded intent units and coverage cells
 - `ev`: evidence object. Include sources, confidence reason, mapped pages, demand signals, and competitor links when machine output is requested.
 
 Auto Topic count is the complete non-overlapping set that covers all High-priority serviceable capabilities, buyer jobs, triggers, decision criteria, risks and decision surfaces. Compactness is secondary to coverage: do not merge a distinct buyer decision merely to maintain a familiar count. Manual mode may constrain count, but must disclose any uncovered High-priority cells.
@@ -265,6 +268,11 @@ Generate prompts per Topic with this metadata. Do not force every Topic to have 
 - `l`: language code
 - `pt`: `generic` / `branded` / `competitive`
 - `it`: `problem_solution` / `recommendation` / `comparison` / `pricing_value` / `risk_validation` / `implementation` / `alternative` / `local_availability` / `education_content` / `brand_validation`
+- `subIntent`: operator-friendly concrete intent from `references/intent-ontology.md`
+- `intentUnitId`: stable semantic buyer-question ID; wording variants share the same ID
+- `variantPurpose`: `canonical` / `wording_robustness`
+- `variantSetId`: ID grouping a canonical prompt and its wording variants
+- `expectedEntityType`: `brand_or_provider` / `product_or_model` / `source_or_authority` / `method_or_concept`
 - `f`: `TOFU` / `MOFU` / `BOFU`
 - `is`: intent score object, e.g. `{"i":"Commercial","s":84}`
 - `kw`: exactly two keyword phrases
@@ -281,7 +289,10 @@ Generate prompts per Topic with this metadata. Do not force every Topic to have 
 
 Prompt count rules:
 
-- Auto mode: stop when all High-priority and applicable coverage cells are covered and remaining candidates add no meaningful coverage. A narrow Topic may contain 3-7 prompts; a complex Topic may require 20-32 prompts or a follow-on scope.
+- Auto mode: stop when all High-priority and applicable intent units are covered and remaining candidates add no meaningful coverage. A narrow Topic may contain 3-7 prompts; a complex Topic may require dozens. Paginate large results instead of truncating the ontology.
+- Broad intent-family presence is not completeness. Every material sub-intent and intent unit must be covered or explicitly excluded with a reason.
+- Generate one canonical Prompt per intent unit. Add 1-2 wording-robustness variants only when phrasing evidence or retrieval sensitivity justifies them; group variants by `intentUnitId` and weight the unit once in reporting.
+- Model randomness is measured by rerunning the exact canonical Prompt in the scheduler, not by adding paraphrases to the library.
 - Manual mode: treat the requested number as a final cap/target. Do not append a fixed decision-prompt quota.
 - Never pad a Topic with weak, repetitive, unsupported or low-demand prompts.
 
@@ -317,13 +328,15 @@ Rules:
 
 ### 8. Prompt QA
 
-Before final delivery, run the QA checklist in `references/prompt-qa.md` and the coverage rules in `references/coverage-engine.md`. When JSON output is available, use:
+Before final delivery, run the QA checklist in `references/prompt-qa.md`, the intent rules in `references/intent-ontology.md`, and the coverage rules in `references/coverage-engine.md`. When JSON output is available, use:
 
 ```bash
 python3 scripts/prompt_qa.py output.json --brand "Brand Name" --mode exclude
 ```
 
-The QA script is portable and offline. Hosted runtimes must implement the same checks and return `qaReport` plus `coverageReport`; putting QA instructions inside an LLM prompt does not count as executing QA.
+The QA script is portable and offline. Hosted runtimes must implement the same checks and return `qaReport`, `coverageReport`, and `intentCoverageReport`; putting QA instructions inside an LLM prompt does not count as executing QA.
+
+Before calculating visibility, aggregate Prompt responses by `intentUnitId`. Then aggregate intent units by sub-intent, Topic and coverage layer. Wording variants must never count as separate industry demand units.
 
 ### 9. Region Handling
 
@@ -354,7 +367,7 @@ Topic 数量策略：
 
 Topic Schema：ty=...；f=...；c=...
 
-| 序号 | 监控 Prompt | 覆盖层 | 指标用途 | 品牌词类型 | 用户意图 | 购买阶段 | 意图强度 | 关键词 |
+| 序号 | 监控 Prompt | 覆盖层 | 指标用途 | 品牌词类型 | 主意图 | 细分意图 | 意图单元 | 购买阶段 | 意图强度 | 关键词 |
 |---:|---|---|---|---|---|---|---|---|
 ```
 
