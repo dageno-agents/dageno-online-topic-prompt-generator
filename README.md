@@ -151,7 +151,7 @@ The Skill never blends all four into one headline score. Measuring only `brand_c
 
 Topic and Prompt counts are outputs of coverage, not input defaults.
 
-The hosted implementation currently uses request-safety boundaries of 24 Topics and 32 Prompts per Topic. These are runtime guardrails, not recommended quantities. If a verified scope exceeds them, the system must ask for a split by business line, buyer segment, or market instead of silently dropping coverage.
+The current hosted implementation supports manual boundaries of **50 Topics** and **100 Prompts per Topic**. These are runtime guardrails, not recommended quantities. Auto mode still returns every material evidence-backed Topic and a coverage-derived number of Prompts. If one response cannot hold the verified scope, paginate it or split by business line, buyer segment, or market instead of silently dropping coverage.
 
 ## Quick Start
 
@@ -243,18 +243,22 @@ If model-led research or QA fails, the hosted workflow must repair or stop expli
     └── security.md
 ```
 
-## Runtime And Security
+## Production Runtime And Security
 
-The workflow supports model execution through OpenRouter, OpenAI, or Anthropic. Runtime secrets belong in environment variables and must never be committed.
+The current hosted workflow uses OpenRouter and a model selected in the workbench model center. The selected model must pass a real minimal request before customer research begins. Visibility in the OpenRouter model catalog does not guarantee availability in every deployment region.
 
 ```text
 OPENROUTER_API_KEY
 OPENROUTER_MODEL
-OPENAI_API_KEY
-OPENAI_MODEL
-ANTHROPIC_API_KEY
-ANTHROPIC_MODEL
 ```
+
+Required production behavior:
+
+1. Keep the API key on the server only.
+2. Validate the selected model before generation.
+3. Use the selected model consistently across brand research, competitor mapping, Topic planning, and Prompt generation.
+4. Repair a failed model/QA stage once, then stop with a clear error.
+5. Never silently switch models or present a static industry template as successful Skill output.
 
 The repository must not contain customer crawl exports, private reports, authorization logs, or API keys. See [Security](docs/security.md).
 

@@ -24,7 +24,9 @@ This guide describes the mandatory execution order for an agent or hosted implem
 
 When a model runtime is configured, never replace failed model research or missing Prompt rows with an industry scenario library.
 
-Static fallback is allowed only when no valid model runtime is available. It must be labeled `rules_fallback` and is not client-ready without review.
+Hosted production execution must stop when OpenRouter is missing, the selected model is unavailable, or the required model stages fail after one repair attempt. It must never silently return an industry template as successful Skill output.
+
+A portable offline implementation may expose an explicitly requested `rules_fallback` mode for development only. It must be visibly labeled, excluded from client-ready output, and never enabled automatically by a hosted product.
 
 ## Evidence Sufficiency
 

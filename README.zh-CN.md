@@ -146,7 +146,7 @@ cp -R dageno-online-topic-prompt-generator/* ~/.codex/skills/dageno-topic-prompt
 
 自动模式不会把 10 当成目标。
 
-在线实现目前设置了 24 个 Topic、每 Topic 32 条 Prompt 的单次请求安全边界。这是运行保护，不是推荐数量。若证据证明需要更大范围，系统应提示按业务线、买家或市场拆分，而不是静默删除覆盖。
+当前线上手动模式最多支持 50 个 Topic、每个 Topic 100 条 Prompt。这是运行保护，不是推荐数量；自动模式仍由完整覆盖决定实际规模。若单次响应无法容纳已验证的范围，系统应分页，或按业务线、买家、市场拆分，不能静默删除覆盖。
 
 ## 品牌词与地区策略
 
@@ -189,7 +189,9 @@ cp -R dageno-online-topic-prompt-generator/* ~/.codex/skills/dageno-topic-prompt
 
 ## 安全
 
-API Key 必须通过环境变量配置。仓库不得包含客户抓取数据、私有报告、授权日志或任何密钥。详见 [Security](docs/security.md)。
+生产环境统一通过 OpenRouter 调用模型。开始生成前，应先在模型中心选择模型并发起真实可用性检测；品牌研究、竞品地图、Topic 规划和 Prompt 生成使用同一个已选模型。模型或确定性 QA 失败时只修复一次，之后明确停止，不能偷偷切换模型，也不能把静态行业模板伪装成成功结果。
+
+API Key 必须通过服务端环境变量配置，不得进入浏览器、生成文件、日志或仓库。仓库不得包含客户抓取数据、私有报告、授权日志或任何密钥。详见 [Security](docs/security.md)。
 
 ## License
 

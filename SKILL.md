@@ -66,12 +66,12 @@ Optional:
 
 Preferred model route:
 
-1. OpenRouter, model `openai/gpt-5.6-sol` or the strongest approved GPT-5.6 model.
-2. OpenAI fallback.
-3. Anthropic Claude Opus fallback.
-4. Rule fallback only when no valid model key is available.
+1. OpenRouter with the model selected in the GEO Sales Workbench model center.
+2. Default to the strongest approved production model configured by the operator.
+3. Do not route generation tasks directly through Anthropic or OpenAI endpoints.
+4. Stop with a clear configuration error when `OPENROUTER_API_KEY` is unavailable or the selected model fails validation.
 
-When no model key is available, tell the user clearly that output is rule fallback and may miss business nuance.
+When no OpenRouter key is available, stop the task and report the missing server configuration. Never silently switch models or use a rule fallback in production.
 
 ## Workflow
 
