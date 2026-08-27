@@ -29,6 +29,8 @@ Input body:
   "includeBrandTerms": false,
   "targetCountries": ["United States"],
   "businessLines": [],
+  "canonicalL3Candidates": [],
+  "canonicalTaxonomyVersion": "optional current version",
   "openrouterApiKey": "",
   "llmModel": "openai/gpt-5.6-sol"
 }
@@ -64,6 +66,8 @@ Output:
   "evidenceSources": [],
   "brandIntelligence": {
     "capabilityLedger": [],
+    "canonicalMarketAssignments": [],
+    "canonicalResolverMode": "catalog|provisional",
     "intentCoveragePlan": {},
     "researchDecision": {}
   },
@@ -91,17 +95,7 @@ Output:
 
 ## Model Configuration
 
-The live flow checks keys in this order:
-
-1. `openrouterApiKey` from request body or `OPENROUTER_API_KEY` environment variable.
-2. `anthropicApiKey` / `llmApiKey` from request body or `ANTHROPIC_API_KEY`.
-3. `openaiApiKey` from request body or `OPENAI_API_KEY`.
-
-Preferred model:
-
-```text
-openai/gpt-5.6-sol
-```
+The hosted live flow uses `OPENROUTER_API_KEY` from the server environment and the operator-selected `llmModel`. Validate the selected model with a real minimal request before customer research. Do not expose keys to the client, silently switch models, or route directly to Anthropic/OpenAI endpoints.
 
 ## Brand Intelligence JSON
 
@@ -121,6 +115,30 @@ Before Topic generation, call a model with website crawl evidence and external s
   "decisionCriteria": ["criteria buyers compare before choosing"],
   "targetCountries": ["countries or markets supported or inferred from evidence"],
   "businessLines": ["specific product/service lines"],
+  "canonicalMarketAssignments": [
+    {
+      "assignmentId": "market_001",
+      "businessLineId": "line_001",
+      "businessLine": "specific product/service line",
+      "canonicalL3Id": "existing ID from supplied catalog or empty",
+      "canonicalL3Name": "existing Canonical label or empty",
+      "proposedL3Name": "provisional market name when unresolved",
+      "objectType": "product|software|provider_service|organization_industry",
+      "relation": "primary|secondary|adjacent|candidate_needs_review",
+      "decision": "REUSE_EXACT|REUSE_SEMANTIC|KEEP_NEW_L3|HIERARCHY_ONLY|DECOMPOSE|REJECT_NOT_MARKET_IDENTITY|REJECT_ATTRIBUTE_OR_USECASE|REJECT_SOURCE_OVERLAP|NEEDS_HUMAN_REVIEW",
+      "taxonomyStatus": "confirmed|provisional|needs_human_review",
+      "granularityRelation": "EQUIVALENT|BROADER|NARROWER|DISTINCT|COMPOSITE|INVALID",
+      "definition": "20-60 word retrieval-oriented market definition",
+      "boundaryExclusions": [],
+      "comparableSet": [],
+      "evidenceSourceIds": [],
+      "confidence": 0.0,
+      "reviewRequired": true,
+      "reason": ""
+    }
+  ],
+  "canonicalTaxonomyVersion": "supplied version or unresolved",
+  "canonicalResolverMode": "catalog|provisional",
   "differentiators": ["specific advantages, tradeoffs, or positioning angles supported by evidence"],
   "outOfScope": ["features, markets, claims, or segments not supported by evidence"],
   "competitors": ["competitors, alternatives, substitute providers, platforms, directories, or comparison sources"],
@@ -150,6 +168,7 @@ Important model instructions:
 - Topic seeds must reflect real user/business scenarios, not generic product labels.
 - Differentiators must be concrete enough to guide competitor and prompt design.
 - Build the Capability Ledger and applicable intent universe from `references/coverage-engine.md` before Topic generation.
+- Read `references/canonical-l3-market-boundary.md`. Resolve every material business line before category-demand and competitor research. Only IDs present in supplied `canonicalL3Candidates` may be confirmed; otherwise leave the ID empty and require human review.
 - Read `references/intent-ontology.md`; enumerate sub-intents and intent units for each business line before clustering Topics. Do not treat broad intent-family presence as complete coverage.
 - Build the competitive decision-surface map before Topic planning. `suggestedTopicCount` must equal the complete non-overlapping Topic set needed to cover all material serviceable surfaces; it is not an industry default and must not use 10 as an automatic ceiling.
 - For local services, topic seeds should reflect location, booking, price, reviews, service menu, and trust.
@@ -158,7 +177,9 @@ Important model instructions:
 
 ## Category Demand Search
 
-Run category demand search after initial brand intelligence has identified category, personas, jobs-to-be-done, countries, and business lines.
+Run category demand search after initial brand intelligence has identified category, personas, jobs-to-be-done, countries, business lines, and Canonical L3 market assignments.
+
+Use confirmed same-L3 demand for the formal industry benchmark. If the L3 assignment is provisional, keep the benchmark project-local and mark it provisional. Route adjacent-L3 demand to whitespace or out-of-scope.
 
 Use `references/category-demand-search.md` for query families and normalized result schema. The online service may plug in any web search provider; do not assume Codex/browser tools.
 
@@ -184,6 +205,9 @@ brandPromptMode: exclude|include|mixed|brand_only
 Brand Intelligence:
 [brand intelligence JSON]
 
+Canonical Market Assignments:
+[canonicalMarketAssignments]
+
 Category Demand Signals:
 [normalized search results]
 
@@ -196,7 +220,7 @@ Return the competitorMap schema from references/competitor-generation.md.
 Rules:
 
 - Generate competitors by country and business line, not only a global list.
-- Include direct, partial, substitute, marketplace/directory, and source competitors when relevant.
+- Include same-L3 direct, adjacent-L3, substitute, marketplace/directory, and source competitors when relevant.
 - Explain overlap and differentiation angle for each competitor.
 - Do not invent competitors without evidence. Use lower confidence and warnings when evidence is weak.
 
@@ -231,7 +255,10 @@ Competitor Map:
 Evidence Sources:
 [evidenceSources]
 
-Return Topics with `pc`, `cv.businessArchetypes`, `cv.applicableSubIntents`, `cv.cells`, explicit exclusions, and `ev` using the schema in `references/geo-topic-generate.md`.
+Canonical Market Assignments:
+[canonicalMarketAssignments]
+
+Return Topics with `marketAnchor`, `pc`, `cv.businessArchetypes`, `cv.applicableSubIntents`, market-aware `cv.cells`, explicit exclusions, and `ev` using the schema in `references/geo-topic-generate.md`.
 ```
 
 ## Prompt Model Prompt
@@ -266,7 +293,7 @@ Evidence Sources:
 [evidenceSources]
 
 Topics to generate. Use every topic exactly once and do not add extra topics:
-[{"t":"Topic","ty":"use_case","f":"High","c":95,"pc":8,"cv":{"cells":[]}}]
+[{"t":"Topic","ty":"use_case","f":"High","c":95,"pc":8,"marketAnchor":{},"cv":{"cells":[]}}]
 ```
 
 Rules:
@@ -279,6 +306,7 @@ Rules:
 - Brand-core monitoring requires `sv>=70`, `dp>=60`, `mp>=55`; brand-core content requires `sv>=70`, `dp>=50`.
 - Industry-benchmark and competitive-whitespace monitoring require `dp>=60`, `mp>=55`; their content prompts require `dp>=50`. These layers must not be deleted only because current customer serviceability is weak.
 - Use separate denominators for `core_kpi` and `category_benchmark`; report `opportunity_analysis` and `diagnostic_only` separately.
+- Preserve each Topic and cell market anchor. A formal `industry_benchmark` must use the same confirmed L3; provisional market boundaries must be labelled and excluded from cross-brand/time-series category comparison.
 - Monitoring/content mix is dynamic by business model. Do not enforce a universal 80% ratio.
 - Best/top/provider/vendor/comparison/review/pricing prompts are generated only for distinct uncovered decisions.
 - Every prompt is monitored independently with no prior context. Each prompt must include enough industry, category, or use-case language for the model to know the business context without reading the Topic name or brand summary.
@@ -301,7 +329,7 @@ Pass aliases and competitors as additional flags when available. Store the repor
 
 ## Fallback Policy
 
-Rule fallback may use static industry libraries, but only after crawl/search/model generation fails.
+Hosted production must stop when OpenRouter, Canonical market-boundary review, model generation, or deterministic QA fails after one repair attempt. It must not silently use static industry libraries.
 
 Fallback output must include:
 
@@ -311,4 +339,4 @@ Fallback output must include:
 当前未完成 optimized_geo_skill 的 LLM 执行，本次使用规则 fallback 生成。原因：...
 ```
 
-Fallback is not considered final for client-facing work unless manually reviewed.
+An explicitly requested portable development fallback may emit this warning, but it is not client-ready and must never be enabled automatically in the hosted product.

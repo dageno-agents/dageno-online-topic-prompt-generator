@@ -90,6 +90,10 @@ Read [intent-ontology.md](intent-ontology.md). `it` is a stable reporting family
 
 ## Coverage Layer And Pool Rules
 
+- Prompt candidates inherit the Topic `marketAnchor` and the referenced coverage cell's `marketAssignmentId`, `canonicalL3Id`, `canonicalL3Name`, `taxonomyStatus`, and `marketRelation`.
+- `industry_benchmark` belongs to the formal category denominator only when the coverage cell is `same_l3` and the Topic L3 is confirmed. A provisional same-market hypothesis may guide project research, but must not be reported as cross-brand or historical Canonical L3 performance.
+- Adjacent-L3 demand belongs in `competitive_whitespace` or `out_of_scope_reference`, not in the same-L3 benchmark.
+
 - `pool` 回答“用于监控还是内容规划”；`scope` 回答“属于品牌核心、行业基准、竞争空白还是范围外参考”。两者不得混为一谈。
 - 每条 Prompt 必须携带 `pool`、`scope`、`metricUse`、`serviceabilityStatus`、`competitorEvidenceIds`、`sv`、`dp`、`mp`、`cg` 和 `ev`。
 - `brand_core`：客户能力已确认，计入 `core_kpi`。监控 Prompt 要求 `sv>=70`、`dp>=60`、`mp>=55`；内容 Prompt 要求 `sv>=70`、`dp>=50`。

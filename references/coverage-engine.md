@@ -60,10 +60,12 @@ This restriction applies to `brand_core`, not to the whole category benchmark. C
 
 ## 3. Category Demand And Competitor Capability Maps
 
+Before building these maps, read [canonical-l3-market-boundary.md](canonical-l3-market-boundary.md) and create one market assignment per material business line. L3 is the stable category denominator; it is not a Topic label.
+
 Build two maps independently from the target brand:
 
-1. **Category Demand Map**: recurring buyer roles, jobs, triggers, use cases, comparison criteria, risks, implementation questions, pricing questions, and source/review demand across the whole industry.
-2. **Competitor Capability Map**: capabilities, buyer segments, markets, positioning, content assets, citations, and decision surfaces occupied by direct, partial, substitute, marketplace, directory, and source competitors.
+1. **Category Demand Map**: recurring buyer roles, jobs, triggers, use cases, comparison criteria, risks, implementation questions, pricing questions, and source/review demand inside the same confirmed L3. A provisional L3 may produce a provisional map but cannot establish a cross-brand benchmark denominator.
+2. **Competitor Capability Map**: capabilities, buyer segments, markets, positioning, content assets, citations, L3 relationship, and decision surfaces occupied by same-L3, adjacent-L3, substitute, marketplace, directory, and source competitors.
 
 Use official competitor pages, credible category comparisons, communities, reviews, citations, Dageno data when available, and search demand. One competitor page is evidence of that competitor's claim, not proof of category-wide demand; require multiple independent signals for High-priority industry cells.
 
@@ -74,7 +76,7 @@ Every cell must have one primary `scope` and `metricUse`:
 | Scope | Meaning | Serviceability | Metric use |
 | --- | --- | --- | --- |
 | `brand_core` | Target brand can credibly serve the intent | confirmed / strong inferred | `core_kpi` |
-| `industry_benchmark` | Standard category demand not sufficiently represented in brand evidence | any, clearly labelled | `category_benchmark` |
+| `industry_benchmark` | Standard same-L3 category demand not sufficiently represented in brand evidence | any, clearly labelled | `category_benchmark` |
 | `competitive_whitespace` | Competitors visibly occupy an adjacent valuable intent | adjacent or currently unsupported | `opportunity_analysis` |
 | `out_of_scope_reference` | Relevant to category understanding but not a sensible current target | unsupported | `diagnostic_only` |
 
@@ -163,7 +165,12 @@ Represent each applicable unit as a coverage cell:
   "metricUse": "core_kpi",
   "serviceabilityStatus": "confirmed",
   "benchmarkMember": true,
-  "competitorEvidenceIds": []
+  "competitorEvidenceIds": [],
+  "marketAssignmentId": "market_001",
+  "canonicalL3Id": "canonical://g2/example",
+  "canonicalL3Name": "Example Software",
+  "taxonomyStatus": "confirmed",
+  "marketRelation": "same_l3"
 }
 ```
 
@@ -174,6 +181,7 @@ A Topic is a coherent cluster of coverage cells that share:
 - the same core decision object
 - the same primary job-to-be-done
 - a compatible buyer and buying context
+- the same confirmed or provisional L3 market anchor, unless a composite-market review explicitly permits a combined market
 
 Do not use page sections, feature names, generic funnel stages, or abstract intent labels as Topics.
 
@@ -185,6 +193,7 @@ Each Topic stores:
 - `pc`: recommended final prompt count
 - `cv`: capability IDs, buyers, jobs, applicable intents, decision criteria, excluded intents, coverage cells and rationale
 - `ev`: supporting evidence
+- `marketAnchor`: assignment ID, Canonical ID/name or provisional name, object type, taxonomy status and market relation
 
 ## 8. Prompt Candidate Generation
 
@@ -258,6 +267,7 @@ Deterministic QA must verify:
 - variant grouping and one-unit reporting weight
 - decision-surface coverage and explicit handling of uncovered surfaces
 - evidence sufficiency by coverage layer
+- market-anchor presence, object-type integrity, same-L3 benchmark eligibility and composite-market review
 - metric separation: no blended core/category/whitespace/out-of-scope KPI
 - evidence retention
 
@@ -290,6 +300,9 @@ Reporting order:
 1. Aggregate repeated model runs for the exact Prompt.
 2. Aggregate canonical and wording variants to one `intentUnitId` result.
 3. Aggregate intent units to sub-intent and Topic results.
-4. Aggregate only compatible `metricUse` groups; never blend core KPI, category benchmark, whitespace opportunity and diagnostic reference.
+4. Aggregate Topics to a confirmed Canonical L3 only when the assignment and taxonomy version are stable.
+5. Aggregate only compatible `metricUse` groups; never blend core KPI, category benchmark, whitespace opportunity and diagnostic reference.
 
 Coverage rate uses semantic intent units, not raw Prompt rows. Excluded units stay visible with reason codes so a high score cannot be created by silently deleting difficult industry demand.
+
+Do not compare or merge provisional L3 metrics across brands or taxonomy versions.

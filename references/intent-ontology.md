@@ -84,12 +84,13 @@ Use these as recall prompts during enumeration, not mandatory quotas.
 
 For every decision surface:
 
-1. Identify the decision object, buyer/user/payer roles, trigger, job, criteria, constraints, proof required and expected answer entities.
-2. Select applicable archetype modules.
-3. Enumerate applicable `it + subIntent` pairs independently for `brand_core`, `industry_benchmark` and `competitive_whitespace`.
-4. Search category and competitor evidence for missing sub-intents. Do not let the target website define the whole industry universe.
-5. Record every excluded material sub-intent with `not_applicable`, `insufficient_evidence`, `unsupported_by_brand`, or `low_demand` and a reason.
-6. Cluster cells into Topics only after enumeration. Topic count is a result, not an input.
+1. Resolve the business line and decision object to a Canonical L3 market assignment or a clearly labelled provisional boundary.
+2. Identify the decision object, buyer/user/payer roles, trigger, job, criteria, constraints, proof required and expected answer entities.
+3. Select applicable archetype modules.
+4. Enumerate applicable `it + subIntent` pairs independently for `brand_core`, same-L3 `industry_benchmark`, and adjacent/competitor `competitive_whitespace`.
+5. Search category and competitor evidence for missing sub-intents. Do not let the target website define the whole industry universe, and do not let adjacent markets inflate the same-L3 benchmark.
+6. Record every excluded material sub-intent with `not_applicable`, `insufficient_evidence`, `unsupported_by_brand`, `low_demand`, or `outside_l3_boundary` and a reason.
+7. Cluster cells into Topics only after enumeration. Topic count is a result, not an input.
 
 Completeness is reached when all material intent units are covered or explicitly excluded. It is not reached merely because every broad `it` appears once.
 

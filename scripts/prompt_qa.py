@@ -43,6 +43,9 @@ VALID_POOL = {"monitoring_core", "content_opportunity"}
 VALID_SCOPE = {"brand_core", "industry_benchmark", "competitive_whitespace", "out_of_scope_reference"}
 VALID_METRIC_USE = {"core_kpi", "category_benchmark", "opportunity_analysis", "diagnostic_only"}
 VALID_SERVICEABILITY = {"confirmed", "adjacent", "unsupported"}
+VALID_TAXONOMY_STATUS = {"confirmed", "provisional", "needs_human_review"}
+VALID_MARKET_RELATION = {"same_l3", "adjacent_l3", "cross_l3_composite", "substitute", "source_only", "unresolved"}
+VALID_OBJECT_TYPE = {"product", "software", "provider_service", "organization_industry"}
 AMBIGUOUS = {"this", "it", "this industry", "this category", "the tool", "the platform", "the service"}
 CROSS_INDUSTRY = {
     "vendor",
@@ -103,6 +106,7 @@ def main() -> int:
         help="Business/category anchors expected in each prompt, e.g. CFD, forex, broker, trading platform.",
     )
     parser.add_argument("--mode", choices=["exclude", "include", "mixed", "brand_only"], default="exclude")
+    parser.add_argument("--canonical-id", action="append", default=[], help="Allowed current Canonical L3 IDs for confirmed assignments.")
     args = parser.parse_args()
 
     errors: list[str] = []
@@ -139,8 +143,60 @@ def main() -> int:
             errors.append(f"topic {ti} missing ps array")
             continue
 
+        market_anchor = topic.get("marketAnchor") if isinstance(topic, dict) else None
+        if not isinstance(market_anchor, dict):
+            errors.append(f"topic {ti} missing marketAnchor")
+            market_anchor = {}
+        assignment_id = str(market_anchor.get("assignmentId", "")).strip()
+        canonical_l3_id = str(market_anchor.get("canonicalL3Id", "")).strip()
+        canonical_l3_name = str(market_anchor.get("canonicalL3Name", "")).strip()
+        proposed_l3_name = str(market_anchor.get("proposedL3Name", "")).strip()
+        taxonomy_status = market_anchor.get("taxonomyStatus")
+        market_relation = market_anchor.get("marketRelation")
+        object_type = market_anchor.get("objectType")
+        if not assignment_id:
+            errors.append(f"topic {ti} marketAnchor missing assignmentId")
+        if taxonomy_status not in VALID_TAXONOMY_STATUS:
+            errors.append(f"topic {ti} invalid taxonomyStatus: {taxonomy_status}")
+        if market_relation not in VALID_MARKET_RELATION:
+            errors.append(f"topic {ti} invalid marketRelation: {market_relation}")
+        if object_type not in VALID_OBJECT_TYPE:
+            errors.append(f"topic {ti} invalid objectType: {object_type}")
+        if taxonomy_status == "confirmed":
+            if not canonical_l3_id or not canonical_l3_name:
+                errors.append(f"topic {ti} confirmed marketAnchor requires canonicalL3Id and canonicalL3Name")
+            if args.canonical_id and canonical_l3_id not in args.canonical_id:
+                errors.append(f"topic {ti} canonicalL3Id is not in the supplied current catalog: {canonical_l3_id}")
+            elif not args.canonical_id:
+                warnings.append(f"topic {ti} confirmed Canonical ID was not checked against --canonical-id catalog")
+        elif canonical_l3_id:
+            errors.append(f"topic {ti} {taxonomy_status} marketAnchor must not contain a production canonicalL3Id")
+        elif not proposed_l3_name and not canonical_l3_name:
+            errors.append(f"topic {ti} unresolved marketAnchor needs a proposedL3Name or canonicalL3Name")
+        if market_relation == "cross_l3_composite":
+            conjunction = market_anchor.get("conjunctionReview")
+            if not isinstance(conjunction, dict) or conjunction.get("decision") != "KEEP_COMBINED":
+                errors.append(f"topic {ti} cross-L3 composite requires conjunctionReview.decision=KEEP_COMBINED")
+
         cv = topic.get("cv") if isinstance(topic, dict) and isinstance(topic.get("cv"), dict) else {}
         cells = cv.get("cells") if isinstance(cv.get("cells"), list) else []
+        for cell in cells:
+            if not isinstance(cell, dict):
+                continue
+            cell_id = str(cell.get("id", "cell"))
+            if str(cell.get("marketAssignmentId", "")).strip() != assignment_id:
+                errors.append(f"topic {ti} coverage cell {cell_id} marketAssignmentId conflicts with marketAnchor")
+            if cell.get("taxonomyStatus") != taxonomy_status:
+                errors.append(f"topic {ti} coverage cell {cell_id} taxonomyStatus conflicts with marketAnchor")
+            if cell.get("marketRelation") not in VALID_MARKET_RELATION:
+                errors.append(f"topic {ti} coverage cell {cell_id} has invalid marketRelation")
+            if taxonomy_status == "confirmed" and str(cell.get("canonicalL3Id", "")).strip() != canonical_l3_id:
+                errors.append(f"topic {ti} coverage cell {cell_id} canonicalL3Id conflicts with marketAnchor")
+            if cell.get("scope") == "industry_benchmark":
+                if cell.get("marketRelation") != "same_l3":
+                    errors.append(f"topic {ti} industry_benchmark cell {cell_id} must use marketRelation=same_l3")
+                if taxonomy_status != "confirmed":
+                    warnings.append(f"topic {ti} industry_benchmark cell {cell_id} is provisional and cannot be used for cross-brand/time-series category comparison")
         valid_cell_ids = {str(cell.get("id")) for cell in cells if isinstance(cell, dict) and cell.get("id")}
         cell_by_id = {str(cell.get("id")): cell for cell in cells if isinstance(cell, dict) and cell.get("id")}
         high_cell_ids = {str(cell.get("id")) for cell in cells if isinstance(cell, dict) and cell.get("id") and str(cell.get("priority", "High")).lower() == "high"}

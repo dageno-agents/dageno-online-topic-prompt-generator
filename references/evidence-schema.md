@@ -41,6 +41,8 @@ Use short evidence objects in machine output. In client-facing Markdown, summari
 
 Topic machine output should also retain `pc` and `cv` from [coverage-engine.md](coverage-engine.md), including capability IDs and coverage cells.
 
+It must also retain the Topic `marketAnchor` from [canonical-l3-market-boundary.md](canonical-l3-market-boundary.md). A confirmed anchor requires an existing ID from the supplied Canonical catalog; a provisional or review-required anchor must not invent one.
+
 ## Prompt Evidence
 
 ```json
@@ -65,6 +67,11 @@ Topic machine output should also retain `pc` and `cv` from [coverage-engine.md](
     "serviceabilityStatus": "confirmed|adjacent|unsupported",
     "competitorEvidenceIds": ["competitor_src_001"],
     "coverageCellIds": ["cell_001"],
+    "marketAssignmentId": "market_001",
+    "canonicalL3Id": "canonical://g2/ai-presentation",
+    "canonicalL3Name": "AI Presentation Software",
+    "taxonomyStatus": "confirmed|provisional|needs_human_review",
+    "marketRelation": "same_l3|adjacent_l3|substitute|source_only|unresolved",
     "geoMonitoringValue": "high|medium|low",
     "seoKeywordConfidence": "high|medium|low",
     "warnings": []
@@ -82,6 +89,10 @@ Topic machine output should also retain `pc` and `cv` from [coverage-engine.md](
     "countries": ["United States"],
     "businessLines": ["AI slide generation", "team presentation workspace"],
     "overlapType": "direct|partial|substitute|directory|source",
+    "marketAssignmentId": "market_001",
+    "canonicalL3Id": "canonical://g2/ai-presentation",
+    "canonicalL3Name": "AI Presentation Software",
+    "marketRelation": "same_l3|adjacent_l3|substitute|source_only|unresolved",
     "overlapReason": "Appears in category comparison results and targets team presentation creation.",
     "differentiationAngle": "Template-led team presentation workflow vs AI-first slide generation.",
     "confidence": 88,
@@ -100,3 +111,6 @@ Topic machine output should also retain `pc` and `cv` from [coverage-engine.md](
 - Do not discard `ev`, `cv`, `cg`, or score fields during normalization/rendering; evidence and coverage must survive to API output and QA.
 - Industry-benchmark and whitespace Prompts require category or competitor evidence independent of the target brand's own website.
 - Never use `out_of_scope_reference` Prompts in a performance KPI.
+- Never emit a production Canonical ID that was not present in the supplied current catalog.
+- Keep product, software, provider/service, and organization market objects separate even when names share keywords.
+- Treat provisional L3 benchmarks as project-local hypotheses, not cross-brand or historical category denominators.
