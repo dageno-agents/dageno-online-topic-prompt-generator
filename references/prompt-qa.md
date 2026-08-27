@@ -6,6 +6,11 @@ Run deterministic QA after prompt generation. Model-based QA may be added in hos
 
 - Valid JSON when machine output is requested.
 - Every Topic has prompts grouped under it.
+- Every Topic has a valid `marketAnchor` and every coverage cell maps back to that assignment.
+- `taxonomyStatus=confirmed` requires an existing Canonical ID from the supplied catalog. Provisional/review-required assignments must not invent IDs.
+- Product, software, provider/service, and organization market objects are not merged because they share keywords.
+- Formal `industry_benchmark` cells use `marketRelation=same_l3`; provisional L3 benchmarks are labelled and excluded from cross-brand/time-series category comparison.
+- A Topic spanning several L3 assignments requires a passed composite-market/conjunction review; otherwise it must be decomposed.
 - Every prompt is unique across all Topics.
 - Every prompt has `p`, `pt`, `it`, `subIntent`, `intentUnitId`, `variantPurpose`, `variantSetId`, `expectedEntityType`, `f`, `is`, and exactly two `kw` values.
 - Every prompt has `pool`, `scope`, `metricUse`, `serviceabilityStatus`, `competitorEvidenceIds`, `sv`, `dp`, `mp`, `cg`, and evidence metadata.
@@ -31,7 +36,7 @@ Run deterministic QA after prompt generation. Model-based QA may be added in hos
 - Every intent unit has exactly one canonical Prompt. Wording variants share its `intentUnitId` and `variantSetId`, are limited to justified retrieval-sensitive phrasing, and do not count as additional intent coverage.
 - Repeated sampling of one Prompt is configured outside the Prompt library.
 - `intentCoverageReport` counts canonical semantic intent units, not raw Prompt rows, and retains excluded units plus reason codes.
-- Visibility aggregation order is model repeats -> wording variants -> intent unit -> sub-intent/Topic -> compatible metric layer.
+- Visibility aggregation order is model repeats -> wording variants -> intent unit -> sub-intent/Topic -> confirmed Canonical L3 -> compatible metric layer.
 - Informational Prompt volume follows the business model and coverage plan, and is separated into `content_opportunity` when mention likelihood is low.
 
 ## Portable Script
@@ -46,6 +51,12 @@ Optional flags:
 
 ```bash
 --alias "Brand Alias" --competitor "Competitor A" --competitor "Competitor B"
+```
+
+When validating confirmed L3 assignments, pass every allowed current Canonical ID:
+
+```bash
+--canonical-id "canonical://g2/e-signature" --canonical-id "canonical://g2/contract-lifecycle-management"
 ```
 
 For regulated, technical, or easily ambiguous categories, pass expected context anchors so QA fails prompts that only work when the reader sees the Topic name:

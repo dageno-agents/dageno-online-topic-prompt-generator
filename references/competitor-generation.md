@@ -2,7 +2,7 @@
 
 Competitor generation creates an evidence-backed map of who the brand competes with in AI search answers.
 
-Do not output only a single global competitor list. Real competitors vary by country, business line, buyer segment, and differentiation angle.
+Do not output only a single global competitor list. Real competitors vary by country, business line, buyer segment, Canonical L3 relationship, and differentiation angle.
 
 ## Inputs
 
@@ -36,6 +36,14 @@ Classify every competitor:
 - `local_or_country_specific`: important in one country/market.
 - `marketplace_or_directory`: not a vendor, but influences AI/source answers.
 - `source_competitor`: review sites, media, communities, or reference pages that compete for citation and narrative control.
+
+Separately classify `marketRelation`:
+
+- `same_l3`: direct-market comparable set.
+- `adjacent_l3`: neighboring market with partial buyer/workflow overlap.
+- `substitute`: different market object or approach solving the same job.
+- `source_only`: influences answers but is not a provider.
+- `unresolved`: no safe L3 relation can be established.
 
 ## Search Strategy
 
@@ -81,6 +89,10 @@ Then compare competitors against those differentiators. A market leader is not a
       "countries": ["United States"],
       "businessLines": ["AI slide generation"],
       "competitorType": "direct",
+      "marketAssignmentId": "market_001",
+      "canonicalL3Id": "canonical://g2/ai-presentation",
+      "canonicalL3Name": "AI Presentation Software",
+      "marketRelation": "same_l3",
       "overlapScore": 86,
       "visibilityRisk": "high|medium|low",
       "buyerSegment": "startup founders and marketing teams",
@@ -115,6 +127,7 @@ Rules:
 - In `brandPromptMode=include`, do not include competitor names unless the user explicitly requests it.
 - In `brandPromptMode=mixed`, limit `competitive` prompts to comparison or alternative scenarios and keep them realistic.
 - Do not invent competitor names. If evidence is weak, classify as `source_competitor` or add a warning.
+- Do not treat adjacent-L3 vendors, substitutes, directories, review sites, or communities as direct-market competitors.
 
 ## Competitor Intent Mining
 

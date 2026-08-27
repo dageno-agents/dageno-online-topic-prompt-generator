@@ -10,15 +10,16 @@ This guide describes the mandatory execution order for an agent or hosted implem
 4. Produce 2-4 business hypotheses when the business is ambiguous.
 5. Identify the economic center, primary decision object, and paying buyer.
 6. Build the Capability Ledger.
-7. Run category-demand research from the evidence-backed category.
-8. Build a market-aware competitor/source map.
-9. Construct the applicable serviceable-intent universe and coverage cells.
-10. Generate the smallest complete Topic set.
-11. Generate a coverage-driven number of Prompts for each Topic.
-12. Run deterministic QA.
-13. If QA fails, regenerate once from the QA errors.
-14. If the second attempt fails, stop and return the error.
-15. Export Markdown, CSV, or JSON only after QA passes.
+7. Resolve every material business line to a confirmed or provisional Canonical L3 market boundary.
+8. Run category-demand research from that market boundary.
+9. Build a market-aware competitor/source map with same-L3, adjacent-L3, substitute and source-only relations.
+10. Construct the applicable serviceable-intent universe and market-aware coverage cells.
+11. Generate the smallest complete Topic set; every Topic carries a market anchor.
+12. Generate a coverage-driven number of Prompts for each Topic.
+13. Run deterministic QA, including market-boundary checks.
+14. If QA fails, regenerate once from the QA errors.
+15. If the second attempt fails, stop and return the error.
+16. Export Markdown, CSV, or JSON only after QA passes.
 
 ## Hard Failure Policy
 
@@ -39,6 +40,17 @@ Mark research as `needs_confirmation` when:
 - crawl and external evidence conflict materially
 
 Do not convert low-confidence hypotheses into core Topics.
+
+## Canonical L3 Boundary
+
+Read `references/canonical-l3-market-boundary.md` after business-line identification. The Skill consumes Canonical taxonomy in read-only mode:
+
+- reuse only IDs supplied by the current catalog,
+- leave IDs empty for provisional or review-required candidates,
+- keep product, software, provider/service and organization markets separate,
+- use same-L3 demand for formal industry benchmarks,
+- route adjacent markets to whitespace or out-of-scope,
+- decompose composite Topics unless the provider, buyer, workflow and fragmentation tests support one coherent market.
 
 ## Search And Competitor Rules
 

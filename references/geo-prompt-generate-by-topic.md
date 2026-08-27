@@ -67,6 +67,8 @@ description: 针对某个指定的品牌主题（Topic）生成搜索优化的 G
 所有内容（prompt、关键词）必须使用目标语言。JSON 输出中 `"l"` 字段设为 `langCode`。
 
 ## 1. 任务
+
+读取 Topic 的 `marketAnchor` 及 `cv.cells` 市场字段。Prompt 不需要机械写入 Canonical 名称，但其品类语言必须与该 L3 市场对象一致。不得把相邻市场 Prompt 伪装成同 L3 行业基准。
 基于 Topic 的 Capability、行业需求、竞品能力和 coverage cells 生成完整 Prompt 集合。manual 模式以 `TotalPrompts` 为最终目标，但不能绕过分层证据与 QA。
 
 ## 2. Topic 字段规则（关键）

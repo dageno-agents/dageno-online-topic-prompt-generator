@@ -38,6 +38,7 @@ It is built for GEO teams, SEO specialists, agencies, growth teams, and Dageno o
 - Separate `monitoring_core` and `content_opportunity` pools.
 - Four coverage layers that prevent favorable-prompt bias: brand core, industry benchmark, competitive whitespace, and out-of-scope reference.
 - Three-level intent coverage: primary intent, concrete sub-intent, and deduplicated semantic intent unit.
+- Canonical L3 market boundaries that stabilize category demand, competitor sets, and visibility denominators without forcing L3 to equal Topic.
 - Market-aware competitors and evidence mappings.
 - Deterministic QA for coverage, duplication, brand leakage, and business context.
 - Markdown, CSV-ready, and machine-readable outputs.
@@ -57,15 +58,24 @@ flowchart LR
   C --> D["Economic center"]
   D --> E["Capability Ledger"]
   E --> F["Decision-surface map"]
-  F --> G["Brand + category intent universes"]
-  G --> H["Intent ontology<br/>primary + sub-intent + intent unit"]
-  H --> I["Layered Topic clusters"]
-  I --> J["Prompt pools"]
-  J --> L["Deterministic QA"]
-  L --> K["Dageno / CSV / JSON"]
+  F --> G["Canonical L3 market boundary"]
+  G --> H["Brand + same-market intent universes"]
+  H --> I["Intent ontology<br/>primary + sub-intent + intent unit"]
+  I --> J["Market-anchored Topic clusters"]
+  J --> L["Prompt pools"]
+  L --> M["Deterministic QA"]
+  M --> K["Dageno / CSV / JSON"]
 ```
 
 ## The Core Concepts, In Plain English
+
+### Canonical L3 Market Boundary
+
+L3 answers which stable market a business line meaningfully competes in. It is resolved before category-demand and competitor research.
+
+L3 is not a Topic: one L3 can contain many buyer-decision Topics, while a diversified company can have several L3 assignments. Formal industry benchmarks use same-L3 demand; adjacent markets are kept as competitive whitespace or diagnostic context.
+
+The Skill consumes Canonical taxonomy in read-only mode. It reuses supplied current IDs, but never invents production IDs. Without a catalog match, it returns a provisional candidate for human review.
 
 ### Capability Ledger
 
@@ -229,6 +239,7 @@ If model-led research or QA fails, the hosted workflow must repair or stop expli
 ├── agents/openai.yaml               # Skill discovery metadata
 ├── references/
 │   ├── coverage-engine.md           # Canonical coverage algorithm
+│   ├── canonical-l3-market-boundary.md
 │   ├── brand-research.md            # Business-intelligence rules
 │   ├── geo-topic-generate.md        # Topic contract
 │   ├── geo-prompt-generate-by-topic.md

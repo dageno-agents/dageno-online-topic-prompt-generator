@@ -26,16 +26,17 @@ Every new domain must run a fresh evidence chain:
 1. Crawl the website.
 2. Search the web for brand/category/competitor context.
 3. Use a model to infer the real business from crawl + search evidence.
-4. Run category demand search for non-branded user questions, buying criteria, and comparison language.
-5. Generate market-aware competitors by country, business line, overlap, and differentiation angle.
-6. Build a Capability Ledger and a separate evidence-backed category demand map.
-7. Research competitor capabilities and the decision surfaces they already occupy.
-8. Build four coverage layers: brand core, industry benchmark, competitive whitespace, and out-of-scope reference.
-9. Apply the business-archetype and sub-intent ontology; enumerate material intent units rather than checking only broad intent families.
-10. Cluster every materially distinct coverage cell into complete Topics.
-11. Select Prompts by layer-specific eligibility, real demand, mention/content value and marginal coverage.
-12. Attach evidence metadata and run deterministic Prompt/coverage QA before final output.
-13. Use static rules only as fallback, and explicitly label fallback output as lower quality.
+4. Resolve each material business line to a stable Canonical L3 market boundary, or explicitly mark it for human review.
+5. Run category demand search for non-branded user questions, buying criteria, and comparison language inside that market boundary.
+6. Generate market-aware competitors by country, business line, L3 relationship, overlap, and differentiation angle.
+7. Build a Capability Ledger and a separate evidence-backed category demand map.
+8. Research competitor capabilities and the decision surfaces they already occupy.
+9. Build four coverage layers: brand core, industry benchmark, competitive whitespace, and out-of-scope reference.
+10. Apply the business-archetype and sub-intent ontology; enumerate material intent units rather than checking only broad intent families.
+11. Cluster every materially distinct coverage cell into complete Topics anchored to an L3 assignment.
+12. Select Prompts by layer-specific eligibility, real demand, mention/content value and marginal coverage.
+13. Attach evidence metadata and run deterministic Prompt/coverage/market-boundary QA before final output.
+14. Use static rules only as fallback, and explicitly label fallback output as lower quality.
 
 If crawl/search/model evidence conflicts with a static industry library, trust the evidence.
 
@@ -60,6 +61,8 @@ Optional:
 - `crawlDepth`: default 6-8, valid range 3-12.
 - `targetCountries`: optional country list for market-aware competitor generation.
 - `businessLines`: optional product/service lines. If absent, infer from crawl and brand intelligence.
+- `canonicalL3Candidates`: optional current Canonical candidates with stable IDs, names, definitions, object types, and taxonomy version. The Skill is read-only and must not invent IDs when this is absent.
+- `canonicalTaxonomyVersion`: optional version identifier used to keep category metrics comparable over time.
 - `openrouterApiKey` / `llmModel`: preferred runtime for full quality.
 
 ## Runtime Model
@@ -141,6 +144,8 @@ The model must not force the domain into SaaS, VPS, web scraping, AI PPT, or any
 
 Before Topic generation, the model must identify the brand's economic center of gravity: what decision value buyers are really purchasing. This may be a product/SKU, workflow, service outcome, risk reduction, supply-chain simplification, project delivery, or replacement of multiple vendors.
 
+After business-line identification and before category-demand research, read `references/canonical-l3-market-boundary.md`. Resolve each material business line to the narrowest valid market identity supported by evidence. If the current Canonical catalog is unavailable or no supplied candidate can be safely reused, return a provisional candidate with `NEEDS_HUMAN_REVIEW` and leave the production Canonical ID empty.
+
 Many customer websites are poorly planned, over-broad, under-written, or internally inconsistent. Do not assume the navigation structure equals the real business strategy. Compare:
 
 - crawl evidence from owned pages
@@ -174,11 +179,12 @@ Build, in order:
 
 1. Evidence sufficiency decision.
 2. Capability Ledger: what the customer can credibly deliver, to whom, for which job, under which constraints.
-3. Category Demand Map: what buyers across the whole category ask, independent of the target brand's current strengths.
-4. Competitor Capability Map: which decision surfaces direct, partial, substitute, and source competitors occupy.
-5. Four coverage layers: `brand_core`, `industry_benchmark`, `competitive_whitespace`, and `out_of_scope_reference`.
-6. Coverage cells: the auditable units Topics and Prompts must cover.
-7. Intent-unit registry: every applicable `primary intent + sub-intent + decision object + buyer context` combination, including explicit exclusions.
+3. Canonical L3 Market Assignment Map: stable market boundary for each material business line, including object type, catalog/review status, and composite-market decision.
+4. Category Demand Map: what buyers across the same L3 ask, independent of the target brand's current strengths.
+5. Competitor Capability Map: which decision surfaces same-L3, adjacent-L3, substitute, and source competitors occupy.
+6. Four coverage layers: `brand_core`, `industry_benchmark`, `competitive_whitespace`, and `out_of_scope_reference`.
+7. Coverage cells: the auditable units Topics and Prompts must cover, each with a market assignment and L3 relation.
+8. Intent-unit registry: every applicable `primary intent + sub-intent + decision object + buyer context` combination, including explicit exclusions.
 
 A decision surface can be an offer/category, buyer/project scenario, workflow, customization, trust proof, quality/performance, price/MOQ/TCO, lead time/logistics, risk, implementation, or local availability. It is not derived mechanically from navigation or a full Cartesian product. Collapse surfaces only when they have the same decision object, buyer context, proof required and expected answer set.
 
@@ -235,6 +241,8 @@ Use competitors to inform Topic and Prompt design, but do not put competitor nam
 Read `references/geo-topic-generate.md`, `references/brand-research.md`, `references/content-compress.md`, `references/intent-ontology.md`, and `references/evidence-schema.md` when generating Topics.
 
 Topics are not feature labels. A Topic is a coherent user-question cluster sharing the same decision object and core job-to-be-done.
+
+Every Topic must include a `marketAnchor`. L3 defines the stable market; Topic defines a decision cluster inside that market. Never mechanically create one Topic per L3 or one L3 per Topic.
 
 Internally model:
 

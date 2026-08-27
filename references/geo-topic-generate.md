@@ -30,6 +30,7 @@ description: 根据品牌网站 URL 自动调研并提取用于 GEO 监控的核
 - `evidenceSources`：按 [evidence-schema.md](evidence-schema.md) 记录的站内/搜索/推断证据。
 - `categoryDemandSignals`：按 [category-demand-search.md](category-demand-search.md) 归一化的品类需求信号。
 - `competitorMap`：按 [competitor-generation.md](competitor-generation.md) 生成的国家/业务线/差异化竞品地图。
+- `canonicalMarketAssignments`：按 [canonical-l3-market-boundary.md](canonical-l3-market-boundary.md) 对每条实质业务线执行只读 L3 市场边界解析。未提供当前 Canonical 目录时只能输出待人工复核候选，不得虚构生产 ID。
 
 ## 任务
 
@@ -62,6 +63,7 @@ Topic 不是品牌官网上的功能标签，也不是营销口号；Topic 是�
 12. **竞争决策面建模**：按 [coverage-engine.md](coverage-engine.md) 识别买家选择、拒绝、对比或验证供应商时需要解决的决策面。
 13. **分层覆盖单元**：为 Topic 建立 `cv.cells`，每个单元标记 `scope`、`metricUse`、`serviceabilityStatus`、`benchmarkMember` 和竞品证据。不要构造全排列。
 14. **业务原型与细分意图枚举**：读取 [intent-ontology.md](intent-ontology.md)，按业务线选择证据支持的业务原型，枚举适用的主意图、子意图与意图单元。一个粗意图出现一次不代表完整覆盖。
+15. **L3 市场边界映射**：每个 Topic 必须关联一条 `canonicalMarketAssignments`。同一 L3 可以有多个 Topic；跨 L3 合并必须通过复合市场四项测试，否则拆分。
 
 ### 主题来源
 - 从以下信号推断：产品线、使用场景、客户痛点、购买信号、品类上下文、渠道、业务背景（来自第 0 步品牌调研产出的 `summary`）。
@@ -125,6 +127,22 @@ Topic 不是品牌官网上的功能标签，也不是营销口号；Topic 是�
 
 客户端只需要简洁输出时可省略 `ev`，但内部生成链路仍应保留证据。
 
+每个 Topic 还必须包含 `marketAnchor`：
+
+```json
+"marketAnchor": {
+  "assignmentId": "market_001",
+  "canonicalL3Id": "canonical://g2/e-signature",
+  "canonicalL3Name": "E-Signature Software",
+  "proposedL3Name": "",
+  "taxonomyStatus": "confirmed",
+  "marketRelation": "same_l3",
+  "objectType": "software"
+}
+```
+
+`taxonomyStatus=confirmed` 只允许引用调用方提供的现有 Canonical ID。没有目录或没有可靠匹配时使用 `provisional|needs_human_review`，并保持 `canonicalL3Id` 为空。
+
 ## 覆盖字段（字段 `pc` / `cv`）
 
 - `pc`：覆盖该 Topic 全部 High-priority 和适用 intent units 所需的 Prompt 数。简单 Topic 可为 3-7；复杂 Topic 可以达到几十条。若超过单次输出容量则分页，不得截断意图本体。
@@ -138,6 +156,7 @@ Topic 不是品牌官网上的功能标签，也不是营销口号；Topic 是�
 - `cv.cells[].subIntent`、`cv.cells[].intentUnitId`：细分意图和稳定语义问题 ID。
 - `cv.cells[].scope`：`brand_core` / `industry_benchmark` / `competitive_whitespace` / `out_of_scope_reference`。
 - `cv.cells[].metricUse`：决定该单元进入核心 KPI、行业基准、机会分析还是仅诊断展示。
+- `cv.cells[].marketAssignmentId`、`canonicalL3Id`、`canonicalL3Name`、`taxonomyStatus`、`marketRelation`：记录稳定市场边界；`industry_benchmark` 只有在同一 confirmed L3 时才是可跨品牌比较的正式行业分母。
 
 ## 全局规则
 - 主题必须唯一
@@ -146,7 +165,7 @@ Topic 不是品牌官网上的功能标签，也不是营销口号；Topic 是�
 - 最终输出必须严格匹配此结构：
 
 ```json
-{"ts":[{"t":"Topic Name","ty":"use_case","f":"High","c":95,"pc":8,"cv":{"capabilityIds":["cap_001"],"businessArchetypes":["b2b_saas"],"applicableIntentTypes":["recommendation","comparison"],"applicableSubIntents":["scenario_fit","criteria_comparison"],"cells":[{"id":"cell_001","buyerRole":"buyer","jobToBeDone":"choose a provider","intentType":"recommendation","subIntent":"scenario_fit","intentUnitId":"buyer-scenario-provider-selection","priority":"High"}]},"ev":{"sourceIds":["src_001"],"confidenceReason":"Supported by product and demand evidence.","warnings":[]}}]}
+{"ts":[{"t":"Topic Name","ty":"use_case","f":"High","c":95,"pc":8,"marketAnchor":{"assignmentId":"market_001","canonicalL3Id":"canonical://g2/example","canonicalL3Name":"Example Software","proposedL3Name":"","taxonomyStatus":"confirmed","marketRelation":"same_l3","objectType":"software"},"cv":{"capabilityIds":["cap_001"],"businessArchetypes":["b2b_saas"],"applicableIntentTypes":["recommendation","comparison"],"applicableSubIntents":["scenario_fit","criteria_comparison"],"cells":[{"id":"cell_001","buyerRole":"buyer","jobToBeDone":"choose a provider","intentType":"recommendation","subIntent":"scenario_fit","intentUnitId":"buyer-scenario-provider-selection","priority":"High","marketAssignmentId":"market_001","canonicalL3Id":"canonical://g2/example","canonicalL3Name":"Example Software","taxonomyStatus":"confirmed","marketRelation":"same_l3"}]},"ev":{"sourceIds":["src_001"],"confidenceReason":"Supported by product and demand evidence.","warnings":[]}}]}
 ```
 
 ## 最终检查清单
@@ -169,6 +188,7 @@ ts: 数组
   - f: "High" | "Medium" | "Low"  — focus 等级
   - c: number (0-100)  — confidence 分数
   - pc: number (1+) — coverage-derived final prompt count; paginate large outputs instead of imposing an ontology ceiling
+  - marketAnchor: object — Canonical L3 assignment or provisional market boundary
   - cv: object — capability and intent coverage plan with cells
   - ev: object (optional) — evidence metadata from evidence-schema.md
 ```
