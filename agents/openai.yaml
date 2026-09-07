@@ -1,3 +1,6 @@
-display_name: Dageno Domain Topic Prompt Generator
-short_description: Turn any real customer domain into Dageno-ready GEO Topics and Prompts using crawl, search, and model-led brand research.
-default_prompt: Generate a Dageno-ready Topic and Prompt system from this customer domain. Crawl and search first, infer and challenge the business hypotheses, build the Capability Ledger, and map every material business line to the narrowest valid Canonical L3 market boundary without inventing production IDs. Build same-L3 category demand plus same-L3, adjacent, substitute and source competitor maps. Enumerate the complete material intent universe at primary-intent, sub-intent and intent-unit granularity before clustering market-anchored Topics. Cover brand_core, industry_benchmark, competitive_whitespace and out_of_scope_reference separately so visibility is neither favorable-only nor blended. Generate one canonical Prompt per intent unit, add wording variants only when justified, retain evidence, and run deterministic coverage and market-boundary QA. Do not use fixed Topic or Prompt quotas.
+interface:
+  display_name: "Dageno Topic Prompt V3"
+  short_description: "Evidence-backed industry intent panels and Dageno import CSV"
+  default_prompt: "Use $dageno-topic-prompt-generator to research this domain from fresh evidence, challenge its business and market interpretation, enumerate industry intent units, generate natural questions, run semantic and deterministic QA, and export a four-column Dageno CSV with the full JSON evidence panel."
+policy:
+  allow_implicit_invocation: true

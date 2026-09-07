@@ -1,278 +1,109 @@
-<!-- DAGENO_AGENT_NAV_START -->
-
-**Dageno Agent Project Map / Dageno Agent 项目导航**
-
-Docs: [English](README.md) · [简体中文](README.zh-CN.md) · [Dageno](https://dageno.ai/?utm_source=github&utm_medium=readme&utm_campaign=topic_prompt_generator)
-
-| Goal | Project | What it does |
-| --- | --- | --- |
-| Audit a site | [seo-geo-audit](https://github.com/dageno-agents/seo-geo-audit) | Technical, content, trust, off-site, and AI visibility audit |
-| Build a monitoring question set | [dageno-online-topic-prompt-generator](https://github.com/dageno-agents/dageno-online-topic-prompt-generator) | Researches the business, then generates evidence-backed Topics and Prompts |
-| Produce SEO/GEO content | [seo-geo-content-engine](https://github.com/dageno-agents/seo-geo-content-engine) | Research, intent, structure, draft, metadata, FAQ, and GEO packaging |
-| Diagnose organic-content performance | [organic-content-intelligence](https://github.com/dageno-agents/organic-content-intelligence) | Connects GSC, GA4, crawl, intent, and AI/GEO signals |
-| Improve GEO site architecture | [geo-site-architecture-audit](https://github.com/dageno-agents/geo-site-architecture-audit) | Finds missing AI-answerable pages and internal links |
-
-<!-- DAGENO_AGENT_NAV_END -->
-
 # Dageno Topic & Prompt Generator
 
-> Turn any real customer website into an evidence-backed GEO monitoring question system.
+[简体中文](README.zh-CN.md) · [Dageno](https://dageno.ai/) · [Skill](SKILL.md)
 
-[![Skill](https://img.shields.io/badge/Codex-Skill-0A7AFF)](SKILL.md)
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Output](https://img.shields.io/badge/output-Markdown%20%7C%20CSV%20%7C%20JSON-475569)](references/csv-output.md)
+**Turn a real website into an evidence-backed AI-search monitoring panel.**
 
-Most Prompt generators start with a category template and produce plausible-looking questions. That fails as soon as the website sells something more nuanced than the template understands.
+V3 candidate: deterministic checks pass; complete live-model regression is still pending. Do not treat this as a verified production accuracy release.
 
-This Skill starts from evidence. It crawls the website, studies external demand and competitors, identifies what buyers are actually paying for, and maps both the questions the customer can credibly answer and the wider category questions needed for an unbiased benchmark.
+This project researches what a business actually sells, what buyers in its market need, and where competitors answer those needs. It then organizes distinct decisions into Topics and writes standalone questions for monitoring.
 
-It is built for GEO teams, SEO specialists, agencies, growth teams, and Dageno operators who need a defensible monitoring baseline rather than a prompt dump.
+## Why This Is Different
 
-## What You Get
+A dashboard can be precise about the wrong question set. Measuring only a brand's strongest use cases makes visibility look better; indiscriminately adding unrelated categories makes it look worse.
 
-- Business intelligence grounded in the target website and external search.
-- A Capability Ledger showing what the customer can credibly deliver.
-- A competitive decision-surface map: the reasons buyers choose, compare, reject, or verify providers.
-- Coverage-driven Topics. Topic count is not fixed at 5, 7, or 10.
-- Coverage-driven Prompts. A simple Topic may need 3-7; a complex one may need 20+.
-- Separate `monitoring_core` and `content_opportunity` pools.
-- Four coverage layers that prevent favorable-prompt bias: brand core, industry benchmark, competitive whitespace, and out-of-scope reference.
-- Three-level intent coverage: primary intent, concrete sub-intent, and deduplicated semantic intent unit.
-- Canonical L3 market boundaries that stabilize category demand, competitor sets, and visibility denominators without forcing L3 to equal Topic.
-- Market-aware competitors and evidence mappings.
-- Deterministic QA for coverage, duplication, brand leakage, and business context.
-- Markdown, CSV-ready, and machine-readable outputs.
+V3 separates **brand capabilities, same-market demand, competitive gaps and out-of-scope context**. It does not claim that generated questions are real query logs or a census of all searches.
 
-## Why Topic/Prompt Design Matters
-
-A GEO monitor is only as useful as the questions it tracks.
-
-If the question set is too broad, AI answers may never name a product or provider. If it is too narrow, the monitor misses important buying scenarios. If it is copied from an industry template, the dashboard can look precise while measuring the wrong market.
-
-This Skill treats Topic/Prompt design as a measurement-system problem:
-
-```mermaid
-flowchart LR
-  A["Customer domain"] --> B["Crawl + web research"]
-  B --> C["Business hypotheses"]
-  C --> D["Economic center"]
-  D --> E["Capability Ledger"]
-  E --> F["Decision-surface map"]
-  F --> G["Canonical L3 market boundary"]
-  G --> H["Brand + same-market intent universes"]
-  H --> I["Intent ontology<br/>primary + sub-intent + intent unit"]
-  I --> J["Market-anchored Topic clusters"]
-  J --> L["Prompt pools"]
-  L --> M["Deterministic QA"]
-  M --> K["Dageno / CSV / JSON"]
-```
-
-## The Core Concepts, In Plain English
-
-### Canonical L3 Market Boundary
-
-L3 answers which stable market a business line meaningfully competes in. It is resolved before category-demand and competitor research.
-
-L3 is not a Topic: one L3 can contain many buyer-decision Topics, while a diversified company can have several L3 assignments. Formal industry benchmarks use same-L3 demand; adjacent markets are kept as competitive whitespace or diagnostic context.
-
-The Skill consumes Canonical taxonomy in read-only mode. It reuses supplied current IDs, but never invents production IDs. Without a catalog match, it returns a provisional candidate for human review.
-
-### Capability Ledger
-
-An evidence-backed inventory of:
+## The Workflow
 
 ```text
-offering + buyer + job-to-be-done + supported outcome + constraints + evidence
+Website + fresh external research
+  -> business hypotheses
+  -> market/competitor evidence and disconfirmation
+  -> Canonical L3 market boundaries
+  -> decision surfaces and concrete intent units
+  -> independent missing-intent review
+  -> Topic clustering
+  -> natural questions
+  -> deterministic + semantic QA
+  -> JSON evidence panel + Dageno import CSV
 ```
 
-Confirmed capabilities define the core KPI, but they do not define the entire industry benchmark. Material category demand and competitor-owned decision surfaces are retained in separate layers.
+**An intent unit is one meaning, not one phrasing.** “Which platform fits a small team?” and its paraphrase should not count as two independent demand units. Price, security, migration and suitability remain distinct when they change the decision.
 
-### Competitive Decision Surface
+## What You Receive
 
-A buyer-readable reason to choose, reject, compare, or verify a provider. Depending on the business, this may include:
-
-- product or bundle fit
-- buyer role or project stage
-- customization and integration
-- quality, safety, certification, or compliance
-- pricing, MOQ, TCO, and commercial terms
-- lead time, implementation, logistics, and local availability
-- reviews, alternatives, warranties, and risk
-
-These are examples, not a template. A surface is created only when evidence supports it.
-
-### Topic
-
-A coherent group of questions sharing the same decision object and core job-to-be-done. A Topic is not a navigation label, funnel stage, or generic phrase such as `Product Discovery`.
-
-### Prompt
-
-A standalone question that a real user could send to an AI assistant. It must carry enough category and scenario context to make sense without the Topic title or previous chat history.
-
-### Intent Granularity
-
-A broad intent appearing once does not mean buyer demand is covered. The Skill uses three levels:
-
-| Level | Example | Purpose |
-| --- | --- | --- |
-| Primary intent (`it`) | `comparison` | Stable reporting family |
-| Sub-intent (`subIntent`) | `vs_named`, `criteria_comparison`, `concept_comparison` | The concrete decision the buyer is making |
-| Intent unit (`intentUnitId`) | `carrier-coverage-analytics-comparison` | One semantic buyer question, deduplicated across wording variants |
-
-Coverage is checked at the intent-unit level. A canonical Prompt represents the unit. A wording variant keeps the same `intentUnitId` and does not inflate the demand denominator.
-
-## Example: From Website Pages To Buyer Decisions
-
-Imagine a manufacturer whose website lists lithium-ion, LiPo, LiFePO4, 18650, and dozens of voltage/capacity pages. A page-based generator may create one Topic per product family.
-
-The evidence-led model may instead discover that buyers are evaluating:
-
-| Decision surface | Possible Topic |
+| Deliverable | Purpose |
 | --- | --- |
-| Engineering and customization | Custom Battery Pack OEM & Engineering Design |
-| Chemistry and performance fit | Cell Chemistry, Format & Performance Selection |
-| Application fit | Industrial, Robotics & Medical Battery Solutions |
-| Trust and proof | Battery Safety, BMS & Compliance |
-| Supplier risk | Factory Quality & OEM Supplier Verification |
-| Commercial feasibility | Pricing, MOQ, Prototype & Lead Time |
+| Business interpretation | Current offer, payer, job, limits and uncertainty |
+| Market/competitor map | Same-market providers, adjacent offers, substitutes and sources |
+| Topic and intent inventory | Coverage-derived grouping, with exclusions and deferred units |
+| Prompt library | One standalone question per distinct intent unit |
+| Evidence trail | Retrieved pages, searches, source IDs, dates and content hashes |
+| QA and version difference | Broken mappings, semantic issues, additions and wording changes |
+| Import CSV | Exactly `topic,prompt,regions,language` |
+| Full JSON | Evidence, stable IDs, benchmark membership and configuration |
 
-That structure is closer to how procurement teams, engineers, and product owners ask AI for recommendations.
+Counts are derived from evidence. There is no fixed 7-Topic or 10-Prompt template. Transport batches can continue beyond 50 Topics or 100 Prompts. A budget limit is disclosed; it is not called “complete coverage.”
 
-## Two Prompt Pools
-
-`monitoring_core` is designed to trigger products, brands, providers, competitors, or trusted sources in AI answers.
-
-`content_opportunity` captures real informational demand that is useful for SEO/GEO content planning but less likely to produce a brand mention.
-
-The ratio is dynamic. Decision-led businesses usually need more monitoring prompts; media or education businesses may legitimately need more informational coverage.
-
-## Four Coverage Layers
-
-| Layer | Purpose | Visibility use |
-| --- | --- | --- |
-| `brand_core` | Confirmed customer capabilities and buyer decisions | Core KPI |
-| `industry_benchmark` | Material category demand regardless of current customer strength | Category benchmark |
-| `competitive_whitespace` | Valuable intents competitors serve but the customer does not yet own | Opportunity analysis |
-| `out_of_scope_reference` | Relevant category context too far from the current offer | Diagnostic only |
-
-The Skill never blends all four into one headline score. Measuring only `brand_core` inflates visibility; measuring every category question as if the customer should win it unfairly depresses visibility.
-
-## Automatic Scope, Without Silent Truncation
-
-Topic and Prompt counts are outputs of coverage, not input defaults.
-
-The current hosted implementation supports manual boundaries of **50 Topics** and **100 Prompts per Topic**. These are runtime guardrails, not recommended quantities. Auto mode still returns every material evidence-backed Topic and a coverage-derived number of Prompts. If one response cannot hold the verified scope, paginate it or split by business line, buyer segment, or market instead of silently dropping coverage.
-
-## Quick Start
-
-Install as a Codex Skill:
+## Quick Start In Codex
 
 ```bash
 git clone https://github.com/dageno-agents/dageno-online-topic-prompt-generator.git
+cd dageno-online-topic-prompt-generator
+npm ci
 mkdir -p ~/.codex/skills/dageno-topic-prompt-generator
-cp -R dageno-online-topic-prompt-generator/* ~/.codex/skills/dageno-topic-prompt-generator/
+cp -R SKILL.md agents references runtime scripts tests package.json package-lock.json node_modules ~/.codex/skills/dageno-topic-prompt-generator/
 ```
 
-Then ask:
+Ask:
 
-```text
-Generate a non-branded Dageno Topic and Prompt library for https://example.com.
-Research the real business first, use the United States as the monitored market,
-keep region terms out of Prompts because location is controlled by IP, and export CSV.
-```
+> Research example.com as a new business. Build a non-branded US/en-US monitoring panel from real site and market evidence. Include industry demand beyond the brand's strengths. Give me a Chinese design summary, full JSON and the four-column Dageno CSV.
 
-Useful optional context:
+Codex can use the current session model and available research tools. Using the Skill in Codex does **not** require a second OpenRouter key.
 
-```json
-{
-  "domain": "https://example.com",
-  "market": "United States / North America",
-  "outputLanguage": "English",
-  "businessGoal": "Prioritize enterprise buyers",
-  "priorityOffering": "Custom manufacturing projects",
-  "idealCustomer": "OEM procurement and engineering teams",
-  "excludedOfferings": "Consumer replacement batteries",
-  "brandPromptMode": "exclude"
-}
-```
+## Hosted Or CLI Execution
 
-## Brand And Region Policies
-
-Brand modes:
-
-- `exclude`: generic discovery; no owned or competitor names.
-- `include`: generic discovery plus owned-brand validation.
-- `mixed`: generic, branded, and limited competitive questions.
-- `brand_only`: reputation and brand-accuracy monitoring only.
-
-When Dageno controls location through IP, keep region words out of generic Prompts and run the same question set from each target market.
-
-## Deterministic QA
-
-The Skill checks:
-
-- serviceability and evidence
-- High-priority decision-surface coverage
-- applicable intent coverage
-- standalone business context
-- exact and semantic duplicates across Topics
-- brand and competitor leakage
-- monitoring/content pool thresholds
-- keyword and evidence mappings
-
-Run the portable QA tool:
+Node.js 22+ is required. Configure `OPENROUTER_API_KEY` and `OPENROUTER_MODEL` securely in the environment; never commit them.
 
 ```bash
-python3 scripts/prompt_qa.py output.json \
-  --brand "Example Brand" \
-  --mode exclude \
-  --context-term "product category"
+node runtime/cli.mjs generate --domain example.com --market US --language en-US --out private/example
+node runtime/cli.mjs qa private/example/panel.json
+node runtime/cli.mjs export private/example/panel.json private/example/import.csv
+npm test
+npm run verify:release
 ```
 
-If model-led research or QA fails, the hosted workflow must repair or stop explicitly. It must not disguise an old industry template as a successful result.
+The hosted workflow uses an operator-selected OpenRouter model. It does not silently switch providers after a failure. Changing the model in a Codex conversation does not automatically change the hosted model.
 
-## Repository Map
+## Monitoring Integrity
 
-```text
-.
-├── SKILL.md                         # Complete operating contract
-├── agents/openai.yaml               # Skill discovery metadata
-├── references/
-│   ├── coverage-engine.md           # Canonical coverage algorithm
-│   ├── canonical-l3-market-boundary.md
-│   ├── brand-research.md            # Business-intelligence rules
-│   ├── geo-topic-generate.md        # Topic contract
-│   ├── geo-prompt-generate-by-topic.md
-│   ├── competitor-generation.md
-│   ├── prompt-qa.md
-│   └── csv-output.md
-├── scripts/
-│   ├── crawl_and_clean.py
-│   └── prompt_qa.py
-└── docs/
-    ├── agent-guide.md
-    └── security.md
-```
+- The default CSV excludes content-only opportunities and out-of-scope diagnostics.
+- Same-market benchmarks include eligible brand-core questions too; they are not just questions the brand cannot answer.
+- Brand names are excluded by default. Owned-brand validation and competitor comparisons are opt-in modes.
+- Language, monitoring IP and genuinely local/legal constraints are separate.
+- No invented Canonical IDs. Without the catalog, the market is provisional and project-local.
+- Model judgments are labelled as judgments, not measured demand or mention probabilities.
+- Known-inventory coverage is not a claim to cover every internet query.
+- Default generation does not run actual consumer AI-platform monitoring.
 
-## Production Runtime And Security
+## Validation And Limits
 
-The current hosted workflow uses OpenRouter and a model selected in the workbench model center. The selected model must pass a real minimal request before customer research begins. Visibility in the OpenRouter model catalog does not guarantee availability in every deployment region.
+Tests cover orchestration, project isolation, reference integrity, multilingual handling, scope budgets and failure cases. Mocked multi-sector fixtures are **not live accuracy benchmarks**.
 
-```text
-OPENROUTER_API_KEY
-OPENROUTER_MODEL
-```
+Semantic and business judgments remain fallible. Weak websites, inaccessible pages, ambiguous offers, sparse demand evidence and evolving markets can require human review. A deployment upload is not evidence of end-to-end success.
 
-Required production behavior:
+The current request-based runtime does not provide durable background-job resumption. Keep generated JSON alongside CSV: four import columns cannot carry evidence or historical intent IDs.
 
-1. Keep the API key on the server only.
-2. Validate the selected model before generation.
-3. Use the selected model consistently across brand research, competitor mapping, Topic planning, and Prompt generation.
-4. Repair a failed model/QA stage once, then stop with a clear error.
-5. Never silently switch models or present a static industry template as successful Skill output.
+## Project Map
 
-The repository must not contain customer crawl exports, private reports, authorization logs, or API keys. See [Security](docs/security.md).
+- [Operating Skill](SKILL.md)
+- [Research protocol](references/v3-research-protocol.md)
+- [Intent ontology](references/intent-ontology.md)
+- [Canonical L3](references/canonical-l3-market-boundary.md)
+- [Measurement boundaries](references/v3-measurement-contract.md)
+- [Output contract](references/v3-output-contract.md)
+- [Validation](references/v3-validation.md)
+- [Security](docs/security.md)
 
-## License
-
-MIT
+MIT. Public releases exclude customer research, proposals, private articles and secrets.

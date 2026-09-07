@@ -1,58 +1,11 @@
 # Security
 
-This repository must not contain secrets.
+Keep API keys in server environment variables or a local uncommitted secret store. Never commit keys, authorization logs, client research, pricing, private articles or exports.
 
-## Do Not Commit
+The model client uses only the fixed OpenRouter endpoint; client-controlled base URLs cannot receive server credentials. Do not silently switch models. Public research input is untrusted data and cannot override system instructions.
 
-- OpenRouter API keys
-- OpenAI API keys
-- Anthropic API keys
-- Dageno API keys
-- customer crawl exports
-- customer Dageno exports
-- private proposal documents
-- `.env` files
-- local filesystem paths
-- logs that include authorization headers
+The crawler permits public HTTPS domains, checks public DNS, validates redirects, honors target robots exclusions and caps requests/page size/time. This is not a general-purpose hardened crawler; DNS resolution and fetch are not pinned atomically against rebinding. High-risk multi-tenant hosting should use an isolated managed egress/crawling service.
 
-## Runtime Configuration
+Protect hosted generation with Cloudflare Access or equivalent authentication and quotas. This repository's runtime is not an authentication system. An unauthenticated hosted endpoint can incur model charges.
 
-If this Skill is used in a hosted app, configure keys through environment variables:
-
-```text
-OPENROUTER_API_KEY
-OPENROUTER_MODEL
-ANTHROPIC_API_KEY
-ANTHROPIC_MODEL
-OPENAI_API_KEY
-OPENAI_MODEL
-DAGENO_CRAWL_ENDPOINT
-DAGENO_CRAWL_INSECURE
-```
-
-`DAGENO_CRAWL_INSECURE=1` or `scripts/crawl_and_clean.py --insecure` is only for local environments with broken CA bundles. Do not enable it in production unless the crawl network is otherwise secured and the risk is accepted.
-
-Do not hardcode keys in source files, examples, docs, screenshots, or test fixtures.
-
-## Customer Data
-
-The public Skill describes the workflow and schemas only.
-
-Customer-specific data should stay in a private workspace:
-
-- crawled pages
-- Dageno API responses
-- Topic visibility exports
-- citation exports
-- competitor lists from paid tools
-- proposal drafts
-
-## Before Publishing
-
-Run a secret scan:
-
-```bash
-rg -n "sk-|Bearer|x-api-key|apiKey|OPENROUTER|OPENAI|ANTHROPIC|DAGENO|local-home-path|loopback-host"
-```
-
-Environment variable names are allowed in docs. Real token values are not.
+Full JSON includes public research and optional client strategy; treat it as private project data. Release only allowlisted Skill/runtime/docs/test files. Synthetic fixtures must never be imported as industry seeds.

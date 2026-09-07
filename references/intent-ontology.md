@@ -96,6 +96,9 @@ Completeness is reached when all material intent units are covered or explicitly
 
 ## 6. Intent Units, Variants And Sampling
 
+V3 also records journeyStage: discover, evaluate, select, purchase, adopt, use, renew, or switch. Keep post-purchase use, renewal and migration distinct; TOFU/MOFU/BOFU is a legacy coarse view, not the entire user lifecycle.
+
+
 An `intentUnitId` represents one semantic buyer question. A wording variant does not create a new unit.
 
 - `canonical`: the strongest natural wording for an intent unit.
