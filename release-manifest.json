@@ -1,7 +1,7 @@
 {
   "status": "candidate_pending_live_validation",
   "version": "3.0.0",
-  "digest": "4210dd25eb9264d495ce9a20adbd16b318635c8936b87a3e586cf1121e634612",
+  "digest": "6a95945e0b0f1195beb12c13b9ffce3245976183edcf8ca74e7e6087e747b738",
   "files": {
     "SKILL.md": "f6280756196801e4cb558249396c77ffce2261a9a8e6a8fd7027fee6b68370cf",
     "agents/openai.yaml": "35651645fd572266693287ba5c7d35d2cdb161f8961c9d6e5e1d900eb36bf569",
@@ -29,8 +29,8 @@
     "runtime/contract.mjs": "f88bb50bcc00606e874e3a57cab43b7a2fcb9663712964dbd86680ab7dac452d",
     "runtime/entity-pilot.mjs": "16f2a75e9bc8de20ffb24e01981bcdda557b614f843c39168f7ce10b55e7bf48",
     "runtime/model.mjs": "66353c6bdd62ce2154d043d5ad5ab553c27dc16b88045351d5aaea7358417e94",
-    "runtime/pipeline.mjs": "eacc774554342966aed0302ab3c2fe5684f6066a9e48f70c86577438cafb8fd3",
-    "runtime/qa.mjs": "22a61df37d672d9e22a433e2766743355dc3f112c2dd71a160e564a5b0cb60b4",
+    "runtime/pipeline.mjs": "77f4637da741a8cf2147caa2a72ca3c035d81fabdfedca38b98650422de08957",
+    "runtime/qa.mjs": "d7a2e1e24a8f3af81594b805a305dc60afcaa2eabddc32102785d8109f8167b6",
     "runtime/research.mjs": "37efc01a9f02f0684d14661a60779cc5756b289d197bfd8ca65245a66aeb9eb5",
     "runtime/schemas.mjs": "e3a4d981f19d6d5fe23f224360e7b8d0aba55ba60320954eb1b3e0d89cb5e54c",
     "runtime/validate-schema.mjs": "04a4f7fbe6702970ef32be5b11e3a361ccbe1fe8c403c436bd404333ed284514",
@@ -41,6 +41,6 @@
     "scripts/prompt_qa.py": "671c977ee293028658fe3af0febd2f5b8e9110285d6439bbb08b7272bb579463",
     "tests/fixtures.mjs": "3f0b4b41888edfe7b86e3d001a7e4359e0ec0457349d8382479010375f181193",
     "tests/pilot.test.mjs": "23173d3f84071fcf8b86af78d394f01de70ccbb99d45fd0478f1a54d67fdb631",
-    "tests/pipeline.test.mjs": "c4ca8ad6a8ce13e74b1e58e556373e3c9e174e71f49adbb7cc2a6779bfde4691"
+    "tests/pipeline.test.mjs": "3179e2e4a5d4422e2dd3383f11a88a553f436543e6dacb992d5a96d1423533cf"
   }
 }

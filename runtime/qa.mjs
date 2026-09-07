@@ -1,4 +1,6 @@
 import { INTENTS, METRICS, normalizeText, termPresent, lexicalSimilarity } from "./contract.mjs";
+import { businessSchema, unitSchema, promptsSchema } from "./schemas.mjs";
+import { validateSchema } from "./validate-schema.mjs";
 
 export function requireReferences(ids, sources, label) {
   const known = new Set(sources.map(x => x.id));
@@ -108,13 +110,21 @@ export function validatePromptBatch(rows, units, config, business, competitors =
 
 export function validateArtifact(artifact) {
   const errors = [], warnings = [], units = artifact.intentRegistry || [];
+  const check = fn => { try { fn(); } catch (e) { errors.push(e.message); } };
   if (artifact.schemaVersion !== "dageno.topic-prompt.v3") errors.push("Unsupported schema version");
   if (!units.length || !artifact.generatedTopics?.length) errors.push("Empty intent registry or Topics");
+  check(() => validateSchema(businessSchema, artifact.businessResearch, "businessResearch"));
+  check(() => validateBusiness(artifact.businessResearch, artifact.evidenceSources || [], artifact.canonicalCatalog || []));
+  check(() => validateUnits(units, artifact.decisionSurfaces || [], artifact.businessResearch, artifact.evidenceSources || []));
   const rows = artifact.generatedTopics?.flatMap(t => t.prompts) || [];
+  const rawRows = rows.map(p => ({ unitKey: units.find(u => u.intentUnitId === p.intentUnitId)?.key || "unknown", text: p.p, language: p.l, funnel: p.f, keywords: p.kw, contextAnchor: p.contextAnchor }));
+  check(() => validateSchema(promptsSchema, { prompts: rawRows }, "artifact.prompts"));
+  check(() => validatePromptBatch(rawRows, units.filter(u => rawRows.some(r => r.unitKey === u.key)), artifact.monitoringConfig, artifact.businessResearch, artifact.competitorMap || []));
   const ids = new Set(), texts = new Set();
   for (const row of rows) {
     const unit = units.find(u => u.intentUnitId === row.intentUnitId);
     if (!unit || row.scope !== unit.scope || row.pool !== unit.pool) errors.push(`Broken intent mapping: ${row.intentUnitId}`);
+    if (unit && (row.pt !== unit.brandTermType || row.benchmarkMember !== unit.benchmarkMember)) errors.push(`Brand/benchmark metadata conflicts with unit: ${row.intentUnitId}`);
     if (row.metricUse !== METRICS[row.scope]) errors.push(`Invalid metric scope: ${row.intentUnitId}`);
     if (ids.has(row.intentUnitId)) errors.push(`Intent unit counted twice: ${row.intentUnitId}`);
     ids.add(row.intentUnitId);
@@ -124,13 +134,18 @@ export function validateArtifact(artifact) {
     try { requireReferences(row.ev?.sourceIds, artifact.evidenceSources || [], row.intentUnitId); } catch (e) { errors.push(e.message); }
   }
   for (const unit of units) if (!ids.has(unit.intentUnitId) && !artifact.deferredUnits?.some(d => d.intentUnitId === unit.intentUnitId)) errors.push(`Silently lost unit: ${unit.intentUnitId}`);
+  for (const topic of artifact.generatedTopics || []) for (const row of topic.prompts) {
+    const unit = units.find(u => u.intentUnitId === row.intentUnitId);
+    const market = artifact.businessResearch?.markets?.find(m => m.key === unit?.marketKey);
+    if (!market || topic.marketAnchor?.objectType !== market.objectType || topic.marketAnchor?.canonicalL3Id !== market.canonicalL3Id) errors.push(`Topic market mismatch: ${topic.topic}`);
+  }
   // Lexical similarity only raises review candidates. It never removes a question.
   const duplicateCandidates = [];
   for (let i = 0; i < rows.length; i++) for (let j = 0; j < i; j++) {
     if (lexicalSimilarity(rows[i].p, rows[j].p, artifact.monitoringConfig?.language) >= 0.82) duplicateCandidates.push([rows[i].intentUnitId, rows[j].intentUnitId]);
   }
   if (duplicateCandidates.length) warnings.push(`${duplicateCandidates.length} lexically similar pairs retained for semantic review, not automatically deduplicated`);
-  if (!artifact.semanticReview?.passed) errors.push("Independent semantic review is not complete");
+  if (!artifact.semanticReview?.passed || artifact.semanticReview.checkedUnits !== rows.length) errors.push("Independent semantic review is not complete");
   if (!artifact.coverageChallenge?.completed) errors.push("Independent gap review is not complete");
   if (artifact.businessResearch?.status !== "confirmed") warnings.push("Business interpretation is provisional");
   if (!artifact.evidenceSources?.some(s => s.type === "competitor_page")) warnings.push("No competitor page was retrieved");

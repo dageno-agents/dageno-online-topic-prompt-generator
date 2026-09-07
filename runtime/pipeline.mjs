@@ -185,7 +185,7 @@ export async function generatePanel(input, deps) {
   if (!industryEvidenceAdequate) gapReview.concerns.push("外部行业证据不足：当前清单仍是暂定范围，不能视为完整行业基准。");
   const artifact = {
     schemaVersion: SCHEMA_VERSION, skillVersion: VERSION, domain: config.domain, startedAt, generatedAt: new Date().toISOString(),
-    taxonomyVersion: input.canonicalTaxonomyVersion || "unresolved", monitoringConfig: { ...config, regionMode: input.regionMode || "ip_controlled", model: input.models || "not_selected", generationModel: deps.modelId, generationIsMonitoring: false },
+    taxonomyVersion: input.canonicalTaxonomyVersion || "unresolved", canonicalCatalog: candidates, monitoringConfig: { ...config, regionMode: input.regionMode || "ip_controlled", model: input.models || "not_selected", generationModel: deps.modelId, generationIsMonitoring: false },
     businessResearch: business, decisionSurfaces: surfaces, intentRegistry: units,
     exclusions: { surfaces: surfaceExclusions, subIntents: intentExclusions },
     deferredUnits: units.filter(u => !selectedKeys.has(u.key)).map(u => ({ intentUnitId: u.intentUnitId, reason: "manual_budget", unitKey: u.key })),

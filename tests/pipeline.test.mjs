@@ -73,6 +73,13 @@ test("Unicode lexical candidates are not semantic deletion", () => {
   assert.equal(termPresent("conditions and online services", "On"), false);
   assert.equal(termPresent("Compare On shoes", "On"), true);
 });
+test("portable final QA enforces brand and language policy, not just ID mappings", async () => {
+  const a = await generatePanel({ domain: "client.example" }, fixture().deps);
+  a.generatedTopics[0].prompts[0].p += " Client Example";
+  a.generatedTopics[0].prompts[1].l = "zh-CN";
+  const qa = validateArtifact(a);
+  assert.equal(qa.passed, false); assert.ok(qa.errors.some(e => e.includes("blocked brand"))); assert.ok(qa.errors.some(e => e.includes("language mismatch")));
+});
 test("HTML/XML parsers and network boundary", () => {
   const page = parsePage('<html><title>Example</title><meta content="description" name="description"><nav>VPS cache</nav><main><h1>Real business</h1><p>Business evidence goes here with product details.</p></main></html>', "https://client.example/");
   assert.equal(page.meta, "description"); assert.ok(!page.text.includes("VPS cache"));
