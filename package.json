@@ -1,0 +1,21 @@
+{
+  "name": "@dageno/topic-prompt-generator",
+  "version": "3.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "build:validators": "node scripts/build-validators.mjs",
+    "release": "node scripts/build-release.mjs",
+    "verify:release": "node scripts/build-release.mjs --check"
+  },
+  "dependencies": {
+    "ajv": "^8.20.0",
+    "cheerio": "1.0.0",
+    "fast-xml-parser": "^5.9.0",
+    "robots-parser": "^3.0.1"
+  }
+}

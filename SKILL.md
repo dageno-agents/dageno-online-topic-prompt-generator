@@ -1,406 +1,126 @@
 ---
 name: dageno-topic-prompt-generator
-description: Generate Dageno-ready GEO Topic clusters and Prompt libraries from any real customer domain using crawl/search evidence, brand-serviceable and industry-benchmark coverage, competitor whitespace research, deterministic QA, optional brand terms, and CSV-ready outputs.
+description: Research a real domain and its market, then build evidence-backed GEO Topics, deduplicated buyer-intent units and standalone monitoring Prompts. Use for Dageno question libraries, industry intent panels, localized CSV imports and panel updates.
 ---
 
-# Dageno Online Topic Prompt Generator
+# Dageno Topic & Prompt Generator V3
 
-This Skill reproduces the Topic/Prompt generation logic used by Dageno's GEO Sales Workbench.
+Build a defensible AI-search monitoring panel, not a list of plausible questions.
 
-Use it to turn a real customer website into Dageno monitoring assets:
+## First Principle
 
-- Topic clusters that reflect the customer's real business scenarios.
-- An evidence-driven, exhaustive number of Topics and Prompts, grouped by decision surface without padding.
-- Competitor maps by market, country, business line, and differentiation angle.
-- Prompt metadata for Dageno monitoring: brand-term type, intent type, funnel stage, intent score, and keywords.
-- Evidence metadata that explains why each Topic, Prompt, and competitor was generated.
-- An intent coverage report that makes industry-universe completeness, exclusions, blind spots and metric denominators auditable.
-- Optional CSV-ready output.
+Research what the brand sells today AND what buyers across the relevant market need.
+Enumerate material decisions before clustering Topics or writing questions.
+Cover evidenced industry demand even when the target brand is not positioned to win it.
+Never claim to have observed all industry queries or discovered all internet demand.
 
-## Non-Negotiable Principle
+Version: `3.1.0`. Machine schema: `dageno.topic-prompt.v3`. Monitoring policy: `brand_visibility.v1`.
 
-Never generate from a cached industry template alone.
+**Final-list gate:** business relevance alone is insufficient. If an answer can fully satisfy the question without specific products/providers/brands, keep it out of the brand-competition list. Read [brand visibility admission](references/brand-visibility-admission.md) for every generation or export task.
 
-Every new domain must run a fresh evidence chain:
+## Operating Modes
 
-1. Crawl the website.
-2. Search the web for brand/category/competitor context.
-3. Use a model to infer the real business from crawl + search evidence.
-4. Run category demand search for non-branded user questions, buying criteria, and comparison language.
-5. Generate market-aware competitors by country, business line, overlap, and differentiation angle.
-6. Build a Capability Ledger and a separate evidence-backed category demand map.
-7. Research competitor capabilities and the decision surfaces they already occupy.
-8. Build four coverage layers: brand core, industry benchmark, competitive whitespace, and out-of-scope reference.
-9. Apply the business-archetype and sub-intent ontology; enumerate material intent units rather than checking only broad intent families.
-10. Cluster every materially distinct coverage cell into complete Topics.
-11. Select Prompts by layer-specific eligibility, real demand, mention/content value and marginal coverage.
-12. Attach evidence metadata and run deterministic Prompt/coverage QA before final output.
-13. Use static rules only as fallback, and explicitly label fallback output as lower quality.
+- **Codex session:** use the selected session model and available crawl/search tools. An OpenRouter key is NOT required just to use this Skill in Codex. Follow the research and QA contracts, retain the structured artifact and run the executable validator.
+- **Hosted/CLI:** use `runtime/pipeline.mjs` and an explicitly selected OpenRouter model through `runtime/model.mjs`. Validate a real model request before research. Never switch model/provider silently or fabricate a template result after failure.
+- **Review/update:** load the prior panel only for version comparison. Fresh site/market evidence remains required. Do not rewrite historical measurements.
 
-If crawl/search/model evidence conflicts with a static industry library, trust the evidence.
-
-When a model runtime is configured, failed brand intelligence, missing coverage output, or failed deterministic QA must stop the run after one repair attempt. Never present a cached industry template as successful Skill execution.
+A session model change does not automatically change the production model center.
 
 ## Inputs
 
-Required:
-
-- `domain` or `websiteURL`: customer domain.
-- `market`: target region, e.g. `United States / North America`. If Dageno IP controls region, do not put region words inside prompts.
-- `outputLanguage`: usually English for Dageno prompts.
+Required: domain. Confirm or recommend a monitoring country and output language when missing.
+Hosted defaults: US and en-US; these are configuration defaults, NOT inferred market facts.
 
 Optional:
+- client priority offering, paying buyer, strategic goal and exclusions;
+- Canonical catalog candidates and taxonomy version;
+- `brandPromptMode`: exclude (default), include, mixed, brand_only;
+- `market`: one ISO-3166 country or a recognized country name;
+- `outputLanguage`: BCP-47 language tag, including zh-CN and zh-TW;
+- `topicMode/promptMode`: auto (default) or manual;
+- manual counts: positive integer caps, never padding targets;
+- `previousPanel`: same domain, country, language and taxonomy version for comparison;
+- `researchBudget`: request/model-call safety budgets; exhaustion must stop or disclose unfinished research, never assert completeness.
 
-- `topicMode`: `auto` or `manual`.
-- `topicCount`: only used when `topicMode=manual`; valid range 1-50. Auto mode returns every material, evidence-backed Topic required for coverage. If one online response cannot hold the result, paginate it; a page limit is not a Topic ceiling.
-- `promptMode`: `auto` or `manual`. Default `auto`. In auto mode, prompt count is decided from complete Topic coverage cells, not a fixed baseline.
-- `promptCount`: only used when `promptMode=manual`; final prompt count per Topic, valid range 1-100. Manual mode does not bypass serviceability, demand, coverage, or QA rules and must disclose uncovered intent units.
-- `brandPromptMode`: `exclude` / `include` / `mixed` / `brand_only`. Default `exclude`.
-- `includeBrandTerms`: legacy boolean. If true and `brandPromptMode` is absent, use `include`.
-- `crawlDepth`: default 6-8, valid range 3-12.
-- `targetCountries`: optional country list for market-aware competitor generation.
-- `businessLines`: optional product/service lines. If absent, infer from crawl and brand intelligence.
-- `openrouterApiKey` / `llmModel`: preferred runtime for full quality.
+Auto mode has no business-level count ceiling. Transport batching is not taxonomy truncation.
+Manual budgets expose every deferred known intent unit and the resulting coverage loss.
 
-## Runtime Model
+## Required Workflow
 
-Preferred model route:
+1. **Fresh evidence.** Discover navigation and sitemap branches; sample offering, scenario, commercial, proof, documentation/trust and entity pages. Read body text with structured parsers. Record actual URLs, retrieval times, failures, excerpts and unvisited inventory. A reader proxy is not browser rendering. Do not bypass access restrictions.
+2. **Business hypotheses.** Identify current offer, payer, user, purchase job and limits from evidence. Separate roadmap, blog subjects and genuinely sold capabilities. Do not infer core business from a domain, menu or repeated word alone.
+3. **Independent market research.** Search category demand, alternatives, comparisons, risks, pricing, implementation, post-purchase and local requirements. Read representative external/provider pages. Search snippets are clues, not verified provider claims or search-volume observations.
+4. **Disconfirmation.** Re-evaluate business hypotheses against later evidence. Change the hypothesis when contradicted. Unresolved offer/payer/market means a provisional draft or a clarification, never a confident industry template.
+5. **L3 boundary.** Read [Canonical L3](references/canonical-l3-market-boundary.md). Reuse only supplied valid IDs. Without a catalog, use project-local provisional markets. Do not merge adjacent categories into the same benchmark.
+6. **Decision surfaces and intent units.** Read [intent ontology](references/intent-ontology.md). Enumerate independently from brand strengths, then challenge for missing product lines, buyer roles, criteria, stages, local constraints and competitor capabilities. No mechanical Cartesian product; no minimum best/top quota.
+7. **Independent gap review.** Compare the inventory with original evidence, not just the generator's summary. Add missed material units; document exclusions and remaining uncertainty. A saturated reviewed inventory still does not prove market-wide exhaustiveness.
+8. **Topic clustering.** Group units sharing a decision object, job and compatible buyer context. Product/category Topics are valid when buyers compare a distinct candidate set. Topic is not a funnel stage. Preserve every unit exactly once.
+9. **Prompt generation.** One canonical, natural standalone question per unit. Keep knowledge questions intact. Where evidence supports a distinct missing provider/product decision, add its own intent unit and relatedContentUnitKeys; do not disguise a changed buying intent as a paraphrase. Carry category context, not proprietary feature bundles or instructions to mention the target brand.
+10. **QA and monitoring admission.** Execute schema/reference/mapping/duplicate/brand/locale checks AND independent model review. Every actual question needs a brandless-answer test, entity-role assessment and concrete content/proof/action plan. Route source citations and incidental/knowledge questions out of brand competition. Correct pool mismatches without changing the original meaning. Missing or stale review blocks export. Lexical overlap is a review candidate, not a semantic verdict.
+11. **Delivery and versions.** Return structured JSON, human-readable Chinese rationale and import CSV as requested. Separate known covered/deferred units from unknown demand. Record generation model, monitoring configuration, source hashes and version difference.
 
-1. OpenRouter, model `openai/gpt-5.6-sol` or the strongest approved GPT-5.6 model.
-2. OpenAI fallback.
-3. Anthropic Claude Opus fallback.
-4. Rule fallback only when no valid model key is available.
+Detailed research contract: [Research protocol](references/v3-research-protocol.md).
+Metrics and uncertainty: [Measurement contract](references/v3-measurement-contract.md).
+Schemas and export: [Output contract](references/v3-output-contract.md).
+Validation and release: [QA and evaluation](references/v3-validation.md).
 
-When no model key is available, tell the user clearly that output is rule fallback and may miss business nuance.
+## Coverage And Brand Policies
 
-## Workflow
+Keep `scope`, `pool` and `benchmarkMember` independent.
 
-### 1. Crawl And Normalize
+| Scope | Meaning | Metric purpose |
+| --- | --- | --- |
+| brand_core | Current customer capability is evidenced or strongly inferred | Core capability panel |
+| industry_benchmark | Material same-market demand independent of the brand | Industry panel |
+| competitive_whitespace | A retrieved competitor page supports a relevant gap | Opportunity analysis |
+| out_of_scope_reference | Context outside sensible current targeting | Diagnostic only |
 
-Crawl common business pages, not only the homepage:
+The category denominator is ALL eligible `benchmarkMember=true` units, including relevant brand_core units, not just industry_benchmark scope.
+Branded, adjacent-market and diagnostic units do not belong in a generic same-market benchmark.
 
-- `/`
-- `/features`
-- `/products`
-- `/product`
-- `/solutions`
-- `/use-cases`
-- `/pricing`
-- `/customers`
-- `/case-studies`
-- `/blog`
-- `/docs`
-- `/about`
-- `/contact`
-- `/support`
-- `/faq`
+- `monitoring_core`: specific entities materially fulfill a real selection, comparison or brand-evaluation decision, with an actionable content/proof plan.
+- `citation_monitoring`: authorities and domains are cited as evidence, not evaluated as the chosen product/provider.
+- `content_opportunity`: a complete answer can remain brandless; incidental brand examples do not qualify for competition monitoring.
+- Neither pool has a required percentage. Low target-brand visibility is never a reason to remove a question.
+- exclude: no owned or competitor terms; include: owned-brand plus generic; mixed: additionally researched competitive; brand_only: owned-brand validation.
+- Brand mentions are not keyword substring matches: short names and multilingual aliases require boundary-aware review.
+- Unknown capability is not a confirmed absence. Competitor claims are not verified performance.
 
-For each page, extract:
+## Localization
 
-- URL
-- title
-- meta description
-- headings
-- key body text
-- product/service names
-- pricing/plan signals
-- content assets such as blog, docs, academy, FAQ, templates, reports, glossary
+Language, country, IP, product availability and legal jurisdiction are separate controls.
+Keep country words out of generic IP-controlled questions. Retain a city or jurisdiction when it materially changes a local-service or regulatory decision.
+Never assume IP alone causes a model to behave like a local user.
+Compare a stable generic panel separately from localized demand supplements.
 
-If crawl coverage is weak, state it and use search evidence to compensate. Do not invent unsupported capabilities.
+## Output Requirements
 
-Use the portable crawler script when a deterministic local/runtime crawler is needed:
+Human review: business conclusion, evidence gaps, Topic rationale, intent coverage and grouped questions.
+Machine master: `runtime/schemas.mjs` plus artifact fields defined in [output contract](references/v3-output-contract.md).
+Default Dageno import: exactly `topic,prompt,regions,language`, UTF-8 with BOM, one row per approved brand_core service-monitoring question.
+Separately export `benchmark`, `citation` or `content` when requested. Industry benchmark includes qualified core and non-serviceable same-market questions. Preserve the full industry intent map; do not mix these lists into one KPI or imply that service-only performance is industry-wide visibility.
+Every reviewed question retains its admission rationale and content assets, proof needed and optimization action. The human report separates the four deliveries and flags Topics with no eligible service monitors.
+A four-column CSV cannot preserve evidence, intent IDs or benchmark membership; retain JSON alongside it.
+
+## Quality Claims
+
+Never present an LLM-generated 0-100 score as search volume, user frequency or mention probability.
+Use evidence-supported / inferred / not verified labels and retain supporting sources.
+The default hosted flow does NOT execute consumer AI-platform monitoring or an entity pilot. Report `entityPilot.status=not_run`.
+Optional pilots must count ANY relevant entity, retain raw responses and denominators, and never cherry-pick target-brand-positive questions.
+
+## Executable Tools
+
+Requires Node.js 22+ for the portable runtime; install dependencies with `npm ci` in the Skill directory.
 
 ```bash
-python3 scripts/crawl_and_clean.py "https://example.com"
+node runtime/cli.mjs generate --domain example.com --market US --language en-US --out ./private/example
+node runtime/cli.mjs qa ./private/example/panel.json
+node runtime/cli.mjs export ./private/example/panel.json ./private/example/import.csv
+node runtime/cli.mjs export ./private/example/panel.json ./private/example/benchmark.csv --dataset benchmark
+npm test
 ```
 
-The script uses only Python standard-library modules. It can call a configured crawl endpoint through `DAGENO_CRAWL_ENDPOINT`, then falls back to direct HTML fetch and cleaning.
-
-### 2. Universal Brand Intelligence
-
-Run model-led brand research before Topic generation. The model must return:
-
-- canonical brand name
-- plain-English business category
-- short Chinese industry label for UI/reporting
-- business model
-- confidence score
-- core offerings
-- target users
-- jobs to be done
-- decision criteria
-- competitors or substitute sources
-- differentiators and out-of-scope assumptions
-- search queries for further research
-- topic seeds
-- suggested topic count
-- evidence notes
-- warnings
-
-The model must not force the domain into SaaS, VPS, web scraping, AI PPT, or any previous category unless evidence proves it.
-
-Before Topic generation, the model must identify the brand's economic center of gravity: what decision value buyers are really purchasing. This may be a product/SKU, workflow, service outcome, risk reduction, supply-chain simplification, project delivery, or replacement of multiple vendors.
-
-Many customer websites are poorly planned, over-broad, under-written, or internally inconsistent. Do not assume the navigation structure equals the real business strategy. Compare:
-
-- crawl evidence from owned pages
-- external search evidence
-- category demand language
-- monetization cues
-- buyer roles
-- repeated decision criteria
-- content assets and content gaps
-
-If the website could plausibly mean several things, create 2-4 business hypotheses with confidence, evidence, risk, and Topic implications. Core Topics should follow the highest-confidence hypothesis. Medium-confidence hypotheses can contribute one exploratory Topic when commercially important. Low-confidence hypotheses should be shown as warnings or content gaps, not converted into core Topics.
-
-For one-stop procurement, sourcing, wholesale, manufacturer, OEM/ODM, private-label, or supplier-integration businesses, the core value is often reducing procurement complexity across multiple categories rather than selling one visible SKU. Use this procurement decision chain when evidence supports it:
-
-- one-stop procurement / multi-category sourcing
-- category bundles or replenishment packages
-- project opening, renovation, or launch procurement checklists
-- custom branding / OEM / design support
-- supplier quality and factory verification
-- cost, MOQ, lead time, payment terms, and consolidated shipping
-
-Do not hardcode any example company or vertical. Apply this only when crawl/search evidence supports the model.
-
-See `references/online-flow.md` for the exact JSON schema.
-
-### 2.5 Dual-Universe Coverage And Competitive Decision Surfaces
-
-Read `references/coverage-engine.md` and `references/intent-ontology.md` before Topic generation.
-
-Build, in order:
-
-1. Evidence sufficiency decision.
-2. Capability Ledger: what the customer can credibly deliver, to whom, for which job, under which constraints.
-3. Category Demand Map: what buyers across the whole category ask, independent of the target brand's current strengths.
-4. Competitor Capability Map: which decision surfaces direct, partial, substitute, and source competitors occupy.
-5. Four coverage layers: `brand_core`, `industry_benchmark`, `competitive_whitespace`, and `out_of_scope_reference`.
-6. Coverage cells: the auditable units Topics and Prompts must cover.
-7. Intent-unit registry: every applicable `primary intent + sub-intent + decision object + buyer context` combination, including explicit exclusions.
-
-A decision surface can be an offer/category, buyer/project scenario, workflow, customization, trust proof, quality/performance, price/MOQ/TCO, lead time/logistics, risk, implementation, or local availability. It is not derived mechanically from navigation or a full Cartesian product. Collapse surfaces only when they have the same decision object, buyer context, proof required and expected answer set.
-
-Do not let brand serviceability define the whole industry universe. That would make visibility look artificially high by measuring only questions the brand is already positioned to win. Do not mix every industry question into the same KPI denominator either. Layered coverage and layered metrics are mandatory.
-
-Every accepted Prompt must pass the eligibility rules for its layer, demand plausibility, monitoring/content value, evidence, and marginal coverage. Topic and Prompt counts are outputs of this process.
-
-### 3. External Search And Category Demand Search
-
-Search for at least these categories:
-
-- Brand identification: `[brand] [domain] what is`
-- Competitors and alternatives: `[brand] alternatives competitors`
-- Reviews and reputation: `[brand] review reputation`
-- Buying decision: `[brand] best pricing comparison`
-- Category demand: `best [category] for [persona/use case]`
-- Pain/problem: `[pain point] solution`
-- Pricing and value: `[category] pricing comparison`
-- Review/source demand: `[category] reviews`, `[category] reddit`, `[category] benchmark`
-- Integration or implementation: `[category] integration [workflow/tool]`
-
-If brand intelligence suggests better queries, use those. Categorize results as:
-
-- 品牌识别
-- 竞品/替代品
-- 评测/口碑
-- 购买决策
-- 行业榜单
-- 社区/问答
-- 品类需求
-- 价格/价值
-- 集成/实施
-
-External signals should improve competitor discovery and category context. Do not treat them as final truth unless they match site evidence or credible third-party sources.
-
-See `references/category-demand-search.md` for portable query generation and result normalization.
-
-### 4. Competitor Generation
-
-Read `references/competitor-generation.md` before generating competitors.
-
-Competitor generation is not a single global list. Produce competitors by:
-
-- target country or market
-- business line / product line
-- customer segment and buyer role
-- direct overlap, partial overlap, substitute, marketplace/directory, or source competitor
-- core differentiator and comparison angle
-
-Use competitors to inform Topic and Prompt design, but do not put competitor names in `generic` prompts.
-
-### 5. Topic Generation
-
-Read `references/geo-topic-generate.md`, `references/brand-research.md`, `references/content-compress.md`, `references/intent-ontology.md`, and `references/evidence-schema.md` when generating Topics.
-
-Topics are not feature labels. A Topic is a coherent user-question cluster sharing the same decision object and core job-to-be-done.
-
-Internally model:
-
-- business boundary: what the brand sells and does not sell
-- role matrix: buyers, users, operators, decision makers, local customers, developers, etc.
-- JTBD matrix: tasks, pain, purchase trigger, risk concern
-- existing content assets
-- content gaps
-- intent coverage
-- brand-term strategy
-
-Topic fields:
-
-- `t`: Topic name
-- `ty`: `product_category` / `use_case` / `persona_need` / `purchase_decision` / `risk_validation` / `competitive_alternative` / `content_coverage`
-- `f`: `High` / `Medium` / `Low`
-- `c`: confidence score 0-100
-- `pc`: coverage-derived final prompt count
-- `cv`: capability mappings, business archetypes, applicable intent families and sub-intents, decision criteria, excluded intent units and coverage cells
-- `ev`: evidence object. Include sources, confidence reason, mapped pages, demand signals, and competitor links when machine output is requested.
-
-Auto Topic count is the complete non-overlapping set that covers all High-priority serviceable capabilities, buyer jobs, triggers, decision criteria, risks and decision surfaces. Compactness is secondary to coverage: do not merge a distinct buyer decision merely to maintain a familiar count. Manual mode may constrain count, but must disclose any uncovered High-priority cells.
-
-### 6. Prompt Generation
-
-Read `references/geo-prompt-generate-by-topic.md`, `references/shared-prompt-rules.md`, and `references/evidence-schema.md`.
-
-Generate prompts per Topic with this metadata. Do not force every Topic to have the same number of prompts in auto mode.
-
-- `p`: prompt text
-- `l`: language code
-- `pt`: `generic` / `branded` / `competitive`
-- `it`: `problem_solution` / `recommendation` / `comparison` / `pricing_value` / `risk_validation` / `implementation` / `alternative` / `local_availability` / `education_content` / `brand_validation`
-- `subIntent`: operator-friendly concrete intent from `references/intent-ontology.md`
-- `intentUnitId`: stable semantic buyer-question ID; wording variants share the same ID
-- `variantPurpose`: `canonical` / `wording_robustness`
-- `variantSetId`: ID grouping a canonical prompt and its wording variants
-- `expectedEntityType`: `brand_or_provider` / `product_or_model` / `source_or_authority` / `method_or_concept`
-- `f`: `TOFU` / `MOFU` / `BOFU`
-- `is`: intent score object, e.g. `{"i":"Commercial","s":84}`
-- `kw`: exactly two keyword phrases
-- `pool`: `monitoring_core` / `content_opportunity`
-- `sv`: business serviceability score 0-100
-- `dp`: demand plausibility score 0-100
-- `mp`: answer mention likelihood score 0-100
-- `cg`: coverage-cell IDs
-- `scope`: `brand_core` / `industry_benchmark` / `competitive_whitespace` / `out_of_scope_reference`
-- `metricUse`: `core_kpi` / `category_benchmark` / `opportunity_analysis` / `diagnostic_only`
-- `serviceabilityStatus`: `confirmed` / `adjacent` / `unsupported`
-- `competitorEvidenceIds`: competitor/source evidence supporting benchmark or whitespace coverage
-- `ev`: prompt evidence and expected answer type
-
-Prompt count rules:
-
-- Auto mode: stop when all High-priority and applicable intent units are covered and remaining candidates add no meaningful coverage. A narrow Topic may contain 3-7 prompts; a complex Topic may require dozens. Paginate large results instead of truncating the ontology.
-- Broad intent-family presence is not completeness. Every material sub-intent and intent unit must be covered or explicitly excluded with a reason.
-- Generate one canonical Prompt per intent unit. Add 1-2 wording-robustness variants only when phrasing evidence or retrieval sensitivity justifies them; group variants by `intentUnitId` and weight the unit once in reporting.
-- Model randomness is measured by rerunning the exact canonical Prompt in the scheduler, not by adding paraphrases to the library.
-- Manual mode: treat the requested number as a final cap/target. Do not append a fixed decision-prompt quota.
-- Never pad a Topic with weak, repetitive, unsupported or low-demand prompts.
-
-Brand term mode:
-
-- `exclude`: default. No owned brand, alias, or competitor names in prompts or keywords.
-- `include`: include generic prompts plus owned-brand validation prompts. Do not include competitor names unless explicitly requested.
-- `mixed`: include generic, branded validation, and limited competitive prompts.
-- `brand_only`: only for brand reputation/occupancy monitoring.
-
-### 7. Coverage Layers, Monitoring And Content Pools
-
-Dageno primarily monitors whether AI answers mention brands, competitors, products, vendors, or trusted sources. Content planning also needs real informational demand, so keep `pool` and `scope` as separate dimensions.
-
-Coverage layers:
-
-- `brand_core`: confirmed or strongly inferred customer capabilities. Included in core GEO KPI.
-- `industry_benchmark`: category-standard buyer demand, even when current customer serviceability is weak. Included in the category benchmark, not the core KPI.
-- `competitive_whitespace`: evidenced demand where competitors have capabilities, content, citations, or visibility and the customer has an adjacent gap. Used for opportunity analysis.
-- `out_of_scope_reference`: materially relevant category context that is too far from the current business. Diagnostic only; never used to judge execution performance.
-
-Rules:
-
-- `brand_core + monitoring_core` prompts must have `sv>=70`, `dp>=60`, and `mp>=55`.
-- `brand_core + content_opportunity` prompts must have `sv>=70` and `dp>=50`; lower mention likelihood is allowed.
-- `industry_benchmark` and `competitive_whitespace` monitoring prompts may have `sv<70`, but require `dp>=60`, `mp>=55`, explicit category/competitor evidence, and a non-core `metricUse`.
-- Never report one blended visibility score across all layers. Report core visibility, category benchmark visibility, whitespace opportunity, and out-of-scope context separately.
-- Decision-led businesses usually produce 75-90% monitoring-core prompts. Media, education, community, and content-led businesses may produce 50-70%. Do not enforce one ratio across industries.
-- Every prompt must stand alone as a no-context monitoring query. Dageno sends each prompt independently, so generic words such as `supplier`, `vendor`, `procurement`, `platform`, `service`, `manufacturer`, `account`, `course`, `demo account`, `cost`, or `pricing` must include the relevant industry/category/use-case anchor inside the prompt itself. For financial/trading/broker domains, each prompt should explicitly include an anchor such as `CFD`, `forex`, `broker`, `trading account`, `trading platform`, `leveraged trading`, a concrete traded asset, or an allowed brand term.
-- Information-oriented prompts belong in `content_opportunity` unless they naturally trigger entity or source mentions.
-- Best/top/provider/vendor/comparison/review/pricing language is allowed only for distinct uncovered buyer decisions; never add a fixed quota.
-- Keep prompts natural. They must sound like real Google/ChatGPT queries, not internal labels.
-
-### 8. Prompt QA
-
-Before final delivery, run the QA checklist in `references/prompt-qa.md`, the intent rules in `references/intent-ontology.md`, and the coverage rules in `references/coverage-engine.md`. When JSON output is available, use:
-
-```bash
-python3 scripts/prompt_qa.py output.json --brand "Brand Name" --mode exclude
-```
-
-The QA script is portable and offline. Hosted runtimes must implement the same checks and return `qaReport`, `coverageReport`, and `intentCoverageReport`; putting QA instructions inside an LLM prompt does not count as executing QA.
-
-Before calculating visibility, aggregate Prompt responses by `intentUnitId`. Then aggregate intent units by sub-intent, Topic and coverage layer. Wording variants must never count as separate industry demand units.
-
-### 9. Region Handling
-
-If the user says the Dageno crawler/IP controls region, do not include region words such as `United States`, `US`, `North America`, `Europe`, `Japan`, etc. in prompts.
-
-If region is part of the real local service intent, use location only when the monitoring setup cannot control geography or the user explicitly asks for local prompts.
-
-### 10. Output Format
-
-Default output should be Markdown with grouped Topics:
-
-```markdown
-# [Brand] — Topic & Prompt 监控配置
-
-目标站点：
-识别行业：
-Topic 数量策略：
-品牌词策略：
-生成模式：
-
-## 品牌调研过程
-
-## Topic 设计原则
-
-## Topic 1: [Topic]
-
-监控目标：
-
-Topic Schema：ty=...；f=...；c=...
-
-| 序号 | 监控 Prompt | 覆盖层 | 指标用途 | 品牌词类型 | 主意图 | 细分意图 | 意图单元 | 购买阶段 | 意图强度 | 关键词 |
-|---:|---|---|---|---|---|---|---|---|
-```
-
-For CSV export, use:
-
-```csv
-Topic序号,Topic名称,Topic Cluster类型,用户购买路径,Topic优先级,Topic Prompt数,Prompt序号,Prompt,品牌词类型,用途池,用户意图,购买阶段,意图强度,关键词,业务承接分,需求真实性分,品牌提及概率分,监测模型,监测地区
-```
-
-See `references/csv-output.md` for exact column rules.
-
-## QA Checks
-
-Before final delivery:
-
-- Did every domain get fresh crawl/search/model research?
-- Does the detected business match the real website?
-- Does every core Topic map to a confirmed or strongly inferred capability?
-- Does the industry benchmark come from category demand and competitor evidence rather than the target website alone?
-- Are brand-core, industry-benchmark, competitive-whitespace and out-of-scope cells separated?
-- Are KPI denominators reported by layer instead of blended into a flattering or punitive total?
-- Does Topic and Prompt scope cover all High-priority serviceable intent cells and decision surfaces, without merging commercially distinct decisions just to reduce count?
-- Are Topics free of brand names by default?
-- Are prompts grouped by Topic?
-- Are monitoring prompts above serviceability, demand and mention thresholds?
-- Are informational prompts explicitly separated into the content-opportunity pool?
-- Does every prompt remain clear if sent alone with no Topic, brand, or prior chat context?
-- Do cross-industry terms like supplier/vendor/procurement/platform/service/manufacturer/cost/pricing include an industry/category anchor?
-- Do prompts avoid unsupported features and out-of-scope claims?
-- Are brand terms excluded when `brandPromptMode=exclude`?
-- Are competitor names excluded from generic prompts?
-- Is there country/business-line competitor coverage when markets or product lines are known?
-- Does every Topic/Prompt have enough evidence metadata for review?
-- Are all High-priority coverage cells covered, with excluded intents explained?
-- Did deterministic Prompt QA pass, or are failures clearly listed?
-- Is fallback clearly labeled if no model key was used?
+Hosted generation requires OPENROUTER_API_KEY and OPENROUTER_MODEL in the server environment.
+Never commit keys, customer research artifacts, private articles or proposals.
+Tests under `tests/` are evaluation fixtures, never runtime industry seeds.

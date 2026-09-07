@@ -84,16 +84,20 @@ Use these as recall prompts during enumeration, not mandatory quotas.
 
 For every decision surface:
 
-1. Identify the decision object, buyer/user/payer roles, trigger, job, criteria, constraints, proof required and expected answer entities.
-2. Select applicable archetype modules.
-3. Enumerate applicable `it + subIntent` pairs independently for `brand_core`, `industry_benchmark` and `competitive_whitespace`.
-4. Search category and competitor evidence for missing sub-intents. Do not let the target website define the whole industry universe.
-5. Record every excluded material sub-intent with `not_applicable`, `insufficient_evidence`, `unsupported_by_brand`, or `low_demand` and a reason.
-6. Cluster cells into Topics only after enumeration. Topic count is a result, not an input.
+1. Resolve the business line and decision object to a Canonical L3 market assignment or a clearly labelled provisional boundary.
+2. Identify the decision object, buyer/user/payer roles, trigger, job, criteria, constraints, proof required and expected answer entities.
+3. Select applicable archetype modules.
+4. Enumerate applicable `it + subIntent` pairs independently for `brand_core`, same-L3 `industry_benchmark`, and adjacent/competitor `competitive_whitespace`.
+5. Search category and competitor evidence for missing sub-intents. Do not let the target website define the whole industry universe, and do not let adjacent markets inflate the same-L3 benchmark.
+6. Record every excluded material sub-intent with `not_applicable`, `insufficient_evidence`, `unsupported_by_brand`, `low_demand`, or `outside_l3_boundary` and a reason.
+7. Cluster cells into Topics only after enumeration. Topic count is a result, not an input.
 
 Completeness is reached when all material intent units are covered or explicitly excluded. It is not reached merely because every broad `it` appears once.
 
 ## 6. Intent Units, Variants And Sampling
+
+V3 also records journeyStage: discover, evaluate, select, purchase, adopt, use, renew, or switch. Keep post-purchase use, renewal and migration distinct; TOFU/MOFU/BOFU is a legacy coarse view, not the entire user lifecycle.
+
 
 An `intentUnitId` represents one semantic buyer question. A wording variant does not create a new unit.
 
@@ -107,6 +111,8 @@ Visibility reporting must weight one intent unit once. If several wording varian
 
 ## 7. Monitoring Versus Content Value
 
+In V3.1, expectedEntityType is not by itself an admission decision. Read [brand visibility admission](brand-visibility-admission.md): entity-dependent selection/evaluation, source citations and knowledge have different purposes. A publication being selected as a product/provider can qualify, while the same publication used only as an optional citation does not qualify for brand competition.
+
 Set `expectedEntityType` to one of:
 
 - `brand_or_provider`
@@ -114,6 +120,6 @@ Set `expectedEntityType` to one of:
 - `source_or_authority`
 - `method_or_concept`
 
-Recommendation, comparison, price, review, supplier, alternative and fit questions usually belong in `monitoring_core` when they can naturally name entities. Pure definitions or generic how-to questions usually belong in `content_opportunity`, unless the expected answer naturally cites products, providers or trusted sources.
+Recommendation, comparison, price, review, supplier, alternative and fit are candidate intents, not automatic monitoring admission. A specific provider/product must materially fulfill the decision. Definitions and generic how-to questions do not qualify merely because an answer could cite a source or give a brand example. Explicit source discovery belongs in citation_monitoring; brandless explanation belongs in content_opportunity.
 
-Do not delete informational industry demand. Keep it in the appropriate pool and metric layer so the panel shows both AI visibility and content opportunity without blending them.
+Do not delete informational industry demand. Keep it in the appropriate pool and metric layer. Record source/authority citation requests in citation_monitoring, generic explanations in content_opportunity, and reviewed entity-dependent choices in monitoring_core. Supporting content and a genuinely distinct commercial question use different intent units linked by relatedContentUnitKeys, never a quota of commercial rewrites.
