@@ -1,4 +1,5 @@
 import { INTENTS, METRICS } from "./contract.mjs";
+import { POOLS, ENTITY_ROLES, CONTENT_ASSETS } from "./visibility-policy.mjs";
 
 const string = { type: "string", minLength: 1 };
 const strings = { type: "array", items: string };
@@ -31,7 +32,7 @@ export const unitSchema = object({
   key: string, surfaceKey: string, marketKey: string, decisionObject: string, buyerContext: string,
   job: string, constraint: { type: "string" }, intent: enumeration(Object.keys(INTENTS)), subIntent: string,
   scope: enumeration(Object.keys(METRICS)), benchmarkMember: { type: "boolean" },
-  pool: enumeration(["monitoring_core", "content_opportunity"]),
+  pool: enumeration(POOLS),
   expectedEntityType: enumeration(["brand_or_provider", "product_or_model", "source_or_authority", "method_or_concept"]),
   capabilityKeys: strings, sourceIds: sources, demandEvidence: enumeration(["observed_question", "multiple_sources", "plausible_inference"]),
   demandReason: string, priority, brandTermType: enumeration(["generic", "branded", "competitive"]),
@@ -39,6 +40,7 @@ export const unitSchema = object({
 });
 export const unitsSchema = object({ units: list(unitSchema), exclusions: list(object({ subIntent: string, reason: string })), more: { type: "boolean" } });
 unitSchema.properties.subIntentDefinition = { type: "string", minLength: 12 };
+unitSchema.properties.relatedContentUnitKeys = strings;
 unitSchema.properties.journeyStage = enumeration(["discover", "evaluate", "select", "purchase", "adopt", "use", "renew", "switch"]);
 unitSchema.required.push("journeyStage");
 export const gapSchema = object({ missingSurfaces: surfaceSchema.properties.surfaces, missingUnits: list(unitSchema), duplicateUnits: list(object({ keepKey: string, removeKey: string, reason: string })), concerns: strings });
@@ -46,7 +48,12 @@ export const gapSchema = object({ missingSurfaces: surfaceSchema.properties.surf
 gapSchema.properties.missingSurfaces = { ...gapSchema.properties.missingSurfaces, minItems: 0 };
 export const clustersSchema = object({ topics: list(object({ key: string, name: string, marketKey: string, unitKeys: { ...strings, minItems: 1 }, decisionObject: string, job: string, rationale: string, priority, type: enumeration(["product_category", "use_case", "persona_need", "purchase_decision", "risk_validation", "competitive_alternative", "content_coverage"]) }), 1) });
 export const promptsSchema = object({ prompts: list(object({ unitKey: string, text: string, language: string, funnel: enumeration(["TOFU", "MOFU", "BOFU"]), keywords: { type: "array", items: string, minItems: 2, maxItems: 2 }, contextAnchor: string }), 1) });
-export const reviewSchema = object({ issues: list(object({ unitKey: string, kind: enumeration(["wrong_business", "unnatural", "compound_question", "missing_context", "wrong_intent", "brand_leakage", "wrong_language", "unsupported_constraint", "duplicate", "pool_mismatch"]), reason: string, duplicateOf: { type: "string" } })), checkedUnitKeys: strings });
+export const visibilityAssessmentSchema = object({
+  unitKey: string, brandlessAnswerSufficient: { type: "boolean" }, entityRole: enumeration(ENTITY_ROLES),
+  expectedEntityType: unitSchema.properties.expectedEntityType, buyerDecision: string, rationale: string,
+  optimization: object({ assets: list(enumeration(CONTENT_ASSETS)), proofNeeded: strings, action: string })
+});
+export const reviewSchema = object({ issues: list(object({ unitKey: string, kind: enumeration(["wrong_business", "unnatural", "compound_question", "missing_context", "wrong_intent", "brand_leakage", "wrong_language", "unsupported_constraint", "duplicate", "pool_mismatch"]), reason: string, duplicateOf: { type: "string" } })), checkedUnitKeys: strings, visibilityAssessments: list(visibilityAssessmentSchema) });
 export const probeSchema = object({ results: list(object({ unitKey: string, relevantEntities: strings, namesTarget: { type: "boolean" }, note: string })) });
 
-export const schemas = { businessSchema, competitorSchema, surfaceSchema, unitsSchema, gapSchema, clustersSchema, promptsSchema, reviewSchema, probeSchema };
+export const schemas = { businessSchema, competitorSchema, surfaceSchema, unitsSchema, gapSchema, clustersSchema, promptsSchema, visibilityAssessmentSchema, reviewSchema, probeSchema };

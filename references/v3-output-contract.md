@@ -31,6 +31,8 @@ Exactly four columns, unchanged:
 topic,prompt,regions,language
 ```
 Use ISO country and BCP-47 language, e.g. US/en-US or TW/zh-TW.
-Default import contains monitoring_core excluding out_of_scope_reference.
+Default import contains independently approved brand_core monitoring_core questions. Use --dataset benchmark, citation or content for separate deliveries. Service and industry benchmark overlap and must not be summed or imported unlabelled into one KPI.
+V3.1 requires monitoringPolicyVersion=brand_visibility.v1 and a visibilityAssessment bound to each exact question. Entity role, brandless-answer sufficiency and the content/proof/action plan determine admission, not keyword heuristics.
+Master JSON adds visibilityReport (counts and Topics without service monitors) and optimizationBriefs. Content-only and citation rows use content_planning and citation_diagnostic respectively, never core_kpi.
 Keep full JSON for IDs, evidence, pool, benchmark and version metadata; the four-column importer cannot transport these fields.
 Use an explicitly separate export for content opportunities. Do not combine all layers into one unlabelled KPI.

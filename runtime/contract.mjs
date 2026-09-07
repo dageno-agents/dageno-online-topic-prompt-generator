@@ -1,4 +1,6 @@
-export const VERSION = "3.0.0";
+import { selectPromptRowsForExport } from "./visibility-policy.mjs";
+
+export const VERSION = "3.1.0";
 export const SCHEMA_VERSION = "dageno.topic-prompt.v3";
 
 export const INTENTS = {
@@ -25,7 +27,7 @@ One intent unit = decision object + buyer context + job + material constraint + 
 First enumerate units, then group into Topics with a coherent decision object and job. A Topic may span multiple funnel stages. Never pad or truncate to a familiar number. Budget exhaustion means incomplete, not industry complete.
 Prompts must stand alone WITHOUT the topic title or conversation. Use natural language and sufficient category context; do not impose an 11-word ceiling. Do not inject rare feature bundles that identify only the target brand. Pure knowledge questions remain in content_opportunity, not forcibly rewritten as recommendations.
 Use supplied source IDs only. Two pages copied from one publisher are not two independent demand signals. Search snippets establish discovery clues, not verified capabilities or demand frequency. Model scores are not observed probabilities or search volumes.
-Do not require a target brand mention. Entity-trigger testing measures ANY relevant provider/product/source, never just this brand. Do not delete real demand because this brand gets low visibility.
+Do not require a target brand mention. Brand visibility eligibility requires specific entities to materially fulfill a buyer selection/evaluation decision; incidental examples and generic sources do not qualify. Apply the brandless-answer test. Keep source citation observation in citation_monitoring and knowledge in content_opportunity. Do not delete real demand because this brand gets low visibility.
 Region/IP settings are a test condition, not a guarantee of localization. Generic prompts omit redundant country words; local-service location, regulatory jurisdiction, language, currency and availability may require explicit constraints. Keep comparable generic panels separate from local-intent panels.
 Return the requested strict JSON only. Report uncertainty and evidence gaps honestly.`;
 
@@ -69,8 +71,10 @@ export function lexicalSimilarity(left, right, locale = "en") {
   return a.size && b.size ? [...a].filter(x => b.has(x)).length / new Set([...a, ...b]).size : 0;
 }
 
-export function csvExport(artifact, { pool = "monitoring_core" } = {}) {
+export function csvExport(artifact, options = {}) {
   const cell = value => `"${String(value ?? "").replace(/"/g, '""')}"`;
-  const rows = artifact.generatedTopics.flatMap(t => t.prompts.filter(p => p.pool === pool && p.scope !== "out_of_scope_reference").map(p => [t.topic, p.p, artifact.monitoringConfig.region, p.l]));
+  const selected = selectPromptRowsForExport(artifact, options);
+  if (!selected.length) throw new Error("该清单没有通过准入审查的问题；不会用知识题或未验证问题补齐数量。");
+  const rows = selected.map(({ topic, prompt: p }) => [topic, p.p, artifact.monitoringConfig.region, p.l]);
   return "\uFEFFtopic,prompt,regions,language\r\n" + rows.map(row => row.map(cell).join(",")).join("\r\n") + "\r\n";
 }

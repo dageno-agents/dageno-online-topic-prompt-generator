@@ -6,6 +6,14 @@
 
 V3 candidate: deterministic checks pass; complete live-model regression is still pending. Do not treat this as a verified production accuracy release.
 
+## V3.1: Relevance Is Not Monitoring Eligibility
+
+A question may be on topic without needing any product or brand in its answer. The admission review asks whether a good answer can fully satisfy the request without specific providers/products. Incidental examples, optional citations and best/top wording do not qualify by themselves.
+
+The default CSV contains serviceable, entity-dependent buyer decisions with a concrete content/proof/action plan. Separate exports preserve the wider industry benchmark, citation observation and informational content. Informational questions stay in the map; a genuinely different buying question gets a new intent unit, not a disguised paraphrase.
+
+Target-brand performance never determines eligibility. Changing the panel or admission policy requires a new baseline, not a claim of visibility growth. [Admission contract](references/brand-visibility-admission.md)
+
 This project researches what a business actually sells, what buyers in its market need, and where competitors answer those needs. It then organizes distinct decisions into Topics and writes standalone questions for monitoring.
 
 ## Why This Is Different
@@ -78,7 +86,7 @@ The hosted workflow uses an operator-selected OpenRouter model. It does not sile
 
 ## Monitoring Integrity
 
-- The default CSV excludes content-only opportunities and out-of-scope diagnostics.
+- The default CSV is the qualified brand-core service list. Independently export industry benchmark, citation observation and content lists; they have different denominators.
 - Same-market benchmarks include eligible brand-core questions too; they are not just questions the brand cannot answer.
 - Brand names are excluded by default. Owned-brand validation and competitor comparisons are opt-in modes.
 - Language, monitoring IP and genuinely local/legal constraints are separate.

@@ -1,6 +1,6 @@
 interface:
-  display_name: "Dageno Topic Prompt V3"
+  display_name: "Dageno Topic Prompt V3.1"
   short_description: "Evidence-backed industry intent panels and Dageno import CSV"
-  default_prompt: "Use $dageno-topic-prompt-generator to research this domain from fresh evidence, challenge its business and market interpretation, enumerate industry intent units, generate natural questions, run semantic and deterministic QA, and export a four-column Dageno CSV with the full JSON evidence panel."
+  default_prompt: "Use $dageno-topic-prompt-generator to research this business and its industry, enumerate real intent units, apply the brandless-answer and entity-role admission review, attach content/proof/action plans, and separately export service monitoring, industry benchmark, citation observation and content topics without blending their KPIs."
 policy:
   allow_implicit_invocation: true

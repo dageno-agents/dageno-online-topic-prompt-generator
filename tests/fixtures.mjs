@@ -1,3 +1,9 @@
+import { generatePanel } from "../runtime/pipeline.mjs";
+
+export function visibilityAssessment(unitKey) {
+  return { unitKey, brandlessAnswerSufficient: false, entityRole: "provider_choice", expectedEntityType: "brand_or_provider", buyerDecision: "Choose a provider that meets the stated requirement", rationale: "A usable provider shortlist needs named candidates, not just implementation advice.", optimization: { assets: ["use_case_page", "comparison_or_alternative_page"], proofNeeded: ["Documented capability limits and verifiable workflow evidence"], action: "Build a use-case comparison tied to supported capabilities and disclose tradeoffs." } };
+}
+
 export function fixture(category = "parcel tracking software", count = 4, topicCount = 1, language = "en-US") {
   const source = { id: "owned", type: "owned_page", url: "https://client.example/products", title: category, snippet: `Current offering: ${category}. Buyers pay for this category. No unrelated products.`, publisher: "client.example" };
   const ext = { id: "external", type: "search_snippet", url: "https://review.example/article", title: category, snippet: `Buyers compare ${category} for price, fit and service.`, publisher: "review.example" };
@@ -15,8 +21,28 @@ export function fixture(category = "parcel tracking software", count = 4, topicC
     if (stage === "coverage_challenger") return { missingSurfaces: [], missingUnits: [], duplicateUnits: [], concerns: [] };
     if (stage === "topic_clustering") return { topics: surfaces.map(s => ({ key: s.key, name: s.label, marketKey: "primary", unitKeys: payload.units.filter(u => u.surfaceKey === s.key).map(u => u.key), decisionObject: s.decisionObject, job: s.job, rationale: "合并相同决策对象，保留独立需求。", priority: "High", type: "use_case" })).filter(t => t.unitKeys.length) };
     if (stage === "prompt_generation") return { prompts: payload.units.map(u => ({ unitKey: u.key, text: language === "zh-TW" ? `哪些${category}適合${u.constraint}？` : `Which ${category} supports ${u.constraint}?`, language, funnel: "MOFU", keywords: [category, u.constraint], contextAnchor: category })) };
-    if (stage === "semantic_review") return { issues: [], checkedUnitKeys: payload.units.map(u => u.key) };
+    if (stage === "semantic_review") return { issues: [], checkedUnitKeys: payload.units.map(u => u.key), visibilityAssessments: payload.units.map(u => visibilityAssessment(u.key)) };
     throw new Error(`Unexpected model stage ${stage}`);
   };
   return { calls, model, business, units, deps: { model, modelId: "test/deterministic-fixture", network: { trace: [] }, crawl: async () => ({ sources: [source], pages: [{ url: source.url, title: category }], discoveredUrls: [source.url], attempted: [source.url], failures: [], remainingUrls: 0, remainingSitemaps: 0, families: ["offering"], budgetLimited: false }), search: async queries => ({ signals: [ext], log: queries.map(q => ({ query: q.query, resultCount: 1 })), remainingQueries: [] }), readPage: async () => { throw new Error("Synthetic fixture: no network"); } } };
+}
+
+export async function mixedPanel() {
+  const f = fixture("customer support software");
+  f.units[0].intent = "problem_solution"; f.units[0].subIntent = "achieve_outcome";
+  f.units[1].relatedContentUnitKeys = [f.units[0].key];
+  f.units[2].intent = "education_content"; f.units[2].subIntent = "source_research";
+  f.units[3].scope = "industry_benchmark"; f.units[3].capabilityKeys = [];
+  const questions = ["How can I reduce customer support response time?", "Which customer support software unifies multiple service channels?", "Which reports benchmark customer support response time?", "Which customer support software offers workforce forecasting?"];
+  f.deps.model = async args => {
+    const result = await f.model(args);
+    if (args.stage === "prompt_generation") result.prompts.forEach((p, i) => { p.text = questions[i]; p.contextAnchor = "customer support"; });
+    if (args.stage === "semantic_review") {
+      Object.assign(result.visibilityAssessments[0], { brandlessAnswerSufficient: true, entityRole: "none", expectedEntityType: "method_or_concept", rationale: "A workflow explanation satisfies this question without vendors." });
+      Object.assign(result.visibilityAssessments[2], { brandlessAnswerSufficient: true, entityRole: "citation_source", expectedEntityType: "source_or_authority", rationale: "The source is evidence, not a software candidate." });
+      result.issues = [{ unitKey: "unit-0", kind: "pool_mismatch", reason: "Pure workflow advice is content, not provider visibility", duplicateOf: "" }];
+    }
+    return result;
+  };
+  return { artifact: await generatePanel({ domain: "client.example" }, f.deps), calls: f.calls, questions };
 }

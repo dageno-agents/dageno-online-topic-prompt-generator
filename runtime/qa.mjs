@@ -1,6 +1,7 @@
 import { INTENTS, METRICS, normalizeText, termPresent, lexicalSimilarity } from "./contract.mjs";
-import { businessSchema, unitSchema, promptsSchema } from "./schemas.mjs";
+import { businessSchema, promptsSchema, visibilityAssessmentSchema } from "./schemas.mjs";
 import { validateSchema } from "./validate-schema.mjs";
+import { MONITORING_POLICY_VERSION, POOLS, routeAssessment, metricUseFor, BRAND_ROLES } from "./visibility-policy.mjs";
 
 export function requireReferences(ids, sources, label) {
   const known = new Set(sources.map(x => x.id));
@@ -61,6 +62,8 @@ export function validateUnits(units, surfaces, business, sources) {
     if (unit.scope === "industry_benchmark" && !sources.some(s => s.type !== "owned_page" && unit.sourceIds.includes(s.id))) errors.push(`${unit.key}: benchmark cannot depend solely on the target website`);
     if (unit.benchmarkMember && (market?.relation === "adjacent" || unit.scope === "out_of_scope_reference" || unit.brandTermType !== "generic")) errors.push(`${unit.key}: adjacent, diagnostic or brand-led unit cannot be a generic category benchmark member`);
     if (unit.expectedEntityType === "method_or_concept" && unit.pool === "monitoring_core") errors.push(`${unit.key}: concept-only demand belongs in the content pool`);
+    if (!POOLS.includes(unit.pool)) errors.push(`${unit.key}: invalid purpose pool`);
+    if (unit.pool === "citation_monitoring" && unit.expectedEntityType !== "source_or_authority") errors.push(`${unit.key}: citation monitoring requires a source/authority answer role`);
     const signature = [unit.marketKey, unit.decisionObject, unit.buyerContext, unit.job, unit.constraint, unit.subIntent, unit.brandTermType].map(normalizeText).join("|");
     if (signatures.has(signature)) errors.push(`${unit.key}: same semantic unit as ${signatures.get(signature)}`);
     signatures.set(signature, unit.key);
@@ -112,6 +115,7 @@ export function validateArtifact(artifact) {
   const errors = [], warnings = [], units = artifact.intentRegistry || [];
   const check = fn => { try { fn(); } catch (e) { errors.push(e.message); } };
   if (artifact.schemaVersion !== "dageno.topic-prompt.v3") errors.push("Unsupported schema version");
+  if (artifact.monitoringPolicyVersion !== MONITORING_POLICY_VERSION) errors.push("Missing current brand-visibility admission review");
   if (!units.length || !artifact.generatedTopics?.length) errors.push("Empty intent registry or Topics");
   check(() => validateSchema(businessSchema, artifact.businessResearch, "businessResearch"));
   check(() => validateBusiness(artifact.businessResearch, artifact.evidenceSources || [], artifact.canonicalCatalog || []));
@@ -125,7 +129,11 @@ export function validateArtifact(artifact) {
     const unit = units.find(u => u.intentUnitId === row.intentUnitId);
     if (!unit || row.scope !== unit.scope || row.pool !== unit.pool) errors.push(`Broken intent mapping: ${row.intentUnitId}`);
     if (unit && (row.pt !== unit.brandTermType || row.benchmarkMember !== unit.benchmarkMember)) errors.push(`Brand/benchmark metadata conflicts with unit: ${row.intentUnitId}`);
-    if (row.metricUse !== METRICS[row.scope]) errors.push(`Invalid metric scope: ${row.intentUnitId}`);
+    if (row.metricUse !== metricUseFor(row.scope, row.pool)) errors.push(`Invalid metric scope/pool: ${row.intentUnitId}`);
+    const assessment = row.visibilityAssessment;
+    check(() => validateVisibilityAssessment(assessment));
+    if (!assessment || assessment.policyVersion !== MONITORING_POLICY_VERSION || assessment.basis !== "semantic_review" || assessment.reviewedPrompt !== row.p || assessment.unitKey !== unit?.key || assessment.expectedEntityType !== row.expectedEntityType || routeAssessment(assessment) !== row.pool) errors.push(`Missing, stale or inconsistent visibility assessment: ${row.intentUnitId}`);
+    if (unit && JSON.stringify(assessment) !== JSON.stringify(unit.visibilityAssessment)) errors.push(`Visibility review conflicts with registry: ${row.intentUnitId}`);
     if (ids.has(row.intentUnitId)) errors.push(`Intent unit counted twice: ${row.intentUnitId}`);
     ids.add(row.intentUnitId);
     const text = normalizeText(row.p);
@@ -134,6 +142,7 @@ export function validateArtifact(artifact) {
     try { requireReferences(row.ev?.sourceIds, artifact.evidenceSources || [], row.intentUnitId); } catch (e) { errors.push(e.message); }
   }
   for (const unit of units) if (!ids.has(unit.intentUnitId) && !artifact.deferredUnits?.some(d => d.intentUnitId === unit.intentUnitId)) errors.push(`Silently lost unit: ${unit.intentUnitId}`);
+  for (const unit of units) if (unit.relatedContentUnitKeys?.some(k => k === unit.key || !units.some(u => u.key === k))) errors.push(`Invalid content-support relation: ${unit.key}`);
   for (const topic of artifact.generatedTopics || []) for (const row of topic.prompts) {
     const unit = units.find(u => u.intentUnitId === row.intentUnitId);
     const market = artifact.businessResearch?.markets?.find(m => m.key === unit?.marketKey);
@@ -149,15 +158,24 @@ export function validateArtifact(artifact) {
   if (!artifact.coverageChallenge?.completed) errors.push("Independent gap review is not complete");
   if (artifact.businessResearch?.status !== "confirmed") warnings.push("Business interpretation is provisional");
   if (!artifact.evidenceSources?.some(s => s.type === "competitor_page")) warnings.push("No competitor page was retrieved");
-  return { passed: errors.length === 0, errors, warnings, duplicateCandidates, summary: { topics: artifact.generatedTopics?.length || 0, prompts: rows.length, monitoringCore: rows.filter(r => r.pool === "monitoring_core").length, contentOpportunity: rows.filter(r => r.pool === "content_opportunity").length } };
+  return { passed: errors.length === 0, errors, warnings, duplicateCandidates, summary: { topics: artifact.generatedTopics?.length || 0, prompts: rows.length, monitoringCore: rows.filter(r => r.pool === "monitoring_core").length, citationMonitoring: rows.filter(r => r.pool === "citation_monitoring").length, contentOpportunity: rows.filter(r => r.pool === "content_opportunity").length } };
+}
+
+export function validateVisibilityAssessment(assessment) {
+  const fields = Object.fromEntries(Object.keys(visibilityAssessmentSchema.properties).map(k => [k, assessment?.[k]]));
+  validateSchema(visibilityAssessmentSchema, fields, "visibilityAssessment");
+  if (!assessment.brandlessAnswerSufficient && BRAND_ROLES.includes(assessment.entityRole) && routeAssessment(assessment) !== "monitoring_core") throw new Error("Entity-dependent buyer question requires a concrete asset/proof/action plan, not silent demotion");
 }
 
 export function panelDiff(current, previous) {
   if (!previous) return { status: "first_version", retained: [], wordingChanged: [], added: current.intentRegistry.map(u => u.intentUnitId), removed: [], comparability: "new_baseline" };
-  if (previous.domain !== current.domain || previous.monitoringConfig?.language !== current.monitoringConfig.language || previous.monitoringConfig?.region !== current.monitoringConfig.region || previous.taxonomyVersion !== current.taxonomyVersion) return { status: "incompatible_previous_panel", comparability: "new_baseline_required" };
+  if (previous.domain !== current.domain || previous.monitoringConfig?.language !== current.monitoringConfig.language || previous.monitoringConfig?.region !== current.monitoringConfig.region || previous.taxonomyVersion !== current.taxonomyVersion || previous.monitoringPolicyVersion !== current.monitoringPolicyVersion) return { status: "incompatible_previous_panel", comparability: "new_baseline_required" };
   const old = new Map(previous.generatedTopics?.flatMap(t => t.prompts.map(p => [p.intentUnitId, p.p])) || []);
   const now = new Map(current.generatedTopics.flatMap(t => t.prompts.map(p => [p.intentUnitId, p.p])));
   const retained = [], wordingChanged = [], added = [];
+  const oldRows = new Map(previous.generatedTopics?.flatMap(t => t.prompts.map(p => [p.intentUnitId, p])) || []);
+  const membership = p => JSON.stringify([p.pool, p.scope, p.benchmarkMember, p.metricUse]);
+  const metricMembershipChanged = current.generatedTopics.flatMap(t => t.prompts).filter(p => oldRows.has(p.intentUnitId) && membership(p) !== membership(oldRows.get(p.intentUnitId))).map(p => p.intentUnitId);
   for (const [id, text] of now) { if (!old.has(id)) added.push(id); else if (old.get(id) === text) retained.push(id); else wordingChanged.push(id); }
-  return { status: "review_before_replacing_panel", retained, wordingChanged, added, removed: [...old.keys()].filter(id => !now.has(id)), comparability: added.length || wordingChanged.length || old.size !== now.size ? "report_common_panel_separately" : "same_panel" };
+  return { status: "review_before_replacing_panel", retained, wordingChanged, added, metricMembershipChanged, removed: [...old.keys()].filter(id => !now.has(id)), comparability: added.length || wordingChanged.length || metricMembershipChanged.length || old.size !== now.size ? "report_common_panel_separately" : "same_panel" };
 }

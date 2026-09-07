@@ -8,6 +8,7 @@ No multiplication of SEO volume by sampled AI visibility proves real AI impressi
 ## Denominators
 Keep four dimensions separate: intent unit, coverage scope, content/monitoring pool and benchmark membership.
 Core KPI: eligible brand_core monitoring units.
+V3.1 eligibility requires the brandless-answer and entity-role review. A brand name used as an incidental example or source citation does not constitute a buyer/provider decision. See [brand visibility admission](brand-visibility-admission.md).
 Generic category benchmark: ALL eligible benchmarkMember monitoring units in the same confirmed L3, including brand_core.
 Whitespace: opportunity view, not automatically a service KPI failure.
 Adjacent or out-of-scope demand: separate reference panels.
@@ -26,7 +27,7 @@ Search snippets and vendor claims retain their weaker evidentiary status.
 ## Entity Pilots
 Default: not_run, mentionLikelihood=null.
 For a separately authorized pilot, retain prompt, requested/returned model, time, locale, raw response, relevant entity list and sample size.
-Count ANY relevant entity, not target-brand presence. A poor target result must not change panel inclusion.
+Count ANY relevant provider/product choice or evaluated brand, not just target-brand presence. Classify source citations and incidental examples separately; raw name presence is not a recommendation. A poor target result must not change panel inclusion.
 Separate entity-elicitation rate from relevance, target visibility, source citations and sentiment.
 An OpenRouter API response is not equivalent to the consumer ChatGPT/Gemini/AI Overview product.
 Do not infer measured probability from a tiny sample; report numerator/denominator and uncertainty.

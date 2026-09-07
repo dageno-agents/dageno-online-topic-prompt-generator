@@ -8,6 +8,8 @@ Lexical similarity is a candidate signal only, including Unicode segmentation. I
 Independent gap review compares the inventory with original sources and the ontology.
 This is still a fallible model judgment, not proof of exhaustive or correct industry understanding.
 
+V3.1 also requires an independent per-question brandless-answer test and entity-role assessment bound to the exact text. Source citations and incidental examples are not brand competition. The portable and browser exporters share runtime/visibility-policy.mjs, fail on absent/stale reviews, and default to the serviceable approved list. Test the service/benchmark overlap, citation/content separation, empty-list handling and baseline changes.
+
 ## Tests
 Run `npm test`.
 Synthetic multi-sector fixtures verify pipeline contracts and project isolation. They do NOT establish live business-identification accuracy.

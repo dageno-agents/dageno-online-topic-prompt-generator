@@ -14,7 +14,9 @@ Enumerate material decisions before clustering Topics or writing questions.
 Cover evidenced industry demand even when the target brand is not positioned to win it.
 Never claim to have observed all industry queries or discovered all internet demand.
 
-Version: `3.0.0`. Machine schema: `dageno.topic-prompt.v3`.
+Version: `3.1.0`. Machine schema: `dageno.topic-prompt.v3`. Monitoring policy: `brand_visibility.v1`.
+
+**Final-list gate:** business relevance alone is insufficient. If an answer can fully satisfy the question without specific products/providers/brands, keep it out of the brand-competition list. Read [brand visibility admission](references/brand-visibility-admission.md) for every generation or export task.
 
 ## Operating Modes
 
@@ -53,8 +55,8 @@ Manual budgets expose every deferred known intent unit and the resulting coverag
 6. **Decision surfaces and intent units.** Read [intent ontology](references/intent-ontology.md). Enumerate independently from brand strengths, then challenge for missing product lines, buyer roles, criteria, stages, local constraints and competitor capabilities. No mechanical Cartesian product; no minimum best/top quota.
 7. **Independent gap review.** Compare the inventory with original evidence, not just the generator's summary. Add missed material units; document exclusions and remaining uncertainty. A saturated reviewed inventory still does not prove market-wide exhaustiveness.
 8. **Topic clustering.** Group units sharing a decision object, job and compatible buyer context. Product/category Topics are valid when buyers compare a distinct candidate set. Topic is not a funnel stage. Preserve every unit exactly once.
-9. **Prompt generation.** One canonical, natural standalone question per unit. Carry category context in the question. Do not stuff unique target-brand features into generic questions. Do not require rigid length or identical phrasing.
-10. **Two kinds of QA.** Execute schema/reference/mapping/duplicate/brand/locale checks AND independent model review of business fit, meaning, phrasing and cross-Topic redundancy. Repair narrowly once, then stop clearly on failure. Lexical overlap is only a review candidate, not a semantic duplicate verdict.
+9. **Prompt generation.** One canonical, natural standalone question per unit. Keep knowledge questions intact. Where evidence supports a distinct missing provider/product decision, add its own intent unit and relatedContentUnitKeys; do not disguise a changed buying intent as a paraphrase. Carry category context, not proprietary feature bundles or instructions to mention the target brand.
+10. **QA and monitoring admission.** Execute schema/reference/mapping/duplicate/brand/locale checks AND independent model review. Every actual question needs a brandless-answer test, entity-role assessment and concrete content/proof/action plan. Route source citations and incidental/knowledge questions out of brand competition. Correct pool mismatches without changing the original meaning. Missing or stale review blocks export. Lexical overlap is a review candidate, not a semantic verdict.
 11. **Delivery and versions.** Return structured JSON, human-readable Chinese rationale and import CSV as requested. Separate known covered/deferred units from unknown demand. Record generation model, monitoring configuration, source hashes and version difference.
 
 Detailed research contract: [Research protocol](references/v3-research-protocol.md).
@@ -76,8 +78,9 @@ Keep `scope`, `pool` and `benchmarkMember` independent.
 The category denominator is ALL eligible `benchmarkMember=true` units, including relevant brand_core units, not just industry_benchmark scope.
 Branded, adjacent-market and diagnostic units do not belong in a generic same-market benchmark.
 
-- `monitoring_core`: naturally asks for providers, products or relevant authorities.
-- `content_opportunity`: real informational demand without a natural provider recommendation.
+- `monitoring_core`: specific entities materially fulfill a real selection, comparison or brand-evaluation decision, with an actionable content/proof plan.
+- `citation_monitoring`: authorities and domains are cited as evidence, not evaluated as the chosen product/provider.
+- `content_opportunity`: a complete answer can remain brandless; incidental brand examples do not qualify for competition monitoring.
 - Neither pool has a required percentage. Low target-brand visibility is never a reason to remove a question.
 - exclude: no owned or competitor terms; include: owned-brand plus generic; mixed: additionally researched competitive; brand_only: owned-brand validation.
 - Brand mentions are not keyword substring matches: short names and multilingual aliases require boundary-aware review.
@@ -94,8 +97,9 @@ Compare a stable generic panel separately from localized demand supplements.
 
 Human review: business conclusion, evidence gaps, Topic rationale, intent coverage and grouped questions.
 Machine master: `runtime/schemas.mjs` plus artifact fields defined in [output contract](references/v3-output-contract.md).
-Default Dageno import: exactly `topic,prompt,regions,language`, UTF-8 with BOM, one row per monitoring-core question.
-Content opportunities and diagnostics remain in JSON; do not silently mix them into the monitoring CSV.
+Default Dageno import: exactly `topic,prompt,regions,language`, UTF-8 with BOM, one row per approved brand_core service-monitoring question.
+Separately export `benchmark`, `citation` or `content` when requested. Industry benchmark includes qualified core and non-serviceable same-market questions. Preserve the full industry intent map; do not mix these lists into one KPI or imply that service-only performance is industry-wide visibility.
+Every reviewed question retains its admission rationale and content assets, proof needed and optimization action. The human report separates the four deliveries and flags Topics with no eligible service monitors.
 A four-column CSV cannot preserve evidence, intent IDs or benchmark membership; retain JSON alongside it.
 
 ## Quality Claims
@@ -113,6 +117,7 @@ Requires Node.js 22+ for the portable runtime; install dependencies with `npm ci
 node runtime/cli.mjs generate --domain example.com --market US --language en-US --out ./private/example
 node runtime/cli.mjs qa ./private/example/panel.json
 node runtime/cli.mjs export ./private/example/panel.json ./private/example/import.csv
+node runtime/cli.mjs export ./private/example/panel.json ./private/example/benchmark.csv --dataset benchmark
 npm test
 ```
 

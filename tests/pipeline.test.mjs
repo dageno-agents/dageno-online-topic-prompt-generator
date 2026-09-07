@@ -5,7 +5,7 @@ import { stableId, termPresent, lexicalSimilarity, csvExport, languageCode } fro
 import { validateArtifact, panelDiff } from "../runtime/qa.mjs";
 import { parsePage, sitemapLocations, privateAddress, publicUrl } from "../runtime/research.mjs";
 
-import { fixture } from "./fixtures.mjs";
+import { fixture, visibilityAssessment } from "./fixtures.mjs";
 
 for (const category of ["parcel tracking software", "custom battery packs", "barber services", "university language courses", "AI circuit design", "camping furniture", "electronic signatures", "executive coaching", "training datasets", "video editing"]) {
   test(`pipeline contract and isolation: ${category} (mocked model, not a live accuracy test)`, async () => {
@@ -19,7 +19,7 @@ for (const category of ["parcel tracking software", "custom battery packs", "bar
 }
 test("a narrow domain may need only one Topic and one Prompt", async () => {
   const a = await generatePanel({ domain: "client.example", market: "US" }, fixture("narrow service", 1).deps);
-  assert.deepEqual(a.outputCounts, { topics: 1, prompts: 1 });
+  assert.equal(a.outputCounts.topics, 1); assert.equal(a.outputCounts.prompts, 1); assert.equal(a.outputCounts.servicePrompts, 1);
 });
 test("pagination covers more than 100 units without truncation", async () => {
   const a = await generatePanel({ domain: "client.example", market: "US", researchBudget: { maxModelCalls: 150 } }, fixture("test category", 105).deps);
@@ -47,7 +47,7 @@ test("empty crawl and unresolved business fail closed", async () => {
   await assert.rejects(generatePanel({ domain: "client.example" }, g.deps), /业务边界/);
 });
 test("semantic reviewer catches wrong industry even when schema is valid", async () => {
-  const f = fixture(); f.deps.model = async args => args.stage === "semantic_review" ? { issues: args.payload.units.map(u => ({ unitKey: u.key, kind: "wrong_business", reason: "wrong industry", duplicateOf: "" })), checkedUnitKeys: args.payload.units.map(u => u.key) } : f.model(args);
+  const f = fixture(); f.deps.model = async args => args.stage === "semantic_review" ? { issues: args.payload.units.map(u => ({ unitKey: u.key, kind: "wrong_business", reason: "wrong industry", duplicateOf: "" })), checkedUnitKeys: args.payload.units.map(u => u.key), visibilityAssessments: args.payload.units.map(u => visibilityAssessment(u.key)) } : f.model(args);
   await assert.rejects(generatePanel({ domain: "client.example" }, f.deps), /语义复核/);
 });
 test("locale and lossless four-column CSV", async () => {

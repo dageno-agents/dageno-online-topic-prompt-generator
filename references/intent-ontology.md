@@ -111,6 +111,8 @@ Visibility reporting must weight one intent unit once. If several wording varian
 
 ## 7. Monitoring Versus Content Value
 
+In V3.1, expectedEntityType is not by itself an admission decision. Read [brand visibility admission](brand-visibility-admission.md): entity-dependent selection/evaluation, source citations and knowledge have different purposes. A publication being selected as a product/provider can qualify, while the same publication used only as an optional citation does not qualify for brand competition.
+
 Set `expectedEntityType` to one of:
 
 - `brand_or_provider`
@@ -118,6 +120,6 @@ Set `expectedEntityType` to one of:
 - `source_or_authority`
 - `method_or_concept`
 
-Recommendation, comparison, price, review, supplier, alternative and fit questions usually belong in `monitoring_core` when they can naturally name entities. Pure definitions or generic how-to questions usually belong in `content_opportunity`, unless the expected answer naturally cites products, providers or trusted sources.
+Recommendation, comparison, price, review, supplier, alternative and fit are candidate intents, not automatic monitoring admission. A specific provider/product must materially fulfill the decision. Definitions and generic how-to questions do not qualify merely because an answer could cite a source or give a brand example. Explicit source discovery belongs in citation_monitoring; brandless explanation belongs in content_opportunity.
 
-Do not delete informational industry demand. Keep it in the appropriate pool and metric layer so the panel shows both AI visibility and content opportunity without blending them.
+Do not delete informational industry demand. Keep it in the appropriate pool and metric layer. Record source/authority citation requests in citation_monitoring, generic explanations in content_opportunity, and reviewed entity-dependent choices in monitoring_core. Supporting content and a genuinely distinct commercial question use different intent units linked by relatedContentUnitKeys, never a quota of commercial rewrites.
